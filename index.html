@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dog Walk Status</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* Styles for the app */
+    body { font-family: 'Roboto', sans-serif; margin: 40px; background-color: #f4f7fc; color: #333; }
+    h1 { color: #4CAF50; text-align: center; }
+    form { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 30px; }
+    label { display: block; margin-top: 10px; font-weight: 500; }
+    input, select, button { margin-top: 5px; padding: 10px; width: 100%; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    button { background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #45a049; }
+    #statusList { margin-top: 20px; }
+    .status { background-color: #fff; border: 1px solid #ddd; padding: 15px; margin-top: 10px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .status strong { display: inline-block; width: 100px; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>Dog Walk Status</h1>
+  <p style="text-align: center;">Mark your dog walking status to help others avoid potential accidents.</p>
+
+  <form id="walkForm">
+    <label>
+      Are you walking your dog?
+      <select id="walkingStatus">
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+      </select>
+    </label>
+
+    <label>
+      Location (e.g., Park Name or Area):
+      <input type="text" id="location" required />
+    </label>
+
+    <label>
+      Walk Time:
+      <input type="time" id="walkTime" required />
+    </label>
+
+    <button type="submit">Submit Status</button>
+  </form>
+
+  <h2>Current Dog Walk Statuses</h2>
+  <div id="statusList"></div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+    import { getDatabase, ref, set, onChildAdded, push } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCtpIJvKHY3x_8x7_m-0QtUMIQ0Gj2blRQ",
+      authDomain: "dog-walk-reg.firebaseapp.com",
+      databaseURL: "https://dog-walk-reg-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "dog-walk-reg",
+      storageBucket: "dog-walk-reg.firebasestorage.app",
+      messagingSenderId: "806193788108",
+      appId: "1:806193788108:web:ac6df92dd5800bd74a3e69",
+      measurementId: "G-9Y7PYSP8NP"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    // Reference to the 'dogWalkStatuses' node in the Realtime Database
+    const statusListRef = ref(database, 'dogWalkStatuses');
+
+    // Listen for new statuses added to the database
+    onChildAdded(statusListRef, (snapshot) => {
+      const statusData = snapshot.val();
+      const statusDiv = document.createElement('div');
+      statusDiv.className = 'status';
+      statusDiv.innerHTML = `
+        <strong>Status:</strong> ${statusData.status}<br>
+        <strong>Location:</strong> ${statusData.location}<br>
+        <strong>Time:</strong> ${statusData.time}
+      `;
+      document.getElementById('statusList').appendChild(statusDiv);
+    });
+
+    // Handle form submission
+    document.getElementById('walkForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const walkingStatus = document.getElementById('walkingStatus').value;
+      const location = document.getElementById('location').value;
+      const walkTime = document.getElementById('walkTime').value;
+
+      const statusData = {
+        status: walkingStatus === 'yes' ? 'Walking' : 'Not Walking',
+        location: location,
+        time: walkTime
+      };
+
+      // Push the new status data to Firebase
+      push(statusListRef, statusData);
+
+      // Clear the form
+      document.getElementById('walkForm').reset();
+    });
+  </script>
+</body>
+</html>
