@@ -6,7 +6,6 @@
   <title>Dog Walk Status</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
   <style>
-    /* Styles for the app */
     body {
       font-family: 'Roboto', sans-serif;
       margin: 40px;
@@ -78,37 +77,12 @@
       padding: 15px;
       margin-top: 10px;
       border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
     .status strong {
       display: inline-block;
-      width: 120px;
+      width: 100px;
       font-weight: 600;
-    }
-
-    .dark-mode form,
-    .dark-mode .status {
-      background-color: #424242;
-      color: #fff;
-    }
-
-    .dark-mode input,
-    .dark-mode select {
-      background-color: #616161;
-      color: #fff;
-    }
-
-    .dark-mode input::placeholder {
-      color: #bbb;
-    }
-
-    .dark-mode button {
-      color: white;
-    }
-
-    .dark-mode label {
-      color: #b2dfdb;
     }
 
     .toggle-btn {
@@ -122,10 +96,6 @@
       display: block;
       width: 200px;
       text-align: center;
-    }
-
-    .toggle-btn:hover {
-      background-color: #004d40;
     }
   </style>
 </head>
@@ -233,13 +203,13 @@
       document.getElementById('walkForm').reset();
     });
 
-    // Toggle Dark Mode
+    // Dark Mode Toggle
     document.getElementById('toggleMode').addEventListener('click', () => {
       document.body.classList.toggle('dark-mode');
-      document.getElementById('toggleMode').textContent = 
-        document.body.classList.contains('dark-mode') 
-        ? "Switch to Light Mode" 
-        : "Switch to Dark Mode";
+      document.getElementById('toggleMode').textContent =
+        document.body.classList.contains('dark-mode')
+          ? "Switch to Light Mode"
+          : "Switch to Dark Mode";
     });
   </script>
 </body>
