@@ -128,6 +128,15 @@
       from { opacity: 0; }
       to { opacity: 1; }
     }
+
+    /* Character counter */
+    .char-count {
+      font-size: 14px;
+      color: #a0c4ff;
+      text-align: right;
+      margin-top: 5px;
+    }
+
   </style>
 </head>
 <body>
@@ -145,7 +154,8 @@
 
     <label>
       Location (e.g., Park Name or Area):
-      <input type="text" id="location" required />
+      <input type="text" id="location" required maxlength="50" />
+      <div id="charCount" class="char-count">50 characters remaining</div>
     </label>
 
     <label>
@@ -209,6 +219,23 @@
       return profanityList.some(word => text.toLowerCase().includes(word));
     }
 
+    // Character count for Location field
+    const locationInput = document.getElementById('location');
+    const charCountDiv = document.getElementById('charCount');
+    const maxLength = locationInput.getAttribute('maxlength');
+
+    locationInput.addEventListener('input', function () {
+      const remaining = maxLength - locationInput.value.length;
+      charCountDiv.textContent = `${remaining} characters remaining`;
+
+      // Disable submit button if character limit exceeded
+      if (remaining < 0) {
+        charCountDiv.style.color = 'red';
+      } else {
+        charCountDiv.style.color = '#a0c4ff';
+      }
+    });
+
     // Handle form submission
     document.getElementById('walkForm').addEventListener('submit', (e) => {
       e.preventDefault();
@@ -222,6 +249,12 @@
       if (containsProfanity(location)) {
         alert('Please avoid using inappropriate language.');
         return; // Prevent form submission
+      }
+
+      // Check if the character limit has been exceeded
+      if (location.length > maxLength) {
+        alert('Location exceeds the character limit.');
+        return;
       }
 
       const statusData = {
