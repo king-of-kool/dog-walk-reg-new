@@ -154,18 +154,6 @@
       border-color: #4caf50;
     }
 
-    /* Character counter */
-    .char-count {
-      font-size: 14px;
-      color: #00796b;
-      text-align: right;
-      margin-top: 5px;
-    }
-
-    .dark-mode .char-count {
-      color: #b0c4b1;
-    }
-
   </style>
 </head>
 <body>
@@ -186,15 +174,27 @@
       </select>
     </label>
 
+    <!-- Map location field -->
     <label>
-      Location (e.g., Park Name or Area):
-      <input type="text" id="location" required maxlength="50" />
-      <div id="charCount" class="char-count">50 characters remaining</div>
+      Location:
+      <input type="text" id="location" disabled />
+      <div id="map" style="width: 100%; height: 300px; margin-top: 10px;"></div>
     </label>
 
     <label>
       Walk Time:
       <input type="time" id="walkTime" required />
+    </label>
+
+    <!-- Safety options -->
+    <label>
+      Safety Options:
+      <select id="safetyOptions">
+        <option value="leashed">Leashed</option>
+        <option value="off-leash">Off-leash</option>
+        <option value="aggressive">Aggressive</option>
+        <option value="calm">Calm</option>
+      </select>
     </label>
 
     <div class="dogStatus">
@@ -210,7 +210,6 @@
 
   <!-- Firebase SDK -->
   <script type="module">
-    // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
 
@@ -242,7 +241,8 @@
         <strong>Status:</strong> ${statusData.status}<br>
         <strong>Location:</strong> ${statusData.location}<br>
         <strong>Time:</strong> ${statusData.time}<br>
-        <strong>Dog Status:</strong> ${statusData.dogStatus}
+        <strong>Dog Status:</strong> ${statusData.dogStatus}<br>
+        <strong>Safety:</strong> ${statusData.safety}
       `;
       document.getElementById('statusList').appendChild(statusDiv);
     });
@@ -255,12 +255,14 @@
       const location = document.getElementById('location').value;
       const walkTime = document.getElementById('walkTime').value;
       const dogStatus = window.dogStatus || 'Unknown'; // Default to Unknown if no selection is made
+      const safety = document.getElementById('safetyOptions').value;
 
       const statusData = {
         status: walkingStatus === 'yes' ? 'Walking' : 'Not Walking',
         location: location,
         time: walkTime,
-        dogStatus: dogStatus
+        dogStatus: dogStatus,
+        safety: safety
       };
 
       // Push the new status data to Firebase
@@ -271,13 +273,6 @@
       window.dogStatus = undefined;  // Reset the dog status selection
     });
 
-    // Dark/Light mode toggle
-    document.getElementById('toggleMode').addEventListener('click', () => {
-      document.body.classList.toggle('dark-mode');
-      const isDarkMode = document.body.classList.contains('dark-mode');
-      document.getElementById('toggleMode').textContent = isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode";
-    });
-
     // Set dog status when buttons are clicked
     document.getElementById('friendlyButton').addEventListener('click', () => {
       window.dogStatus = 'Friendly';
@@ -285,6 +280,51 @@
 
     document.getElementById('dangerousButton').addEventListener('click', () => {
       window.dogStatus = 'Dangerous';
+    });
+
+    // Google Maps integration
+    let map, marker;
+    function initMap() {
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: 37.7749, lng: -122.4194 },  // Default center (San Francisco)
+        zoom: 13
+      });
+
+      marker = new google.maps.Marker({
+        map: map,
+        draggable: true,
+        position: { lat: 37.7749, lng: -122.4194 }
+      });
+
+      google.maps.event.addListener(marker, 'position_changed', function() {
+        const position = marker.getPosition();
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ location: position }, (results, status) => {
+          if (status === google.maps.GeocoderStatus.OK) {
+            if (results[0]) {
+              document.getElementById('location').value = results[0].formatted_address;
+            }
+          }
+        });
+      });
+    }
+
+    // Load the Google Maps script dynamically
+    function loadGoogleMapsScript() {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_API_KEY&callback=initMap`;
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+    }
+
+    loadGoogleMapsScript();
+
+    // Dark/Light mode toggle
+    document.getElementById('toggleMode').addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      const isDarkMode = document.body.classList.contains('dark-mode');
+      document.getElementById('toggleMode').textContent = isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode";
     });
   </script>
 </body>
