@@ -7,21 +7,102 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     /* Styles for the app */
-    body { font-family: 'Roboto', sans-serif; margin: 40px; background-color: #f4f7fc; color: #333; }
-    h1 { color: #4CAF50; text-align: center; }
-    form { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 30px; }
-    label { display: block; margin-top: 10px; font-weight: 500; }
-    input, select, button { margin-top: 5px; padding: 10px; width: 100%; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-    button { background-color: #4CAF50; color: white; border: none; cursor: pointer; }
-    button:hover { background-color: #45a049; }
-    #statusList { margin-top: 20px; }
-    .status { background-color: #fff; border: 1px solid #ddd; padding: 15px; margin-top: 10px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    .status strong { display: inline-block; width: 100px; font-weight: 600; }
+    body { font-family: 'Roboto', sans-serif; margin: 40px; background-color: #e0f7fa; color: #333; }
+    h1 { color: #00796b; text-align: center; }
+    p { color: #00796b; text-align: center; font-size: 18px; }
+
+    form { 
+      background-color: #ffffff; 
+      padding: 20px; 
+      border-radius: 8px; 
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+      margin-bottom: 30px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    label { 
+      display: block; 
+      margin-top: 10px; 
+      font-weight: 500; 
+      color: #00796b;
+    }
+
+    input, select, button { 
+      margin-top: 5px; 
+      padding: 10px; 
+      width: 100%; 
+      border: 1px solid #00796b; 
+      border-radius: 4px; 
+      box-sizing: border-box; 
+    }
+
+    button { 
+      background-color: #00796b; 
+      color: white; 
+      border: none; 
+      cursor: pointer; 
+    }
+
+    button:hover { 
+      background-color: #004d40; 
+    }
+
+    #statusList { 
+      margin-top: 20px; 
+    }
+
+    .status { 
+      background-color: #ffffff; 
+      border: 1px solid #00796b; 
+      padding: 15px; 
+      margin-top: 10px; 
+      border-radius: 8px; 
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+    }
+
+    .status strong { 
+      display: inline-block; 
+      width: 100px; 
+      font-weight: 600; 
+    }
+
+    .dogStatus { 
+      display: flex; 
+      justify-content: center; 
+      gap: 10px; 
+      margin-top: 15px; 
+    }
+
+    .dogStatus button {
+      width: auto;
+      padding: 8px 20px;
+      font-size: 16px;
+      border-radius: 20px;
+    }
+
+    .friendly {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    .dangerous {
+      background-color: #f44336;
+      color: white;
+    }
+
+    .friendly:hover {
+      background-color: #388e3c;
+    }
+
+    .dangerous:hover {
+      background-color: #d32f2f;
+    }
   </style>
 </head>
 <body>
   <h1>Dog Walk Status</h1>
-  <p style="text-align: center;">Mark your dog walking status to help others avoid potential accidents.</p>
+  <p>Mark your dog walking status to help others avoid potential accidents.</p>
 
   <form id="walkForm">
     <label>
@@ -41,6 +122,11 @@
       Walk Time:
       <input type="time" id="walkTime" required />
     </label>
+
+    <div class="dogStatus">
+      <button type="button" id="friendlyButton" class="friendly">Dog is Friendly</button>
+      <button type="button" id="dangerousButton" class="dangerous">Dog is Dangerous</button>
+    </div>
 
     <button type="submit">Submit Status</button>
   </form>
@@ -81,7 +167,8 @@
       statusDiv.innerHTML = `
         <strong>Status:</strong> ${statusData.status}<br>
         <strong>Location:</strong> ${statusData.location}<br>
-        <strong>Time:</strong> ${statusData.time}
+        <strong>Time:</strong> ${statusData.time}<br>
+        <strong>Dog Status:</strong> ${statusData.dogStatus}
       `;
       document.getElementById('statusList').appendChild(statusDiv);
     });
@@ -93,11 +180,13 @@
       const walkingStatus = document.getElementById('walkingStatus').value;
       const location = document.getElementById('location').value;
       const walkTime = document.getElementById('walkTime').value;
+      const dogStatus = window.dogStatus || 'Unknown'; // Default to Unknown if no selection is made
 
       const statusData = {
         status: walkingStatus === 'yes' ? 'Walking' : 'Not Walking',
         location: location,
-        time: walkTime
+        time: walkTime,
+        dogStatus: dogStatus
       };
 
       // Push the new status data to Firebase
@@ -105,6 +194,16 @@
 
       // Clear the form
       document.getElementById('walkForm').reset();
+      window.dogStatus = undefined;  // Reset the dog status selection
+    });
+
+    // Set dog status when buttons are clicked
+    document.getElementById('friendlyButton').addEventListener('click', () => {
+      window.dogStatus = 'Friendly';
+    });
+
+    document.getElementById('dangerousButton').addEventListener('click', () => {
+      window.dogStatus = 'Dangerous';
     });
   </script>
 </body>
