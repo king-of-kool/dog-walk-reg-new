@@ -79,7 +79,6 @@
       margin-top: 10px;
       border-radius: 8px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease, opacity 0.3s ease;
     }
 
     .status strong {
@@ -107,8 +106,18 @@
       color: white;
     }
 
-    .dangerous {
-      background-color: #f44336;
+    .nervous {
+      background-color: #ff9800;
+      color: white;
+    }
+
+    .notFriendly {
+      background-color: #d32f2f;
+      color: white;
+    }
+
+    .serviceDog {
+      background-color: #607d8b;
       color: white;
     }
 
@@ -116,24 +125,40 @@
       background-color: #388e3c;
     }
 
-    .dangerous:hover {
-      background-color: #d32f2f;
+    .nervous:hover {
+      background-color: #fb8c00;
     }
 
-    .dark-mode .friendly {
-      background-color: #81c784;
+    .notFriendly:hover {
+      background-color: #b71c1c;
     }
 
-    .dark-mode .dangerous {
-      background-color: #e57373;
+    .serviceDog:hover {
+      background-color: #546e7a;
     }
 
-    .dark-mode .friendly:hover {
-      background-color: #66bb6a;
+    .dark-mode form,
+    .dark-mode .status {
+      background-color: #424242;
+      color: #fff;
     }
 
-    .dark-mode .dangerous:hover {
-      background-color: #ef5350;
+    .dark-mode input,
+    .dark-mode select {
+      background-color: #616161;
+      color: #fff;
+    }
+
+    .dark-mode input::placeholder {
+      color: #bbb;
+    }
+
+    .dark-mode button {
+      color: white;
+    }
+
+    .dark-mode label {
+      color: #b2dfdb;
     }
 
     .toggle-btn {
@@ -178,8 +203,10 @@
     </label>
 
     <div class="dogStatus">
-      <button type="button" id="friendlyButton" class="friendly">Dog is Friendly</button>
-      <button type="button" id="dangerousButton" class="dangerous">Dog is Dangerous</button>
+      <button type="button" id="friendlyButton" class="friendly">Friendly</button>
+      <button type="button" id="nervousButton" class="nervous">Nervous</button>
+      <button type="button" id="notFriendlyButton" class="notFriendly">Not Friendly</button>
+      <button type="button" id="serviceDogButton" class="serviceDog">Service Dog</button>
     </div>
 
     <label for="safetyOptions">Safety Status</label>
@@ -203,14 +230,14 @@
     import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyCTLsji9XOlgHK-YUPrQYSfLPB5NoerVWY",
-      authDomain: "dog-walk-reg.firebaseapp.com",
-      databaseURL: "https://dog-walk-reg-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "dog-walk-reg",
-      storageBucket: "dog-walk-reg.firebasestorage.app",
-      messagingSenderId: "806193788108",
-      appId: "1:806193788108:web:ac6df92dd5800bd74a3e69",
-      measurementId: "G-9Y7PYSP8NP"
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      databaseURL: "YOUR_DATABASE_URL",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID",
+      measurementId: "YOUR_MEASUREMENT_ID"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -243,9 +270,9 @@
 
       const statusData = {
         status: walkingStatus === 'yes' ? 'Walking' : 'Not Walking',
-        location: location,
+        location,
         time: walkTime,
-        dogStatus: dogStatus,
+        dogStatus,
         safety: safetyStatus
       };
 
@@ -255,18 +282,17 @@
       window.dogStatus = undefined;
     });
 
-    document.getElementById('friendlyButton').addEventListener('click', () => {
-      window.dogStatus = 'Friendly';
-    });
-
-    document.getElementById('dangerousButton').addEventListener('click', () => {
-      window.dogStatus = 'Dangerous';
+    ['friendlyButton', 'nervousButton', 'notFriendlyButton', 'serviceDogButton'].forEach(id => {
+      document.getElementById(id).addEventListener('click', () => {
+        window.dogStatus = document.getElementById(id).textContent;
+      });
     });
 
     document.getElementById('toggleMode').addEventListener('click', () => {
       document.body.classList.toggle('dark-mode');
-      const isDarkMode = document.body.classList.contains('dark-mode');
-      document.getElementById('toggleMode').textContent = isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode";
+      document.getElementById('toggleMode').textContent = document.body.classList.contains('dark-mode') 
+        ? "Switch to Light Mode" 
+        : "Switch to Dark Mode";
     });
   </script>
 </body>
