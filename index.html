@@ -10,27 +10,27 @@
     body { 
       font-family: 'Roboto', sans-serif; 
       margin: 40px; 
-      background-color: #001f3d; 
-      color: #ffffff; 
-      transition: background-color 0.3s ease;
+      background-color: #e0f7fa; 
+      color: #333; 
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
     h1 { 
-      color: #ffffff; 
+      color: #00796b; 
       text-align: center; 
       font-size: 2.5rem; 
     }
     p { 
-      color: #a0c4ff; 
+      color: #00796b; 
       text-align: center; 
       font-size: 18px; 
     }
 
     /* Form styling */
     form { 
-      background-color: #1c2c4b; 
+      background-color: #ffffff; 
       padding: 30px; 
       border-radius: 12px; 
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); 
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
       margin-bottom: 30px;
       max-width: 600px;
       margin: 0 auto;
@@ -41,30 +41,30 @@
       display: block; 
       margin-top: 12px; 
       font-weight: 500; 
-      color: #b0d1e8;
+      color: #00796b;
     }
 
     input, select, button { 
       margin-top: 8px; 
       padding: 12px; 
       width: 100%; 
-      border: 1px solid #4b73c3; 
+      border: 1px solid #00796b; 
       border-radius: 6px; 
       box-sizing: border-box; 
-      background-color: #28314a;
-      color: white;
+      background-color: #ffffff;
+      color: #333;
       font-size: 1rem;
       transition: background-color 0.3s ease;
     }
 
     button {
-      background-color: #4b73c3; 
+      background-color: #00796b; 
       color: white; 
       cursor: pointer; 
     }
 
     button:hover { 
-      background-color: #3d5a88; 
+      background-color: #004d40; 
     }
 
     #statusList { 
@@ -73,12 +73,12 @@
     }
 
     .status { 
-      background-color: #1c2c4b; 
-      border: 1px solid #4b73c3; 
+      background-color: #ffffff; 
+      border: 1px solid #00796b; 
       padding: 20px; 
       margin-top: 12px; 
       border-radius: 8px; 
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15); 
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
       transition: transform 0.3s ease-in-out;
     }
 
@@ -129,12 +129,41 @@
       to { opacity: 1; }
     }
 
+    /* Dark mode styles */
+    .dark-mode {
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+
+    .dark-mode form {
+      background-color: #333;
+      border-color: #4caf50;
+    }
+
+    .dark-mode label, .dark-mode button {
+      color: #e0e0e0;
+    }
+
+    .dark-mode input, .dark-mode select {
+      background-color: #555;
+      color: #e0e0e0;
+    }
+
+    .dark-mode .status {
+      background-color: #333;
+      border-color: #4caf50;
+    }
+
     /* Character counter */
     .char-count {
       font-size: 14px;
-      color: #a0c4ff;
+      color: #00796b;
       text-align: right;
       margin-top: 5px;
+    }
+
+    .dark-mode .char-count {
+      color: #b0c4b1;
     }
 
   </style>
@@ -142,6 +171,11 @@
 <body>
   <h1>Dog Walk Status</h1>
   <p>Mark your dog walking status to help others avoid potential accidents.</p>
+
+  <!-- Dark Mode Toggle -->
+  <div style="text-align: center;">
+    <button id="toggleMode">Switch to Dark Mode</button>
+  </div>
 
   <form id="walkForm">
     <label>
@@ -213,29 +247,6 @@
       document.getElementById('statusList').appendChild(statusDiv);
     });
 
-    // Profanity filter
-    const profanityList = ["badword1", "badword2", "badword3"]; // Add your own list of words here
-    function containsProfanity(text) {
-      return profanityList.some(word => text.toLowerCase().includes(word));
-    }
-
-    // Character count for Location field
-    const locationInput = document.getElementById('location');
-    const charCountDiv = document.getElementById('charCount');
-    const maxLength = locationInput.getAttribute('maxlength');
-
-    locationInput.addEventListener('input', function () {
-      const remaining = maxLength - locationInput.value.length;
-      charCountDiv.textContent = `${remaining} characters remaining`;
-
-      // Disable submit button if character limit exceeded
-      if (remaining < 0) {
-        charCountDiv.style.color = 'red';
-      } else {
-        charCountDiv.style.color = '#a0c4ff';
-      }
-    });
-
     // Handle form submission
     document.getElementById('walkForm').addEventListener('submit', (e) => {
       e.preventDefault();
@@ -244,18 +255,6 @@
       const location = document.getElementById('location').value;
       const walkTime = document.getElementById('walkTime').value;
       const dogStatus = window.dogStatus || 'Unknown'; // Default to Unknown if no selection is made
-
-      // Check for profanity in the location field
-      if (containsProfanity(location)) {
-        alert('Please avoid using inappropriate language.');
-        return; // Prevent form submission
-      }
-
-      // Check if the character limit has been exceeded
-      if (location.length > maxLength) {
-        alert('Location exceeds the character limit.');
-        return;
-      }
 
       const statusData = {
         status: walkingStatus === 'yes' ? 'Walking' : 'Not Walking',
@@ -270,6 +269,13 @@
       // Clear the form
       document.getElementById('walkForm').reset();
       window.dogStatus = undefined;  // Reset the dog status selection
+    });
+
+    // Dark/Light mode toggle
+    document.getElementById('toggleMode').addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      const isDarkMode = document.body.classList.contains('dark-mode');
+      document.getElementById('toggleMode').textContent = isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode";
     });
 
     // Set dog status when buttons are clicked
