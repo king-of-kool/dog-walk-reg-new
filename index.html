@@ -83,58 +83,8 @@
 
     .status strong {
       display: inline-block;
-      width: 100px;
+      width: 120px;
       font-weight: 600;
-    }
-
-    .dogStatus {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .dogStatus button {
-      width: auto;
-      padding: 8px 20px;
-      font-size: 16px;
-      border-radius: 20px;
-    }
-
-    .friendly {
-      background-color: #4caf50;
-      color: white;
-    }
-
-    .nervous {
-      background-color: #ff9800;
-      color: white;
-    }
-
-    .notFriendly {
-      background-color: #d32f2f;
-      color: white;
-    }
-
-    .serviceDog {
-      background-color: #607d8b;
-      color: white;
-    }
-
-    .friendly:hover {
-      background-color: #388e3c;
-    }
-
-    .nervous:hover {
-      background-color: #fb8c00;
-    }
-
-    .notFriendly:hover {
-      background-color: #b71c1c;
-    }
-
-    .serviceDog:hover {
-      background-color: #546e7a;
     }
 
     .dark-mode form,
@@ -202,12 +152,13 @@
       <input type="time" id="walkTime" required />
     </label>
 
-    <div class="dogStatus">
-      <button type="button" id="friendlyButton" class="friendly">Friendly</button>
-      <button type="button" id="nervousButton" class="nervous">Nervous</button>
-      <button type="button" id="notFriendlyButton" class="notFriendly">Not Friendly</button>
-      <button type="button" id="serviceDogButton" class="serviceDog">Service Dog</button>
-    </div>
+    <label for="dogStatus">Dog Status</label>
+    <select id="dogStatus">
+      <option value="Friendly">Friendly</option>
+      <option value="Nervous">Nervous</option>
+      <option value="Not Friendly">Not Friendly</option>
+      <option value="Service Dog">Service Dog</option>
+    </select>
 
     <label for="safetyOptions">Safety Status</label>
     <select id="safetyOptions">
@@ -242,9 +193,9 @@
 
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
-
     const statusListRef = ref(database, 'dogWalkStatuses');
 
+    // Display live updates
     onChildAdded(statusListRef, (snapshot) => {
       const statusData = snapshot.val();
       const statusDiv = document.createElement('div');
@@ -259,13 +210,14 @@
       document.getElementById('statusList').appendChild(statusDiv);
     });
 
+    // Form submission
     document.getElementById('walkForm').addEventListener('submit', (e) => {
       e.preventDefault();
 
       const walkingStatus = document.getElementById('walkingStatus').value;
       const location = document.getElementById('location').value;
       const walkTime = document.getElementById('walkTime').value;
-      const dogStatus = window.dogStatus || 'Unknown';
+      const dogStatus = document.getElementById('dogStatus').value;
       const safetyStatus = document.getElementById('safetyOptions').value;
 
       const statusData = {
@@ -279,18 +231,13 @@
       push(statusListRef, statusData);
 
       document.getElementById('walkForm').reset();
-      window.dogStatus = undefined;
     });
 
-    ['friendlyButton', 'nervousButton', 'notFriendlyButton', 'serviceDogButton'].forEach(id => {
-      document.getElementById(id).addEventListener('click', () => {
-        window.dogStatus = document.getElementById(id).textContent;
-      });
-    });
-
+    // Toggle Dark Mode
     document.getElementById('toggleMode').addEventListener('click', () => {
       document.body.classList.toggle('dark-mode');
-      document.getElementById('toggleMode').textContent = document.body.classList.contains('dark-mode') 
+      document.getElementById('toggleMode').textContent = 
+        document.body.classList.contains('dark-mode') 
         ? "Switch to Light Mode" 
         : "Switch to Dark Mode";
     });
