@@ -125,80 +125,13 @@
     .dark-mode .toggle-btn {
       background-color: #004d40;
     }
-
-    .auth-container {
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    .auth-btn {
-      background-color: #00796b;
-      padding: 10px 20px;
-      color: white;
-      border: none;
-      cursor: pointer;
-      border-radius: 20px;
-    }
-
-    .dark-mode .auth-btn {
-      background-color: #004d40;
-    }
-
-    .auth-btn:hover {
-      background-color: #004d40;
-    }
-
-    .auth-buttons {
-      margin-top: 20px;
-    }
-
-    .auth-buttons button {
-      width: 100%;
-      margin: 5px 0;
-    }
-
-    #loginForm {
-      display: none;
-      text-align: center;
-    }
-
-    #registerForm {
-      display: none;
-      text-align: center;
-    }
   </style>
 </head>
 <body>
   <h1>Dog Walk Status</h1>
   <p>Mark your dog walking status to help others avoid potential accidents.</p>
 
-  <div class="auth-container" id="authContainer">
-    <button id="loginBtn" class="auth-btn">Sign In</button>
-    <button id="logoutBtn" class="auth-btn" style="display: none;">Sign Out</button>
-    <button id="registerBtn" class="auth-btn" style="display: none;">Register</button>
-  </div>
-
-  <div id="loginForm" style="display: none;">
-    <h3>Sign In</h3>
-    <label for="loginEmail">Email:</label>
-    <input type="email" id="loginEmail" placeholder="Email" required />
-    <label for="loginPassword">Password:</label>
-    <input type="password" id="loginPassword" placeholder="Password" required />
-    <button id="loginSubmit" class="auth-btn">Sign In</button>
-    <p>Don't have an account? <button id="showRegisterForm" class="auth-btn">Register</button></p>
-  </div>
-
-  <div id="registerForm" style="display: none;">
-    <h3>Register</h3>
-    <label for="registerEmail">Email:</label>
-    <input type="email" id="registerEmail" placeholder="Email" required />
-    <label for="registerPassword">Password:</label>
-    <input type="password" id="registerPassword" placeholder="Password" required />
-    <button id="registerSubmit" class="auth-btn">Register</button>
-    <p>Already have an account? <button id="showLoginForm" class="auth-btn">Sign In</button></p>
-  </div>
-
-  <form id="walkForm" style="display: none;">
+  <form id="walkForm">
     <label>
       Are you walking your dog?
       <select id="walkingStatus">
@@ -244,7 +177,6 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCTLsji9XOlgHK-YUPrQYSfLPB5NoerVWY",
@@ -260,112 +192,52 @@
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
     const statusListRef = ref(database, 'dogWalkStatuses');
-    const auth = getAuth(app);
 
-    // Authentication state change
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        document.getElementById('loginBtn').style.display = 'none';
-        document.getElementById('logoutBtn').style.display = 'inline-block';
-        document.getElementById('walkForm').style.display = 'block';
-        document.getElementById('authContainer').style.display = 'none';
-      } else {
-        document.getElementById('loginBtn').style.display = 'inline-block';
-        document.getElementById('logoutBtn').style.display = 'none';
-        document.getElementById('walkForm').style.display = 'none';
-        document.getElementById('authContainer').style.display = 'block';
-      }
+    // Display live updates
+    onChildAdded(statusListRef, (snapshot) => {
+      const statusData = snapshot.val();
+      const statusDiv = document.createElement('div');
+      statusDiv.className = 'status';
+      statusDiv.innerHTML = 
+        <strong>Status:</strong> ${statusData.status}<br>
+        <strong>Location:</strong> ${statusData.location}<br>
+        <strong>Time:</strong> ${statusData.time}<br>
+        <strong>Dog Status:</strong> ${statusData.dogStatus}<br>
+        <strong>Safety Status:</strong> ${statusData.safety}
+      ;
+      document.getElementById('statusList').appendChild(statusDiv);
     });
 
-    // Show login form
-    document.getElementById('loginBtn').addEventListener('click', () => {
-      document.getElementById('loginForm').style.display = 'block';
-    });
-
-    // Show register form
-    document.getElementById('showRegisterForm').addEventListener('click', () => {
-      document.getElementById('loginForm').style.display = 'none';
-      document.getElementById('registerForm').style.display = 'block';
-    });
-
-    // Show login form
-    document.getElementById('showLoginForm').addEventListener('click', () => {
-      document.getElementById('registerForm').style.display = 'none';
-      document.getElementById('loginForm').style.display = 'block';
-    });
-
-    // Register new user
-    document.getElementById('registerSubmit').addEventListener('click', () => {
-      const email = document.getElementById('registerEmail').value;
-      const password = document.getElementById('registerPassword').value;
-      createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          console.log("User registered:", userCredential.user);
-        })
-        .catch((error) => {
-          console.error("Registration error:", error.message);
-        });
-    });
-
-    // Login existing user
-    document.getElementById('loginSubmit').addEventListener('click', () => {
-      const email = document.getElementById('loginEmail').value;
-      const password = document.getElementById('loginPassword').value;
-      signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          console.log("User logged in:", userCredential.user);
-        })
-        .catch((error) => {
-          console.error("Login error:", error.message);
-        });
-    });
-
-    // Sign out
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      signOut(auth).then(() => {
-        console.log('Signed out');
-      }).catch((error) => {
-        console.error("Sign out error:", error.message);
-      });
-    });
-
-    // Walk status form submission
+    // Form submission
     document.getElementById('walkForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      const status = document.getElementById('walkingStatus').value;
+
+      const walkingStatus = document.getElementById('walkingStatus').value;
       const location = document.getElementById('location').value;
       const walkTime = document.getElementById('walkTime').value;
       const dogStatus = document.getElementById('dogStatus').value;
       const safetyStatus = document.getElementById('safetyOptions').value;
 
-      push(statusListRef, {
-        status: status,
-        location: location,
-        walkTime: walkTime,
-        dogStatus: dogStatus,
-        safetyStatus: safetyStatus
-      });
+      const statusData = {
+        status: walkingStatus === 'yes' ? 'Walking' : 'Not Walking',
+        location,
+        time: walkTime,
+        dogStatus,
+        safety: safetyStatus
+      };
 
-      document.getElementById('walkingStatus').value = "yes";
-      document.getElementById('location').value = "";
-      document.getElementById('walkTime').value = "";
-      document.getElementById('dogStatus').value = "Friendly";
-      document.getElementById('safetyOptions').value = "safe";
+      push(statusListRef, statusData);
+
+      document.getElementById('walkForm').reset();
     });
 
-    // Listen for new status entries
-    onChildAdded(statusListRef, (data) => {
-      const status = data.val();
-      const statusDiv = document.createElement('div');
-      statusDiv.classList.add('status');
-      statusDiv.innerHTML = `
-        <strong>Status:</strong> ${status.status}<br />
-        <strong>Location:</strong> ${status.location}<br />
-        <strong>Time:</strong> ${status.walkTime}<br />
-        <strong>Dog:</strong> ${status.dogStatus}<br />
-        <strong>Safety:</strong> ${status.safetyStatus}
-      `;
-      document.getElementById('statusList').appendChild(statusDiv);
+    // Dark Mode Toggle
+    document.getElementById('toggleMode').addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      document.getElementById('toggleMode').textContent =
+        document.body.classList.contains('dark-mode')
+          ? "Switch to Light Mode"
+          : "Switch to Dark Mode";
     });
   </script>
 </body>
