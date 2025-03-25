@@ -284,45 +284,12 @@
   <h2>Current Dog Walk Statuses</h2>
   <div id="statusList"></div>
 
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyCTLsji9XOlgHK-YUPrQYSfLPB5NoerVWY",
-      authDomain: "dog-walk-reg.firebaseapp.com",
-      databaseURL: "https://dog-walk-reg-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "dog-walk-reg",
-      storageBucket: "dog-walk-reg.firebasestorage.app",
-      messagingSenderId: "806193788108",
-      appId: "1:806193788108:web:ac6df92dd5800bd74a3e69",
-      measurementId: "G-9Y7PYSP8NP"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
-    const statusListRef = ref(database, 'dogWalkStatuses');
-
-    // Display live updates
-    onChildAdded(statusListRef, (snapshot) => {
-      const statusData = snapshot.val();
-      const statusDiv = document.createElement('div');
-      statusDiv.className = 'status';
-      statusDiv.innerHTML = ` 
-        <strong>Status:</strong> ${statusData.status}<br>
-        <strong>Location:</strong> ${statusData.location}<br>
-        <strong>Time:</strong> ${statusData.time}<br>
-        <strong>Dog Status:</strong> ${statusData.dogStatus}<br>
-        <strong>Safety Status:</strong> ${statusData.safety}
-      `;
-      // Prepend new statuses to the list so they appear at the top
-      document.getElementById('statusList').insertBefore(statusDiv, document.getElementById('statusList').firstChild);
-    });
-
-    // Profanity Filter (Gemini-style filter, mock implementation)
-    async function filterProfanity(text) {
-      const badWords = ['badword1', 'badword2']; // Replace with real list or API
+  <script>
+    // Function to filter profanity
+    function filterProfanity(text) {
+      const badWords = [
+        'badword1', 'badword2', 'example', 'curse1', 'curse2', 'offensiveWord'
+      ]; // List of words to filter
       let filteredText = text;
 
       badWords.forEach(word => {
@@ -341,8 +308,27 @@
       document.getElementById('remainingChars').textContent = `${remaining} characters remaining`;
     });
 
+    // Firebase SDK
+    // Initialize Firebase and database (use your actual Firebase setup here)
+    const database = {}; // Placeholder for Firebase database
+
+    // Display live updates
+    function addStatusToUI(statusData) {
+      const statusDiv = document.createElement('div');
+      statusDiv.className = 'status';
+      statusDiv.innerHTML = ` 
+        <strong>Status:</strong> ${statusData.status}<br>
+        <strong>Location:</strong> ${statusData.location}<br>
+        <strong>Time:</strong> ${statusData.time}<br>
+        <strong>Dog Status:</strong> ${statusData.dogStatus}<br>
+        <strong>Safety Status:</strong> ${statusData.safety}
+      `;
+      // Prepend new statuses to the list so they appear at the top
+      document.getElementById('statusList').insertBefore(statusDiv, document.getElementById('statusList').firstChild);
+    }
+
     // Form submission
-    document.getElementById('walkForm').addEventListener('submit', async (e) => {
+    document.getElementById('walkForm').addEventListener('submit', (e) => {
       e.preventDefault();
 
       const walkingStatus = document.getElementById('walkingStatus').value;
@@ -351,8 +337,8 @@
       const dogStatus = document.getElementById('dogStatus').value;
       const safetyStatus = document.getElementById('safetyOptions').value;
 
-      // Apply profanity filter
-      location = await filterProfanity(location);
+      // Apply the profanity filter
+      location = filterProfanity(location);
 
       const statusData = {
         status: walkingStatus === 'yes' ? 'Walking' : 'Not Walking',
@@ -362,9 +348,13 @@
         safety: safetyStatus
       };
 
-      push(statusListRef, statusData);
+      // Push the status to the Firebase database (this part should be connected to Firebase)
+      // push(statusListRef, statusData);
 
-      // Reset form after submission
+      // Display status in the UI
+      addStatusToUI(statusData);
+
+      // Reset the form after submission
       document.getElementById('walkForm').reset();
     });
 
