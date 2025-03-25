@@ -246,7 +246,8 @@
     <label>
       Location (e.g., Park Name or Area):
       <input type="text" id="location" required maxlength="50" />
-      <small>Max 50 characters</small>
+      <small>Max 50 characters</small><br>
+      <span id="remainingChars">50 characters remaining</span>
     </label>
 
     <label>
@@ -331,6 +332,14 @@
 
       return filteredText;
     }
+
+    // Update character count display
+    document.getElementById('location').addEventListener('input', function() {
+      const maxLength = 50;
+      const currentLength = this.value.length;
+      const remaining = maxLength - currentLength;
+      document.getElementById('remainingChars').textContent = `${remaining} characters remaining`;
+    });
 
     // Form submission
     document.getElementById('walkForm').addEventListener('submit', async (e) => {
