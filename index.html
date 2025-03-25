@@ -198,14 +198,15 @@
       const statusData = snapshot.val();
       const statusDiv = document.createElement('div');
       statusDiv.className = 'status';
-      statusDiv.innerHTML = 
+      statusDiv.innerHTML = ` 
         <strong>Status:</strong> ${statusData.status}<br>
         <strong>Location:</strong> ${statusData.location}<br>
         <strong>Time:</strong> ${statusData.time}<br>
         <strong>Dog Status:</strong> ${statusData.dogStatus}<br>
         <strong>Safety Status:</strong> ${statusData.safety}
-      ;
-      document.getElementById('statusList').appendChild(statusDiv);
+      `;
+      // Prepend new statuses to the list so they appear at the top
+      document.getElementById('statusList').insertBefore(statusDiv, document.getElementById('statusList').firstChild);
     });
 
     // Form submission
@@ -228,6 +229,7 @@
 
       push(statusListRef, statusData);
 
+      // Reset form after submission
       document.getElementById('walkForm').reset();
     });
 
