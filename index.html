@@ -161,6 +161,11 @@
       display: none;
       text-align: center;
     }
+
+    #registerForm {
+      display: none;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -170,14 +175,27 @@
   <div class="auth-container" id="authContainer">
     <button id="loginBtn" class="auth-btn">Sign In</button>
     <button id="logoutBtn" class="auth-btn" style="display: none;">Sign Out</button>
+    <button id="registerBtn" class="auth-btn" style="display: none;">Register</button>
   </div>
 
   <div id="loginForm" style="display: none;">
     <h3>Sign In</h3>
-    <div class="auth-buttons">
-      <button id="googleSignIn" class="auth-btn">Sign In with Google</button>
-      <button id="githubSignIn" class="auth-btn">Sign In with GitHub</button>
-    </div>
+    <label for="loginEmail">Email:</label>
+    <input type="email" id="loginEmail" placeholder="Email" required />
+    <label for="loginPassword">Password:</label>
+    <input type="password" id="loginPassword" placeholder="Password" required />
+    <button id="loginSubmit" class="auth-btn">Sign In</button>
+    <p>Don't have an account? <button id="showRegisterForm" class="auth-btn">Register</button></p>
+  </div>
+
+  <div id="registerForm" style="display: none;">
+    <h3>Register</h3>
+    <label for="registerEmail">Email:</label>
+    <input type="email" id="registerEmail" placeholder="Email" required />
+    <label for="registerPassword">Password:</label>
+    <input type="password" id="registerPassword" placeholder="Password" required />
+    <button id="registerSubmit" class="auth-btn">Register</button>
+    <p>Already have an account? <button id="showLoginForm" class="auth-btn">Sign In</button></p>
   </div>
 
   <form id="walkForm" style="display: none;">
@@ -226,7 +244,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, GithubAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCTLsji9XOlgHK-YUPrQYSfLPB5NoerVWY",
@@ -243,8 +261,6 @@
     const database = getDatabase(app);
     const statusListRef = ref(database, 'dogWalkStatuses');
     const auth = getAuth(app);
-    const googleProvider = new GoogleAuthProvider();
-    const githubProvider = new GithubAuthProvider();
 
     // Authentication state change
     onAuthStateChanged(auth, (user) => {
@@ -261,29 +277,47 @@
       }
     });
 
-    // Open the login form
+    // Show login form
     document.getElementById('loginBtn').addEventListener('click', () => {
       document.getElementById('loginForm').style.display = 'block';
     });
 
-    // Google sign-in using pop-up
-    document.getElementById('googleSignIn').addEventListener('click', () => {
-      signInWithPopup(auth, googleProvider).then((result) => {
-        // Handle successful login
-        console.log('Signed in with Google:', result.user);
-      }).catch((error) => {
-        console.error('Google sign-in error:', error.message);
-      });
+    // Show register form
+    document.getElementById('showRegisterForm').addEventListener('click', () => {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'block';
     });
 
-    // GitHub sign-in using pop-up
-    document.getElementById('githubSignIn').addEventListener('click', () => {
-      signInWithPopup(auth, githubProvider).then((result) => {
-        // Handle successful login
-        console.log('Signed in with GitHub:', result.user);
-      }).catch((error) => {
-        console.error('GitHub sign-in error:', error.message);
-      });
+    // Show login form
+    document.getElementById('showLoginForm').addEventListener('click', () => {
+      document.getElementById('registerForm').style.display = 'none';
+      document.getElementById('loginForm').style.display = 'block';
+    });
+
+    // Register new user
+    document.getElementById('registerSubmit').addEventListener('click', () => {
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          console.log("User registered:", userCredential.user);
+        })
+        .catch((error) => {
+          console.error("Registration error:", error.message);
+        });
+    });
+
+    // Login existing user
+    document.getElementById('loginSubmit').addEventListener('click', () => {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          console.log("User logged in:", userCredential.user);
+        })
+        .catch((error) => {
+          console.error("Login error:", error.message);
+        });
     });
 
     // Sign out
@@ -291,51 +325,47 @@
       signOut(auth).then(() => {
         console.log('Signed out');
       }).catch((error) => {
-        console.error(error.message);
+        console.error("Sign out error:", error.message);
       });
     });
 
-    // Display live updates
-    onChildAdded(statusListRef, (snapshot) => {
-      const statusData = snapshot.val();
-      const statusDiv = document.createElement('div');
-      statusDiv.className = 'status';
-      statusDiv.innerHTML = `
-        <strong>Status:</strong> ${statusData.status}<br>
-        <strong>Location:</strong> ${statusData.location}<br>
-        <strong>Time:</strong> ${statusData.time}<br>
-        <strong>Dog Status:</strong> ${statusData.dogStatus}<br>
-        <strong>Safety Status:</strong> ${statusData.safety}
-      `;
-      document.getElementById('statusList').insertBefore(statusDiv, document.getElementById('statusList').firstChild);
-    });
-
-    // Form submission
+    // Walk status form submission
     document.getElementById('walkForm').addEventListener('submit', (e) => {
       e.preventDefault();
-
-      const walkingStatus = document.getElementById('walkingStatus').value;
+      const status = document.getElementById('walkingStatus').value;
       const location = document.getElementById('location').value;
       const walkTime = document.getElementById('walkTime').value;
       const dogStatus = document.getElementById('dogStatus').value;
       const safetyStatus = document.getElementById('safetyOptions').value;
 
-      const statusData = {
-        status: walkingStatus === 'yes' ? 'Walking' : 'Not Walking',
-        location,
-        time: walkTime,
-        dogStatus,
-        safety: safetyStatus,
-        user: auth.currentUser ? auth.currentUser.displayName : 'Anonymous'
-      };
+      push(statusListRef, {
+        status: status,
+        location: location,
+        walkTime: walkTime,
+        dogStatus: dogStatus,
+        safetyStatus: safetyStatus
+      });
 
-      push(statusListRef, statusData);
-      document.getElementById('walkForm').reset();
+      document.getElementById('walkingStatus').value = "yes";
+      document.getElementById('location').value = "";
+      document.getElementById('walkTime').value = "";
+      document.getElementById('dogStatus').value = "Friendly";
+      document.getElementById('safetyOptions').value = "safe";
     });
 
-    // Dark Mode Toggle
-    document.getElementById('toggleMode').addEventListener('click', () => {
-      document.body.classList.toggle('dark-mode');
+    // Listen for new status entries
+    onChildAdded(statusListRef, (data) => {
+      const status = data.val();
+      const statusDiv = document.createElement('div');
+      statusDiv.classList.add('status');
+      statusDiv.innerHTML = `
+        <strong>Status:</strong> ${status.status}<br />
+        <strong>Location:</strong> ${status.location}<br />
+        <strong>Time:</strong> ${status.walkTime}<br />
+        <strong>Dog:</strong> ${status.dogStatus}<br />
+        <strong>Safety:</strong> ${status.safetyStatus}
+      `;
+      document.getElementById('statusList').appendChild(statusDiv);
     });
   </script>
 </body>
