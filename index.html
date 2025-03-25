@@ -125,13 +125,41 @@
     .dark-mode .toggle-btn {
       background-color: #004d40;
     }
+
+    .auth-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .auth-btn {
+      background-color: #00796b;
+      padding: 10px 20px;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 20px;
+    }
+
+    .dark-mode .auth-btn {
+      background-color: #004d40;
+    }
+
+    .auth-btn:hover {
+      background-color: #004d40;
+    }
   </style>
 </head>
 <body>
   <h1>Dog Walk Status</h1>
   <p>Mark your dog walking status to help others avoid potential accidents.</p>
 
-  <form id="walkForm">
+  <!-- Authentication -->
+  <div class="auth-container">
+    <button id="loginBtn" class="auth-btn">Sign In</button>
+    <button id="logoutBtn" class="auth-btn" style="display: none;">Sign Out</button>
+  </div>
+
+  <form id="walkForm" style="display: none;">
     <label>
       Are you walking your dog?
       <select id="walkingStatus">
@@ -177,6 +205,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCTLsji9XOlgHK-YUPrQYSfLPB5NoerVWY",
@@ -192,6 +221,41 @@
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
     const statusListRef = ref(database, 'dogWalkStatuses');
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    // Authentication state change
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.getElementById('loginBtn').style.display = 'none';
+        document.getElementById('logoutBtn').style.display = 'inline-block';
+        document.getElementById('walkForm').style.display = 'block';
+      } else {
+        document.getElementById('loginBtn').style.display = 'inline-block';
+        document.getElementById('logoutBtn').style.display = 'none';
+        document.getElementById('walkForm').style.display = 'none';
+      }
+    });
+
+    // Google sign-in
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          console.log('Signed in as:', result.user.displayName);
+        })
+        .catch((error) => {
+          console.error(error.message);
+        });
+    });
+
+    // Sign out
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      signOut(auth).then(() => {
+        console.log('Signed out');
+      }).catch((error) => {
+        console.error(error.message);
+      });
+    });
 
     // Display live updates
     onChildAdded(statusListRef, (snapshot) => {
@@ -223,11 +287,11 @@
         location,
         time: walkTime,
         dogStatus,
-        safety: safetyStatus
+        safety: safetyStatus,
+        user: auth.currentUser ? auth.currentUser.displayName : 'Anonymous'
       };
 
       push(statusListRef, statusData);
-
       document.getElementById('walkForm').reset();
     });
 
