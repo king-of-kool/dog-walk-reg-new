@@ -246,7 +246,6 @@
     <label>
       Location (e.g., Park Name or Area):
       <input type="text" id="location" required maxlength="50" />
-      <small>Max 50 characters</small>
     </label>
 
     <label>
@@ -272,6 +271,9 @@
     <button type="submit">Submit Status</button>
   </form>
 
+  <!-- Character Count Remaining -->
+  <p id="remainingChars">50 characters remaining</p>
+
   <!-- Dark Mode Toggle Switch -->
   <div class="toggle-container">
     <i class="material-icons">wb_sunny</i>
@@ -283,37 +285,48 @@
   <h2>Current Dog Walk Statuses</h2>
   <div id="statusList"></div>
 
-  <!-- Fetch Swear Word List -->
-  <script>
-    let badWords = [];
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
 
-    // Fetch bad words list from an external source (e.g., public list on GitHub)
-    fetch('https://raw.githubusercontent.com/RobertJGabriel/Google-profanity-words/master/profanity.txt')
-      .then(response => response.text())
-      .then(data => {
-        badWords = data.split('\n').map(word => word.trim().toLowerCase());
-      })
-      .catch(err => console.error('Failed to load bad words list:', err));
+    const firebaseConfig = {
+      apiKey: "AIzaSyCTLsji9XOlgHK-YUPrQYSfLPB5NoerVWY",
+      authDomain: "dog-walk-reg.firebaseapp.com",
+      databaseURL: "https://dog-walk-reg-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "dog-walk-reg",
+      storageBucket: "dog-walk-reg.firebasestorage.app",
+      messagingSenderId: "806193788108",
+      appId: "1:806193788108:web:ac6df92dd5800bd74a3e69",
+      measurementId: "G-9Y7PYSP8NP"
+    };
 
-    // Function to check for bad words
-    function containsBadWords(text) {
-      const words = text.toLowerCase().split(/\s+/);
-      return words.some(word => badWords.includes(word));
-    }
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    const statusListRef = ref(database, 'dogWalkStatuses');
 
-    // Form submission handler
+    // Display live updates
+    onChildAdded(statusListRef, (snapshot) => {
+      const statusData = snapshot.val();
+      const statusDiv = document.createElement('div');
+      statusDiv.className = 'status';
+      statusDiv.innerHTML = ` 
+        <strong>Status:</strong> ${statusData.status}<br>
+        <strong>Location:</strong> ${statusData.location}<br>
+        <strong>Time:</strong> ${statusData.time}<br>
+        <strong>Dog Status:</strong> ${statusData.dogStatus}<br>
+        <strong>Safety Status:</strong> ${statusData.safety}
+      `;
+      // Prepend new statuses to the list so they appear at the top
+      document.getElementById('statusList').insertBefore(statusDiv, document.getElementById('statusList').firstChild);
+    });
+
+    // Form submission
     document.getElementById('walkForm').addEventListener('submit', (e) => {
       e.preventDefault();
 
-      const location = document.getElementById('location').value;
-
-      // Check for bad words in location input
-      if (containsBadWords(location)) {
-        alert("Please avoid using inappropriate language.");
-        return;
-      }
-
       const walkingStatus = document.getElementById('walkingStatus').value;
+      const location = document.getElementById('location').value;
       const walkTime = document.getElementById('walkTime').value;
       const dogStatus = document.getElementById('dogStatus').value;
       const safetyStatus = document.getElementById('safetyOptions').value;
@@ -326,11 +339,21 @@
         safety: safetyStatus
       };
 
-      // Push the data to the Firebase (or any other backend)
-      console.log(statusData);
-
+      // Add new status to Firebase
+      push(statusListRef, statusData);
+      
       // Reset form after submission
       document.getElementById('walkForm').reset();
+    });
+
+    // Character count for location input
+    const locationInput = document.getElementById('location');
+    const remainingChars = document.getElementById('remainingChars');
+
+    locationInput.addEventListener('input', () => {
+      const maxLength = 50;
+      const currentLength = locationInput.value.length;
+      remainingChars.textContent = `${maxLength - currentLength} characters remaining`;
     });
 
     // Dark Mode Toggle
