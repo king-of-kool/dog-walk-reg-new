@@ -14,7 +14,7 @@
       color: #333;
       transition: background-color 0.3s, color 0.3s;
       line-height: 1.6;
-      position: relative; /* To position toggle button */
+      position: relative;
     }
 
     .dark-mode {
@@ -40,12 +40,14 @@
     /* Form Styles */
     form {
       background-color: #ffffff;
-      padding: 20px;
+      padding: 30px;
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       margin-bottom: 30px;
       max-width: 500px;
       margin: 0 auto;
+      display: grid;
+      gap: 15px;
     }
 
     .dark-mode form {
@@ -84,6 +86,8 @@
       color: white;
       border: none;
       cursor: pointer;
+      padding: 12px;
+      font-size: 16px;
     }
 
     .dark-mode button {
@@ -96,7 +100,10 @@
 
     /* Status List Styles */
     #statusList {
-      margin-top: 20px;
+      margin-top: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .status {
@@ -105,11 +112,12 @@
       padding: 15px;
       margin-top: 10px;
       border-radius: 8px;
-      opacity: 0; /* Initially hidden for animation */
-      animation: fadeIn 0.5s forwards; /* Trigger fade-in animation */
+      opacity: 0;
+      animation: fadeIn 0.5s forwards;
+      width: 100%;
+      max-width: 500px;
     }
 
-    /* Dark mode status */
     .dark-mode .status {
       background-color: #444;
       border: 1px solid #00796b;
@@ -141,7 +149,7 @@
       border: none;
       cursor: pointer;
       border-radius: 20px;
-      position: absolute;
+      position: fixed;
       top: 20px;
       right: 20px;
       transition: background-color 0.3s;
@@ -151,14 +159,8 @@
       background-color: #004d40;
     }
 
-    /* Hover effect for the toggle button */
     #toggleMode:hover {
       background-color: #004d40;
-    }
-
-    /* Toggle button active state when clicked */
-    #toggleMode:focus {
-      outline: none;
     }
 
     /* Optional: Make status list appear more organized and stylish */
@@ -167,7 +169,6 @@
       flex-direction: column;
       align-items: center;
     }
-
   </style>
 </head>
 <body>
