@@ -319,15 +319,31 @@
       document.getElementById('statusList').insertBefore(statusDiv, document.getElementById('statusList').firstChild);
     });
 
+    // Profanity Filter (Gemini-style filter, mock implementation)
+    async function filterProfanity(text) {
+      const badWords = ['badword1', 'badword2']; // Replace with real list or API
+      let filteredText = text;
+
+      badWords.forEach(word => {
+        const regex = new RegExp(`\\b${word}\\b`, 'gi');
+        filteredText = filteredText.replace(regex, '[CENSORED]');
+      });
+
+      return filteredText;
+    }
+
     // Form submission
-    document.getElementById('walkForm').addEventListener('submit', (e) => {
+    document.getElementById('walkForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const walkingStatus = document.getElementById('walkingStatus').value;
-      const location = document.getElementById('location').value;
+      let location = document.getElementById('location').value;
       const walkTime = document.getElementById('walkTime').value;
       const dogStatus = document.getElementById('dogStatus').value;
       const safetyStatus = document.getElementById('safetyOptions').value;
+
+      // Apply profanity filter
+      location = await filterProfanity(location);
 
       const statusData = {
         status: walkingStatus === 'yes' ? 'Walking' : 'Not Walking',
