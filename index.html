@@ -147,13 +147,71 @@
     .auth-btn:hover {
       background-color: #004d40;
     }
+
+    /* Sign-in Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+      text-align: center;
+    }
+
+    .close {
+      color: #aaa;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      position: absolute;
+      top: 5px;
+      right: 10px;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .auth-buttons {
+      margin-top: 20px;
+    }
+
+    .auth-buttons button {
+      width: 100%;
+      margin: 5px 0;
+    }
   </style>
 </head>
 <body>
   <h1>Dog Walk Status</h1>
   <p>Mark your dog walking status to help others avoid potential accidents.</p>
 
-  <!-- Authentication -->
+  <!-- Authentication Modal -->
+  <div id="authModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModal">&times;</span>
+      <h3>Sign In</h3>
+      <div class="auth-buttons">
+        <button id="googleSignIn" class="auth-btn">Sign In with Google</button>
+        <button id="githubSignIn" class="auth-btn">Sign In with GitHub</button>
+      </div>
+    </div>
+  </div>
+
   <div class="auth-container">
     <button id="loginBtn" class="auth-btn">Sign In</button>
     <button id="logoutBtn" class="auth-btn" style="display: none;">Sign Out</button>
@@ -205,7 +263,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, GithubAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCTLsji9XOlgHK-YUPrQYSfLPB5NoerVWY",
@@ -222,7 +280,8 @@
     const database = getDatabase(app);
     const statusListRef = ref(database, 'dogWalkStatuses');
     const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
+    const googleProvider = new GoogleAuthProvider();
+    const githubProvider = new GithubAuthProvider();
 
     // Authentication state change
     onAuthStateChanged(auth, (user) => {
@@ -237,11 +296,34 @@
       }
     });
 
-    // Google sign-in
+    // Open the modal for sign-in
     document.getElementById('loginBtn').addEventListener('click', () => {
-      signInWithPopup(auth, provider)
+      document.getElementById('authModal').style.display = 'flex';
+    });
+
+    // Close the sign-in modal
+    document.getElementById('closeModal').addEventListener('click', () => {
+      document.getElementById('authModal').style.display = 'none';
+    });
+
+    // Google sign-in
+    document.getElementById('googleSignIn').addEventListener('click', () => {
+      signInWithPopup(auth, googleProvider)
         .then((result) => {
           console.log('Signed in as:', result.user.displayName);
+          document.getElementById('authModal').style.display = 'none';
+        })
+        .catch((error) => {
+          console.error(error.message);
+        });
+    });
+
+    // GitHub sign-in
+    document.getElementById('githubSignIn').addEventListener('click', () => {
+      signInWithPopup(auth, githubProvider)
+        .then((result) => {
+          console.log('Signed in as:', result.user.displayName);
+          document.getElementById('authModal').style.display = 'none';
         })
         .catch((error) => {
           console.error(error.message);
