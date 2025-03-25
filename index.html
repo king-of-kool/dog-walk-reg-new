@@ -40,11 +40,20 @@
       margin: 0 auto;
     }
 
+    .dark-mode form {
+      background-color: #444;
+      border-color: #00796b;
+    }
+
     label {
       display: block;
       margin-top: 10px;
       font-weight: 500;
       color: #00796b;
+    }
+
+    .dark-mode label {
+      color: #ffffff;
     }
 
     input, select, button {
@@ -56,11 +65,21 @@
       box-sizing: border-box;
     }
 
+    .dark-mode input, .dark-mode select {
+      background-color: #555;
+      color: white;
+      border-color: #00796b;
+    }
+
     button {
       background-color: #00796b;
       color: white;
       border: none;
       cursor: pointer;
+    }
+
+    .dark-mode button {
+      background-color: #004d40;
     }
 
     button:hover {
@@ -77,6 +96,11 @@
       padding: 15px;
       margin-top: 10px;
       border-radius: 8px;
+    }
+
+    .dark-mode .status {
+      background-color: #444;
+      border: 1px solid #00796b;
     }
 
     .status strong {
@@ -96,6 +120,10 @@
       display: block;
       width: 200px;
       text-align: center;
+    }
+
+    .dark-mode .toggle-btn {
+      background-color: #004d40;
     }
   </style>
 </head>
@@ -146,7 +174,6 @@
   <div id="statusList"></div>
 
   <!-- Firebase SDK -->
-   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
