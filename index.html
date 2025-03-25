@@ -305,6 +305,11 @@
     const database = getDatabase(app);
     const statusListRef = ref(database, 'dogWalkStatuses');
 
+    // Bad words list
+    const badWords = [
+      'fuck', 'shit', 'bitch', 'asshole', 'damn', 'piss', 'cunt', 'cock', 'bastard'
+    ];
+
     // Display live updates
     onChildAdded(statusListRef, (snapshot) => {
       const statusData = snapshot.val();
@@ -330,6 +335,13 @@
       const walkTime = document.getElementById('walkTime').value;
       const dogStatus = document.getElementById('dogStatus').value;
       const safetyStatus = document.getElementById('safetyOptions').value;
+
+      // Check for bad words in location
+      const containsBadWords = badWords.some(word => location.toLowerCase().includes(word));
+      if (containsBadWords) {
+        alert("Your location contains inappropriate language. Please remove any offensive words.");
+        return;
+      }
 
       const statusData = {
         status: walkingStatus === 'yes' ? 'Walking' : 'Not Walking',
