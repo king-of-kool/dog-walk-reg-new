@@ -205,7 +205,7 @@
         <strong>Dog Status:</strong> ${statusData.dogStatus}<br>
         <strong>Safety Status:</strong> ${statusData.safety}
       `;
-      document.getElementById('statusList').appendChild(statusDiv);
+      document.getElementById('statusList').insertBefore(statusDiv, document.getElementById('statusList').firstChild);
     });
 
     // Form submission
