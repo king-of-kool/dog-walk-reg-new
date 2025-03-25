@@ -305,10 +305,16 @@
     const database = getDatabase(app);
     const statusListRef = ref(database, 'dogWalkStatuses');
 
-    // Bad words list
     const badWords = [
-      'fuck', 'shit', 'bitch', 'asshole', 'damn', 'piss', 'cunt', 'cock', 'bastard'
+    'fuck', 'shit', 'bitch', 'asshole', 'damn', 'piss', 'cunt', 'cock', 'bastard', 
+    'dick', 'slut', 'whore', 'motherfucker', 'bastard', 'douchebag', 'twat', 'fag', 
+    'prick', 'gay', 'retard', 'ass', 'tits', 'nigger', 'chink', 'spic', 'kike', 'coon',
+    'freak', 'bimbo', 'skank', 'pussy', 'cum', 'clit', 'dildo', 'buttfuck', 'shithead',
+    'cockhead', 'whorebag', 'cocksucker', 'fuckface', 'dickhead', 'pisshead', 'fart',
+    'bitchass', 'asswipe', 'shitbag', 'douche', 'cuntface', 'shitlicker', 'numbnuts',
+    'faggot', 'queer', 'bastard', 'dickwad', 'cockblock'
     ];
+
 
     // Display live updates
     onChildAdded(statusListRef, (snapshot) => {
