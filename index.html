@@ -226,7 +226,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
-    import { getAuth, signInWithRedirect, GoogleAuthProvider, GithubAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, GithubAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCTLsji9XOlgHK-YUPrQYSfLPB5NoerVWY",
@@ -266,14 +266,24 @@
       document.getElementById('loginForm').style.display = 'block';
     });
 
-    // Google sign-in
+    // Google sign-in using pop-up
     document.getElementById('googleSignIn').addEventListener('click', () => {
-      signInWithRedirect(auth, googleProvider);
+      signInWithPopup(auth, googleProvider).then((result) => {
+        // Handle successful login
+        console.log('Signed in with Google:', result.user);
+      }).catch((error) => {
+        console.error('Google sign-in error:', error.message);
+      });
     });
 
-    // GitHub sign-in
+    // GitHub sign-in using pop-up
     document.getElementById('githubSignIn').addEventListener('click', () => {
-      signInWithRedirect(auth, githubProvider);
+      signInWithPopup(auth, githubProvider).then((result) => {
+        // Handle successful login
+        console.log('Signed in with GitHub:', result.user);
+      }).catch((error) => {
+        console.error('GitHub sign-in error:', error.message);
+      });
     });
 
     // Sign out
