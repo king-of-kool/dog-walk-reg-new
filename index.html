@@ -402,6 +402,8 @@
     // Dark Mode Toggle
     document.getElementById('toggleModeCheckbox').addEventListener('change', (e) => {
       document.body.classList.toggle('dark-mode', e.target.checked);
+      // Add transition for theme switch
+      document.body.style.transition = 'background-color 0.3s, color 0.3s';
     });
 
     // Mobile Menu Toggle
