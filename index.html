@@ -66,7 +66,7 @@
       display: none;
       position: absolute;
       top: 20px;
-      left: 20px;
+      right: 20px;
       cursor: pointer;
       z-index: 2000;
     }
@@ -163,7 +163,6 @@
       display: flex;
       align-items: center;
       z-index: 2000;
-      transition: all 0.3s ease;
     }
 
     .toggle-container input[type="checkbox"] {
@@ -338,79 +337,76 @@
     <div id="statusList"></div>
   </div>
 
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
+  <!-- Profanity Filter & Firebase SDK -->
+  <script>
+    // Profanity filter (from no-naughty-words)
+    class NoNaughtyWords {
+      constructor() {
+        this.words = [
+          "abuse", "adult", "anal", "anus", "ass", "asshole", "bastard", "bitch", "bitchy", "bloody", "blowjob", 
+          "bollocks", "boner", "breasts", "butt", "buttfuck", "cocksucker", "crap", "cunt", "dick", "dildo", "dyke", 
+          "fag", "faggot", "fanny", "felch", "felching", "fuck", "fucked", "fucker", "fucking", "fucktard", "goddamn", 
+          "hell", "idiot", "jerk", "kike", "knobhead", "lesbian", "nigga", "nigger", "numbnuts", "piss", "pussy", 
+          "scumbag", "slut", "spastic", "twat", "vagina", "wanker"
+        ];
+      }
+      hasProfanity(text) {
+        const regex = new RegExp(this.words.join('|'), 'i');
+        return regex.test(text);
+      }
+    }
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCTLsji9XOlgHK-YUPrQYSfLPB5NoerVWY",
-      authDomain: "dog-walk-reg.firebaseapp.com",
-      databaseURL: "https://dog-walk-reg-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "dog-walk-reg",
-      storageBucket: "dog-walk-reg.firebasestorage.app",
-      messagingSenderId: "806193788108",
-      appId: "1:806193788108:web:ac6df92dd5800bd74a3e69",
-      measurementId: "G-9Y7PYSP8NP"
-    };
+    // Toggle menu visibility
+    function toggleMenu() {
+      document.getElementById('sideMenu').classList.toggle('open');
+    }
 
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
-    const statusListRef = ref(database, 'dogWalkStatuses');
-
-    // Display live updates
-    onChildAdded(statusListRef, (snapshot) => {
-      const statusData = snapshot.val();
-      const statusDiv = document.createElement('div');
-      statusDiv.className = 'status';
-      statusDiv.innerHTML = ` 
-        <strong>Status:</strong> ${statusData.status}<br>
-        <strong>Location:</strong> ${statusData.location}<br>
-        <strong>Time:</strong> ${statusData.time}<br>
-        <strong>Dog Status:</strong> ${statusData.dogStatus}<br>
-        <strong>Safety Status:</strong> ${statusData.safety}
-      `;
-      // Prepend new statuses to the list so they appear at the top
-      document.getElementById('statusList').insertBefore(statusDiv, document.getElementById('statusList').firstChild);
+    // Toggle dark mode
+    document.getElementById('toggleModeCheckbox').addEventListener('change', (event) => {
+      if (event.target.checked) {
+        document.body.classList.add('dark-mode');
+      } else {
+        document.body.classList.remove('dark-mode');
+      }
     });
 
-    // Form submission
+    // Form submission with profanity check
     document.getElementById('walkForm').addEventListener('submit', (e) => {
       e.preventDefault();
 
+      // Collect form data
       const walkingStatus = document.getElementById('walkingStatus').value;
       const location = document.getElementById('location').value;
       const walkTime = document.getElementById('walkTime').value;
       const dogStatus = document.getElementById('dogStatus').value;
       const safetyStatus = document.getElementById('safetyOptions').value;
 
-      const statusData = {
-        status: walkingStatus === 'yes' ? 'Walking' : 'Not Walking',
-        location,
-        time: walkTime,
-        dogStatus,
-        safety: safetyStatus
-      };
+      // Combine form data into a single string
+      const formData = `${walkingStatus} ${location} ${walkTime} ${dogStatus} ${safetyStatus}`;
 
-      // Add new status to Firebase
-      push(statusListRef, statusData);
-      
-      // Reset form after submission
+      // Check for profanity
+      const filter = new NoNaughtyWords();
+      if (filter.hasProfanity(formData)) {
+        alert("Your input contains inappropriate language. Please remove offensive words.");
+        return;
+      }
+
+      // Display status
+      const statusList = document.getElementById('statusList');
+      const statusDiv = document.createElement('div');
+      statusDiv.classList.add('status');
+      statusDiv.innerHTML = `
+        <strong>Status:</strong> ${walkingStatus === 'yes' ? 'Walking' : 'Not Walking'}<br>
+        <strong>Location:</strong> ${location}<br>
+        <strong>Time:</strong> ${walkTime}<br>
+        <strong>Dog Status:</strong> ${dogStatus}<br>
+        <strong>Safety:</strong> ${safetyStatus}
+      `;
+      statusList.appendChild(statusDiv);
+
+      // Reset form
       document.getElementById('walkForm').reset();
     });
-
-    // Dark Mode Toggle
-    document.getElementById('toggleModeCheckbox').addEventListener('change', (e) => {
-      document.body.classList.toggle('dark-mode', e.target.checked);
-      // Add transition for theme switch
-      document.body.style.transition = 'background-color 0.3s, color 0.3s';
-    });
-
-    // Mobile Menu Toggle
-    function toggleMenu() {
-      const sideMenu = document.getElementById('sideMenu');
-      sideMenu.classList.toggle('open');
-    }
   </script>
 </body>
 </html>
