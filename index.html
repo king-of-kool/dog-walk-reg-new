@@ -21,8 +21,6 @@
       margin-left: 250px; /* For the side menu */
       padding: 20px;
       transition: margin-left 0.3s ease-in-out;
-      opacity: 0;
-      animation: fadeIn 0.5s forwards;
     }
 
     .dark-mode .main-content {
@@ -44,11 +42,6 @@
       display: block;
       transition: transform 0.3s ease-in-out;
       z-index: 1000;
-      transform: translateX(-250px);
-    }
-
-    #sideMenu.open {
-      transform: translateX(0);
     }
 
     #sideMenu a {
@@ -59,8 +52,6 @@
       font-size: 1.2rem;
       padding: 8px 0;
       border-bottom: 1px solid #004d40;
-      opacity: 0;
-      animation: fadeIn 0.5s forwards;
     }
 
     #sideMenu a:hover {
@@ -87,7 +78,7 @@
       transition: all 0.3s ease;
     }
 
-    /* Mobile layout: Show/hide side menu */
+    /* Menu Animation (for mobile view) */
     @media (max-width: 768px) {
       #sideMenu {
         transform: translateX(-250px); /* Hide side menu off-screen */
@@ -99,69 +90,150 @@
 
       .main-content {
         margin-left: 0; /* For mobile view */
-        padding: 15px;
       }
 
       #sideMenu.open {
         transform: translateX(0);
       }
-
-      /* Mobile form adjustments */
-      form {
-        padding: 15px;
-        width: 100%;
-        max-width: 100%;
-        box-sizing: border-box;
-        opacity: 0;
-        animation: fadeIn 0.5s forwards;
-      }
-
-      form label {
-        font-size: 14px;
-      }
-
-      input, select, button {
-        font-size: 14px;
-        padding: 8px;
-      }
-
-      /* Adjust "Add Registry" button and text */
-      button {
-        font-size: 16px;
-        padding: 12px;
-        width: 100%;
-        background-color: #00796b;
-        color: white;
-        border: none;
-        cursor: pointer;
-        opacity: 0;
-        animation: fadeIn 0.5s 0.5s forwards;
-      }
-
-      /* Adjust status list style */
-      .status {
-        width: 100%;
-        margin: 15px 0;
-        padding: 10px;
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        opacity: 0;
-        animation: fadeIn 0.5s forwards;
-      }
-
-      .status strong {
-        display: block;
-        margin-bottom: 5px;
-      }
-
-      /* Adjust character count for smaller screens */
-      #remainingChars {
-        font-size: 14px;
-      }
     }
 
-    /* Keyframe for fade-in animation */
+    /* Form Styles */
+    form {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin: 30px 0;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      display: grid;
+      gap: 15px;
+    }
+
+    .dark-mode form {
+      background-color: #444;
+    }
+
+    label {
+      font-weight: 500;
+      color: #00796b;
+    }
+
+    .dark-mode label {
+      color: #ffffff;
+    }
+
+    input, select, button {
+      padding: 12px;
+      border-radius: 5px;
+      border: 1px solid #00796b;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .dark-mode input, .dark-mode select {
+      background-color: #555;
+      color: white;
+      border-color: #00796b;
+    }
+
+    button {
+      background-color: #00796b;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+    }
+
+    .dark-mode button {
+      background-color: #004d40;
+    }
+
+    button:hover {
+      background-color: #004d40;
+    }
+
+    /* Dark Mode Toggle */
+    .toggle-container {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      z-index: 2000;
+    }
+
+    .toggle-container input[type="checkbox"] {
+      display: none;
+    }
+
+    .toggle-container label {
+      width: 60px;
+      height: 30px;
+      background-color: #ddd;
+      border-radius: 50px;
+      position: relative;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .toggle-container label:before {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background-color: white;
+      transition: transform 0.3s ease;
+      top: 3px;
+      left: 3px;
+    }
+
+    .toggle-container input[type="checkbox"]:checked + label {
+      background-color: #00796b;
+    }
+
+    .toggle-container input[type="checkbox"]:checked + label:before {
+      transform: translateX(30px);
+    }
+
+    .toggle-container label:hover {
+      background-color: #00796b;
+    }
+
+    /* Status List Styles */
+    #statusList {
+      margin-top: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .status {
+      background-color: #ffffff;
+      border: 1px solid #00796b;
+      padding: 15px;
+      margin-top: 10px;
+      border-radius: 8px;
+      opacity: 0;
+      animation: fadeIn 0.5s forwards;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .dark-mode .status {
+      background-color: #444;
+      border: 1px solid #00796b;
+    }
+
+    .status strong {
+      display: inline-block;
+      width: 100px;
+      font-weight: 600;
+    }
+
+    /* Animation for fading in new status */
     @keyframes fadeIn {
       0% {
         opacity: 0;
@@ -173,23 +245,37 @@
       }
     }
 
-    /* Dark Mode Toggle Animation */
-    .dark-mode .toggle-container label {
-      background-color: #444;
-    }
+    /* Responsive Design for Mobile */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
 
-    .dark-mode .toggle-container label:before {
-      background-color: #fff;
+      p {
+        font-size: 16px;
+      }
+
+      form {
+        padding: 20px;
+        width: 90%;
+      }
+
+      .status {
+        width: 90%;
+      }
+
+      #statusList {
+        margin-top: 20px;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Side Menu -->
   <div id="sideMenu">
+    <h2>Dog Walk Status</h2>
     <a href="#">Home</a>
-    <a href="#">Dog Walks</a>
-    <a href="#">My Account</a>
-    <a href="#">Settings</a>
+    <a href="#">Submit Status</a>
+    <a href="#">View Statuses</a>
   </div>
 
   <!-- Hamburger Menu -->
@@ -199,7 +285,6 @@
     <div></div>
   </div>
 
-  <!-- Main Content -->
   <div class="main-content">
     <h1>Dog Walk Status</h1>
     <p>Mark your dog walking status to help others avoid potential accidents.</p>
@@ -241,14 +326,86 @@
       <button type="submit">Submit Status</button>
     </form>
 
+    <!-- Dark Mode Toggle -->
+    <div class="toggle-container">
+      <input type="checkbox" id="toggleModeCheckbox">
+      <label for="toggleModeCheckbox"></label>
+    </div>
+
+    <h2>Current Dog Walk Statuses</h2>
     <div id="statusList"></div>
   </div>
 
-  <!-- JavaScript for toggling the side menu -->
-  <script>
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCTLsji9XOlgHK-YUPrQYSfLPB5NoerVWY",
+      authDomain: "dog-walk-reg.firebaseapp.com",
+      databaseURL: "https://dog-walk-reg-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "dog-walk-reg",
+      storageBucket: "dog-walk-reg.firebasestorage.app",
+      messagingSenderId: "806193788108",
+      appId: "1:806193788108:web:ac6df92dd5800bd74a3e69",
+      measurementId: "G-9Y7PYSP8NP"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    const statusListRef = ref(database, 'dogWalkStatuses');
+
+    // Display live updates
+    onChildAdded(statusListRef, (snapshot) => {
+      const statusData = snapshot.val();
+      const statusDiv = document.createElement('div');
+      statusDiv.className = 'status';
+      statusDiv.innerHTML = ` 
+        <strong>Status:</strong> ${statusData.status}<br>
+        <strong>Location:</strong> ${statusData.location}<br>
+        <strong>Time:</strong> ${statusData.time}<br>
+        <strong>Dog Status:</strong> ${statusData.dogStatus}<br>
+        <strong>Safety Status:</strong> ${statusData.safety}
+      `;
+      // Prepend new statuses to the list so they appear at the top
+      document.getElementById('statusList').insertBefore(statusDiv, document.getElementById('statusList').firstChild);
+    });
+
+    // Form submission
+    document.getElementById('walkForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const walkingStatus = document.getElementById('walkingStatus').value;
+      const location = document.getElementById('location').value;
+      const walkTime = document.getElementById('walkTime').value;
+      const dogStatus = document.getElementById('dogStatus').value;
+      const safetyStatus = document.getElementById('safetyOptions').value;
+
+      const statusData = {
+        status: walkingStatus === 'yes' ? 'Walking' : 'Not Walking',
+        location,
+        time: walkTime,
+        dogStatus,
+        safety: safetyStatus
+      };
+
+      // Add new status to Firebase
+      push(statusListRef, statusData);
+      
+      // Reset form after submission
+      document.getElementById('walkForm').reset();
+    });
+
+    // Dark Mode Toggle
+    document.getElementById('toggleModeCheckbox').addEventListener('change', (e) => {
+      document.body.classList.toggle('dark-mode', e.target.checked);
+    });
+
+    // Mobile Menu Toggle
     function toggleMenu() {
-      const sideMenu = document.getElementById("sideMenu");
-      sideMenu.classList.toggle("open");
+      const sideMenu = document.getElementById('sideMenu');
+      sideMenu.classList.toggle('open');
     }
   </script>
 </body>
