@@ -9,12 +9,14 @@
     /* Body and overall layout */
     body {
       font-family: 'Roboto', sans-serif;
-      margin: 40px;
+      margin: 0;
       background-color: #e0f7fa;
       color: #333;
       transition: background-color 0.3s, color 0.3s;
       line-height: 1.6;
       position: relative;
+      display: flex;
+      min-height: 100vh;
     }
 
     .dark-mode {
@@ -37,6 +39,67 @@
       margin-bottom: 30px;
     }
 
+    /* Side Menu (Sidebar) */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 250px;
+      height: 100%;
+      background-color: #00796b;
+      color: white;
+      padding-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+
+    .sidebar a {
+      text-decoration: none;
+      color: white;
+      font-size: 18px;
+      padding: 10px 15px;
+      width: 100%;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+      transition: background-color 0.3s;
+    }
+
+    .sidebar a:hover {
+      background-color: #004d40;
+    }
+
+    .sidebar .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 24px;
+      color: white;
+      cursor: pointer;
+    }
+
+    /* Toggle Button for Mobile */
+    .hamburger-menu {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      cursor: pointer;
+      z-index: 1001;
+    }
+
+    .hamburger-menu div {
+      width: 35px;
+      height: 5px;
+      background-color: #00796b;
+      border-radius: 5px;
+    }
+
     /* Form Styles */
     form {
       background-color: #ffffff;
@@ -50,52 +113,10 @@
       gap: 15px;
     }
 
+    /* Dark Mode Styles */
     .dark-mode form {
       background-color: #444;
       border-color: #00796b;
-    }
-
-    label {
-      display: block;
-      margin-top: 10px;
-      font-weight: 500;
-      color: #00796b;
-    }
-
-    .dark-mode label {
-      color: #ffffff;
-    }
-
-    input, select, button {
-      margin-top: 5px;
-      padding: 10px;
-      width: 100%;
-      border: 1px solid #00796b;
-      border-radius: 4px;
-      box-sizing: border-box;
-    }
-
-    .dark-mode input, .dark-mode select {
-      background-color: #555;
-      color: white;
-      border-color: #00796b;
-    }
-
-    button {
-      background-color: #00796b;
-      color: white;
-      border: none;
-      cursor: pointer;
-      padding: 12px;
-      font-size: 16px;
-    }
-
-    .dark-mode button {
-      background-color: #004d40;
-    }
-
-    button:hover {
-      background-color: #004d40;
     }
 
     /* Status List Styles */
@@ -118,17 +139,6 @@
       max-width: 600px;
     }
 
-    .dark-mode .status {
-      background-color: #444;
-      border: 1px solid #00796b;
-    }
-
-    .status strong {
-      display: inline-block;
-      width: 100px;
-      font-weight: 600;
-    }
-
     /* Animation for fading in new status */
     @keyframes fadeIn {
       0% {
@@ -141,78 +151,30 @@
       }
     }
 
-    /* Android Style Toggle Switch */
-    .toggle-container {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-
-    .toggle-container input[type="checkbox"] {
-      display: none;
-    }
-
-    .toggle-container label {
-      width: 60px;
-      height: 30px;
-      background-color: #ddd;
-      border-radius: 50px;
-      position: relative;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .toggle-container label:before {
-      content: '';
-      position: absolute;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background-color: white;
-      transition: transform 0.3s ease;
-      top: 3px;
-      left: 3px;
-    }
-
-    .toggle-container input[type="checkbox"]:checked + label {
-      background-color: #00796b;
-    }
-
-    .toggle-container input[type="checkbox"]:checked + label:before {
-      transform: translateX(30px);
-    }
-
-    .toggle-container label:hover {
-      background-color: #00796b;
-    }
-
-    .toggle-container i {
-      font-size: 20px;
-      margin-right: 8px;
-      color: #00796b;
-    }
-
-    .dark-mode .toggle-container i {
-      color: #fff;
-    }
-
-    .toggle-container label {
-      display: flex;
-      align-items: center;
-    }
-
     /* Responsive Design for Mobile */
     @media (max-width: 768px) {
-      h1 {
-        font-size: 2rem;
+      body {
+        flex-direction: column;
       }
 
-      p {
-        font-size: 16px;
+      .sidebar {
+        transform: translateX(-100%);
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+      }
+
+      .sidebar.show {
+        transform: translateX(0);
+      }
+
+      .hamburger-menu {
+        display: flex;
+      }
+
+      .hamburger-menu div {
+        background-color: #fff;
       }
 
       form {
@@ -231,59 +193,79 @@
   </style>
 </head>
 <body>
-  <h1>Dog Walk Status</h1>
-  <p>Mark your dog walking status to help others avoid potential accidents.</p>
 
-  <form id="walkForm">
-    <label>
-      Are you walking your dog?
-      <select id="walkingStatus">
-        <option value="yes">Yes</option>
-        <option value="no">No</option>
-      </select>
-    </label>
-
-    <label>
-      Location (e.g., Park Name or Area):
-      <input type="text" id="location" required maxlength="50" />
-    </label>
-
-    <label>
-      Walk Time:
-      <input type="time" id="walkTime" required />
-    </label>
-
-    <label for="dogStatus">Dog Status</label>
-    <select id="dogStatus">
-      <option value="Friendly">Friendly</option>
-      <option value="Nervous">Nervous</option>
-      <option value="Not Friendly">Not Friendly</option>
-      <option value="Service Dog">Service Dog</option>
-    </select>
-
-    <label for="safetyOptions">Safety Status</label>
-    <select id="safetyOptions">
-      <option value="safe">Safe</option>
-      <option value="unsafe">Unsafe</option>
-      <option value="unknown">Unknown</option>
-    </select>
-
-    <button type="submit">Submit Status</button>
-  </form>
-
-  <!-- Character Count Remaining -->
-  <p id="remainingChars">50 characters remaining</p>
-
-  <!-- Dark Mode Toggle Switch -->
-  <div class="toggle-container">
-    <i class="material-icons">wb_sunny</i>
-    <input type="checkbox" id="toggleModeCheckbox">
-    <label for="toggleModeCheckbox"></label>
-    <i class="material-icons">brightness_3</i>
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <a href="#">Home</a>
+    <a href="#">Dog Walk Status</a>
+    <a href="#">Settings</a>
+    <a href="#">Contact</a>
+    <span class="close-btn" id="closeSidebar">&times;</span>
   </div>
 
-  <h2>Current Dog Walk Statuses</h2>
-  <div id="statusList"></div>
+  <!-- Hamburger Menu for Mobile -->
+  <div class="hamburger-menu" id="hamburgerMenu">
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+
+  <div>
+    <h1>Dog Walk Status</h1>
+    <p>Mark your dog walking status to help others avoid potential accidents.</p>
+
+    <!-- Form -->
+    <form id="walkForm">
+      <label>
+        Are you walking your dog?
+        <select id="walkingStatus">
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </label>
+
+      <label>
+        Location (e.g., Park Name or Area):
+        <input type="text" id="location" required maxlength="50" />
+      </label>
+
+      <label>
+        Walk Time:
+        <input type="time" id="walkTime" required />
+      </label>
+
+      <label for="dogStatus">Dog Status</label>
+      <select id="dogStatus">
+        <option value="Friendly">Friendly</option>
+        <option value="Nervous">Nervous</option>
+        <option value="Not Friendly">Not Friendly</option>
+        <option value="Service Dog">Service Dog</option>
+      </select>
+
+      <label for="safetyOptions">Safety Status</label>
+      <select id="safetyOptions">
+        <option value="safe">Safe</option>
+        <option value="unsafe">Unsafe</option>
+        <option value="unknown">Unknown</option>
+      </select>
+
+      <button type="submit">Submit Status</button>
+    </form>
+
+    <!-- Character Count Remaining -->
+    <p id="remainingChars">50 characters remaining</p>
+    
+    <!-- Dark Mode Toggle Switch -->
+    <div class="toggle-container">
+      <i class="material-icons">wb_sunny</i>
+      <input type="checkbox" id="toggleModeCheckbox">
+      <label for="toggleModeCheckbox"></label>
+      <i class="material-icons">brightness_3</i>
+    </div>
+
+    <h2>Current Dog Walk Statuses</h2>
+    <div id="statusList"></div>
+  </div>
 
   <!-- Firebase SDK -->
   <script type="module">
@@ -304,17 +286,6 @@
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
     const statusListRef = ref(database, 'dogWalkStatuses');
-
-    const badWords = [
-    'fuck', 'shit', 'bitch', 'asshole', 'damn', 'piss', 'cunt', 'cock', 'bastard', 
-    'dick', 'slut', 'whore', 'motherfucker', 'bastard', 'douchebag', 'twat', 'fag', 
-    'prick', 'gay', 'retard', 'ass', 'tits', 'nigger', 'chink', 'spic', 'kike', 'coon',
-    'freak', 'bimbo', 'skank', 'pussy', 'cum', 'clit', 'dildo', 'buttfuck', 'shithead',
-    'cockhead', 'whorebag', 'cocksucker', 'fuckface', 'dickhead', 'pisshead', 'fart',
-    'bitchass', 'asswipe', 'shitbag', 'douche', 'cuntface', 'shitlicker', 'numbnuts',
-    'faggot', 'queer', 'bastard', 'dickwad', 'cockblock', 'penis'
-    ];
-
 
     // Display live updates
     onChildAdded(statusListRef, (snapshot) => {
@@ -377,6 +348,16 @@
     // Dark Mode Toggle
     document.getElementById('toggleModeCheckbox').addEventListener('change', (e) => {
       document.body.classList.toggle('dark-mode', e.target.checked);
+    });
+
+    // Hamburger Menu Toggle
+    document.getElementById('hamburgerMenu').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('show');
+    });
+
+    // Close Sidebar
+    document.getElementById('closeSidebar').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.remove('show');
     });
   </script>
 </body>
