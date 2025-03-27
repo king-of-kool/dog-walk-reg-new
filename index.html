@@ -10,15 +10,23 @@
     body {
       font-family: 'Roboto', sans-serif;
       margin: 0;
-      background-color: #e0f7fa;
+      background-color: #f0f4f7;
       color: #333;
       line-height: 1.6;
       position: relative;
+      transition: background-color 0.3s, color 0.3s;
     }
 
-    h1, p {
-      text-align: center;
-      color: #00796b;
+    /* Layout for Main Content */
+    .main-content {
+      margin-left: 250px; /* For the side menu */
+      padding: 20px;
+      transition: margin-left 0.3s ease-in-out;
+    }
+
+    .dark-mode .main-content {
+      background-color: #333;
+      color: #fff;
     }
 
     /* Side Menu */
@@ -34,6 +42,7 @@
       box-sizing: border-box;
       display: block;
       transition: transform 0.3s ease-in-out;
+      z-index: 1000;
     }
 
     #sideMenu a {
@@ -42,11 +51,14 @@
       text-decoration: none;
       margin: 15px 0;
       font-size: 1.2rem;
+      padding: 8px 0;
+      border-bottom: 1px solid #004d40;
     }
 
     #sideMenu a:hover {
       background-color: #004d40;
       padding-left: 10px;
+      transition: padding-left 0.2s ease;
     }
 
     /* Hamburger Menu */
@@ -56,7 +68,7 @@
       top: 20px;
       right: 20px;
       cursor: pointer;
-      z-index: 1001;
+      z-index: 2000;
     }
 
     #hamburgerMenu div {
@@ -77,107 +89,255 @@
         display: block;
       }
 
+      .main-content {
+        margin-left: 0; /* For mobile view */
+      }
+
       #sideMenu.open {
         transform: translateX(0);
       }
     }
 
-    /* Content Styles */
+    /* Form Styles */
     form {
       background-color: #ffffff;
       padding: 30px;
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      margin: 30px;
+      margin: 30px 0;
       max-width: 600px;
-      margin: 0 auto;
+      margin-left: auto;
+      margin-right: auto;
+      display: grid;
+      gap: 15px;
+    }
+
+    .dark-mode form {
+      background-color: #444;
+    }
+
+    label {
+      font-weight: 500;
+      color: #00796b;
+    }
+
+    .dark-mode label {
+      color: #ffffff;
+    }
+
+    input, select, button {
+      padding: 12px;
+      border-radius: 5px;
+      border: 1px solid #00796b;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .dark-mode input, .dark-mode select {
+      background-color: #555;
+      color: white;
+      border-color: #00796b;
     }
 
     button {
       background-color: #00796b;
       color: white;
-      padding: 12px;
       font-size: 16px;
       cursor: pointer;
       border: none;
-      border-radius: 4px;
-      width: 100%;
     }
 
+    .dark-mode button {
+      background-color: #004d40;
+    }
+
+    button:hover {
+      background-color: #004d40;
+    }
+
+    /* Dark Mode Toggle */
     .toggle-container {
       position: absolute;
       top: 20px;
       right: 20px;
       display: flex;
       align-items: center;
-      z-index: 1000;
+      z-index: 2000;
+    }
+
+    .toggle-container input[type="checkbox"] {
+      display: none;
+    }
+
+    .toggle-container label {
+      width: 60px;
+      height: 30px;
+      background-color: #ddd;
+      border-radius: 50px;
+      position: relative;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .toggle-container label:before {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background-color: white;
+      transition: transform 0.3s ease;
+      top: 3px;
+      left: 3px;
+    }
+
+    .toggle-container input[type="checkbox"]:checked + label {
+      background-color: #00796b;
+    }
+
+    .toggle-container input[type="checkbox"]:checked + label:before {
+      transform: translateX(30px);
+    }
+
+    .toggle-container label:hover {
+      background-color: #00796b;
+    }
+
+    /* Status List Styles */
+    #statusList {
+      margin-top: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .status {
+      background-color: #ffffff;
+      border: 1px solid #00796b;
+      padding: 15px;
+      margin-top: 10px;
+      border-radius: 8px;
+      opacity: 0;
+      animation: fadeIn 0.5s forwards;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .dark-mode .status {
+      background-color: #444;
+      border: 1px solid #00796b;
+    }
+
+    .status strong {
+      display: inline-block;
+      width: 100px;
+      font-weight: 600;
+    }
+
+    /* Animation for fading in new status */
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Responsive Design for Mobile */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      p {
+        font-size: 16px;
+      }
+
+      form {
+        padding: 20px;
+        width: 90%;
+      }
+
+      .status {
+        width: 90%;
+      }
+
+      #statusList {
+        margin-top: 20px;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Side Menu -->
   <div id="sideMenu">
+    <h2>Dog Walk Status</h2>
     <a href="#">Home</a>
-    <a href="#">About</a>
-    <a href="#">Contact</a>
+    <a href="#">Submit Status</a>
+    <a href="#">View Statuses</a>
   </div>
 
-  <!-- Hamburger Menu for mobile -->
+  <!-- Hamburger Menu -->
   <div id="hamburgerMenu" onclick="toggleMenu()">
     <div></div>
     <div></div>
     <div></div>
   </div>
 
-  <h1>Dog Walk Status</h1>
-  <p>Mark your dog walking status to help others avoid potential accidents.</p>
+  <div class="main-content">
+    <h1>Dog Walk Status</h1>
+    <p>Mark your dog walking status to help others avoid potential accidents.</p>
 
-  <form id="walkForm">
-    <label>
-      Are you walking your dog?
-      <select id="walkingStatus">
-        <option value="yes">Yes</option>
-        <option value="no">No</option>
+    <form id="walkForm">
+      <label>
+        Are you walking your dog?
+        <select id="walkingStatus">
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </label>
+
+      <label>
+        Location (e.g., Park Name or Area):
+        <input type="text" id="location" required maxlength="50" />
+      </label>
+
+      <label>
+        Walk Time:
+        <input type="time" id="walkTime" required />
+      </label>
+
+      <label for="dogStatus">Dog Status</label>
+      <select id="dogStatus">
+        <option value="Friendly">Friendly</option>
+        <option value="Nervous">Nervous</option>
+        <option value="Not Friendly">Not Friendly</option>
+        <option value="Service Dog">Service Dog</option>
       </select>
-    </label>
 
-    <label>
-      Location (e.g., Park Name or Area):
-      <input type="text" id="location" required maxlength="50" />
-    </label>
+      <label for="safetyOptions">Safety Status</label>
+      <select id="safetyOptions">
+        <option value="safe">Safe</option>
+        <option value="unsafe">Unsafe</option>
+        <option value="unknown">Unknown</option>
+      </select>
 
-    <label>
-      Walk Time:
-      <input type="time" id="walkTime" required />
-    </label>
+      <button type="submit">Submit Status</button>
+    </form>
 
-    <label for="dogStatus">Dog Status</label>
-    <select id="dogStatus">
-      <option value="Friendly">Friendly</option>
-      <option value="Nervous">Nervous</option>
-      <option value="Not Friendly">Not Friendly</option>
-      <option value="Service Dog">Service Dog</option>
-    </select>
+    <!-- Dark Mode Toggle -->
+    <div class="toggle-container">
+      <i class="material-icons">wb_sunny</i>
+      <input type="checkbox" id="toggleModeCheckbox">
+      <label for="toggleModeCheckbox"></label>
+      <i class="material-icons">brightness_3</i>
+    </div>
 
-    <label for="safetyOptions">Safety Status</label>
-    <select id="safetyOptions">
-      <option value="safe">Safe</option>
-      <option value="unsafe">Unsafe</option>
-      <option value="unknown">Unknown</option>
-    </select>
-
-    <button type="submit">Submit Status</button>
-  </form>
-
-  <!-- Dark Mode Toggle Switch -->
-  <div class="toggle-container">
-    <input type="checkbox" id="toggleModeCheckbox">
-    <label for="toggleModeCheckbox">Dark Mode</label>
+    <h2>Current Dog Walk Statuses</h2>
+    <div id="statusList"></div>
   </div>
-
-  <!-- Current Dog Walk Statuses -->
-  <h2>Current Dog Walk Statuses</h2>
-  <div id="statusList"></div>
 
   <!-- Firebase SDK -->
   <script type="module">
@@ -225,7 +385,6 @@
       const dogStatus = document.getElementById('dogStatus').value;
       const safetyStatus = document.getElementById('safetyOptions').value;
 
-      // Add new status to Firebase
       const statusData = {
         status: walkingStatus === 'yes' ? 'Walking' : 'Not Walking',
         location,
@@ -234,6 +393,7 @@
         safety: safetyStatus
       };
 
+      // Add new status to Firebase
       push(statusListRef, statusData);
       
       // Reset form after submission
@@ -245,9 +405,10 @@
       document.body.classList.toggle('dark-mode', e.target.checked);
     });
 
-    // Toggle mobile side menu visibility
+    // Mobile Menu Toggle
     function toggleMenu() {
-      document.getElementById('sideMenu').classList.toggle('open');
+      const sideMenu = document.getElementById('sideMenu');
+      sideMenu.classList.toggle('open');
     }
   </script>
 </body>
