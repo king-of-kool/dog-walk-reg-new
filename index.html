@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dog Walk Status</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/bad-words@3.0.0/dist/bad-words.min.js"></script>
   <style>
     /* General styles */
     body {
@@ -20,7 +20,7 @@
 
     /* Layout for Main Content */
     .main-content {
-      margin-left: 250px;
+      margin-left: 250px; /* For the side menu */
       padding: 20px;
       transition: margin-left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
       animation: fadeIn 0.8s ease-out;
@@ -93,7 +93,7 @@
     /* Menu Animation (for mobile view) */
     @media (max-width: 768px) {
       #sideMenu {
-        transform: translateX(-250px);
+        transform: translateX(-250px); /* Hide side menu off-screen */
       }
 
       #hamburgerMenu {
@@ -101,8 +101,8 @@
       }
 
       .main-content {
-        margin-left: 0;
-        padding-top: 70px;
+        margin-left: 0; /* For mobile view */
+        padding-top: 70px; /* Add space for hamburger menu */
       }
 
       #sideMenu.open {
@@ -368,33 +368,6 @@
       border-top-color: #004d40;
     }
 
-    /* Error message styling */
-    .error-message {
-      color: #d32f2f;
-      font-size: 0.9rem;
-      margin-top: 5px;
-      display: none;
-      animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-    }
-
-    @keyframes shake {
-      10%, 90% { transform: translateX(-1px); }
-      20%, 80% { transform: translateX(2px); }
-      30%, 50%, 70% { transform: translateX(-4px); }
-      40%, 60% { transform: translateX(4px); }
-    }
-
-    .input-error {
-      border-color: #d32f2f !important;
-      animation: pulseError 0.5s ease;
-    }
-
-    @keyframes pulseError {
-      0% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.4); }
-      70% { box-shadow: 0 0 0 10px rgba(211, 47, 47, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); }
-    }
-
     /* Animations */
     @keyframes fadeIn {
       0% {
@@ -470,10 +443,6 @@
     .notification.show {
       transform: translateY(0);
       opacity: 1;
-    }
-
-    .notification.error {
-      background-color: #d32f2f;
     }
 
     /* Responsive Design for Mobile */
@@ -554,7 +523,6 @@
       <label>
         Location (e.g., Park Name or Area):
         <input type="text" id="location" required maxlength="50" />
-        <div class="error-message"></div>
       </label>
 
       <label>
@@ -584,7 +552,6 @@
       <label class="form-full-width">
         Other Notes (optional):
         <textarea id="otherNotes" maxlength="200"></textarea>
-        <div class="error-message"></div>
       </label>
 
       <button type="submit">Submit Status</button>
@@ -606,6 +573,7 @@
   <!-- Notification -->
   <div id="notification" class="notification">Status submitted successfully!</div>
 
+  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
@@ -625,71 +593,20 @@
     const database = getDatabase(app);
     const statusListRef = ref(database, 'dogWalkStatuses');
 
-    // Initialize profanity filter
-    const filter = new BadWords();
-    // Add custom words to filter (optional)
-    filter.addWords('doggie', 'pooch'); // Example - add any words you want to block
-    
-    // Function to check for profanity
-    function containsProfanity(text) {
-      try {
-        return filter.isProfane(text);
-      } catch (e) {
-        console.error("Profanity filter error:", e);
-        return false;
-      }
-    }
-
-    // Function to show error
-    function showError(inputElement, message) {
-      const errorElement = inputElement.nextElementSibling;
-      if (errorElement && errorElement.classList.contains('error-message')) {
-        errorElement.textContent = message;
-        errorElement.style.display = 'block';
-        inputElement.classList.add('input-error');
-        
-        // Remove error after animation
-        setTimeout(() => {
-          inputElement.classList.remove('input-error');
-        }, 1000);
-      }
-    }
-
-    // Function to hide error
-    function hideError(inputElement) {
-      const errorElement = inputElement.nextElementSibling;
-      if (errorElement && errorElement.classList.contains('error-message')) {
-        errorElement.style.display = 'none';
-      }
-    }
-
     // Display live updates
     onChildAdded(statusListRef, (snapshot) => {
       const statusData = snapshot.val();
-      
-      // Check for profanity in existing data (client-side only)
-      let safeLocation = statusData.location;
-      let safeNotes = statusData.notes || '';
-      
-      if (containsProfanity(safeLocation)) {
-        safeLocation = "[Content moderated]";
-      }
-      
-      if (containsProfanity(safeNotes)) {
-        safeNotes = "[Content moderated]";
-      }
-      
       const statusDiv = document.createElement('div');
       statusDiv.className = 'status';
       
       let notesContent = '';
-      if (safeNotes) {
-        notesContent = `<p><strong>Notes:</strong> ${safeNotes}</p>`;
+      if (statusData.notes) {
+        notesContent = `<p><strong>Notes:</strong> ${statusData.notes}</p>`;
       }
       
       statusDiv.innerHTML = ` 
         <p><strong>Status:</strong> ${statusData.status}</p>
-        <p><strong>Location:</strong> ${safeLocation}</p>
+        <p><strong>Location:</strong> ${statusData.location}</p>
         <p><strong>Time:</strong> ${statusData.time}</p>
         <p><strong>Dog Status:</strong> ${statusData.dogStatus}</p>
         <p><strong>Safety Status:</strong> ${statusData.safety}</p>
@@ -719,45 +636,16 @@
       submitButton.disabled = true;
       document.getElementById('loadingSpinner').style.display = 'block';
       
-      // Get form values
+      // Add slight delay to show loading state
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       const walkingStatus = document.getElementById('walkingStatus').value;
       const location = document.getElementById('location').value;
       const walkTime = document.getElementById('walkTime').value;
       const dogStatus = document.getElementById('dogStatus').value;
       const safetyStatus = document.getElementById('safetyOptions').value;
       const otherNotes = document.getElementById('otherNotes').value;
-      
-      // Reset previous errors
-      document.querySelectorAll('.error-message').forEach(el => {
-        el.style.display = 'none';
-      });
-      document.querySelectorAll('.input-error').forEach(el => {
-        el.classList.remove('input-error');
-      });
-      
-      // Validate for profanity
-      let hasProfanity = false;
-      
-      if (containsProfanity(location)) {
-        showError(document.getElementById('location'), 'Please remove inappropriate language');
-        hasProfanity = true;
-      }
-      
-      if (containsProfanity(otherNotes)) {
-        showError(document.getElementById('otherNotes'), 'Please remove inappropriate language');
-        hasProfanity = true;
-      }
-      
-      if (hasProfanity) {
-        submitButton.disabled = false;
-        document.getElementById('loadingSpinner').style.display = 'none';
-        showNotification('Please remove inappropriate language before submitting', true);
-        return;
-      }
-      
-      // Add slight delay to show loading state
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+
       const statusData = {
         status: walkingStatus === 'yes' ? 'Walking' : 'Not Walking',
         location,
@@ -787,23 +675,12 @@
         // Reset form after submission
         document.getElementById('walkForm').reset();
       } catch (error) {
-        showNotification('Error submitting status. Please try again.', true);
+        showNotification('Error submitting status. Please try again.');
       } finally {
         submitButton.disabled = false;
         document.getElementById('loadingSpinner').style.display = 'none';
       }
     });
-
-    // Show notification
-    function showNotification(message, isError = false) {
-      const notification = document.getElementById('notification');
-      notification.textContent = message;
-      notification.className = isError ? 'notification error show' : 'notification show';
-      
-      setTimeout(() => {
-        notification.classList.remove('show');
-      }, 3000);
-    }
 
     // Dark Mode Toggle
     document.getElementById('toggleModeCheckbox').addEventListener('change', (e) => {
@@ -823,6 +700,17 @@
       const hamburger = document.getElementById('hamburgerMenu');
       sideMenu.classList.toggle('open');
       hamburger.classList.toggle('open');
+    }
+
+    // Show notification
+    function showNotification(message) {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.classList.add('show');
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
     }
 
     // Animate elements when they come into view
