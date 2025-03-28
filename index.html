@@ -5,10 +5,369 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dog Walk Status</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
-  <!-- Load profanity filter library -->
   <script src="https://cdn.jsdelivr.net/npm/bad-words@3.0.0/dist/bad-words.min.js"></script>
   <style>
-    /* [Previous CSS remains exactly the same] */
+    /* General styles */
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      background-color: #f0f4f7;
+      color: #333;
+      line-height: 1.6;
+      position: relative;
+      transition: background-color 0.5s ease, color 0.5s ease;
+    }
+
+    /* Layout for Main Content */
+    .main-content {
+      margin-left: 250px;
+      padding: 20px;
+      transition: margin-left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    .dark-mode .main-content {
+      background-color: #333;
+      color: #fff;
+    }
+
+    /* Side Menu */
+    #sideMenu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 250px;
+      height: 100%;
+      background-color: #00796b;
+      color: white;
+      padding: 20px;
+      box-sizing: border-box;
+      display: block;
+      transform: translateX(0);
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #sideMenu a {
+      color: white;
+      display: block;
+      text-decoration: none;
+      margin: 15px 0;
+      font-size: 1.2rem;
+      padding: 8px 0;
+      border-bottom: 1px solid #004d40;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateX(0);
+    }
+
+    #sideMenu a:hover {
+      background-color: #004d40;
+      padding-left: 10px;
+      transform: translateX(5px);
+    }
+
+    /* Hamburger Menu */
+    #hamburgerMenu {
+      display: none;
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      cursor: pointer;
+      z-index: 2000;
+      transition: transform 0.3s ease;
+    }
+
+    #hamburgerMenu:hover {
+      transform: scale(1.1);
+    }
+
+    #hamburgerMenu div {
+      width: 30px;
+      height: 4px;
+      background-color: #00796b;
+      margin: 6px 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Menu Animation (for mobile view) */
+    @media (max-width: 768px) {
+      #sideMenu {
+        transform: translateX(-250px);
+      }
+
+      #hamburgerMenu {
+        display: block;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding-top: 70px;
+      }
+
+      #sideMenu.open {
+        transform: translateX(0);
+      }
+      
+      #hamburgerMenu.open div:nth-child(1) {
+        transform: rotate(-45deg) translate(-5px, 6px);
+        background-color: white;
+      }
+      
+      #hamburgerMenu.open div:nth-child(2) {
+        opacity: 0;
+      }
+      
+      #hamburgerMenu.open div:nth-child(3) {
+        transform: rotate(45deg) translate(-5px, -6px);
+        background-color: white;
+      }
+    }
+
+    /* Form Styles */
+    form {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      margin: 30px auto;
+      width: 80%;
+      max-width: 800px;
+      display: grid;
+      gap: 15px;
+      grid-template-columns: 1fr 1fr;
+      transform: translateY(0);
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: slideUp 0.6s ease-out;
+    }
+
+    form:hover {
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      transform: translateY(-3px);
+    }
+
+    .dark-mode form {
+      background-color: #444;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    label {
+      font-weight: 500;
+      color: #00796b;
+      display: block;
+      margin-bottom: 5px;
+      transition: color 0.3s ease;
+    }
+
+    .dark-mode label {
+      color: #ffffff;
+    }
+
+    input, select, textarea, button {
+      padding: 12px;
+      border-radius: 5px;
+      border: 1px solid #00796b;
+      width: 100%;
+      box-sizing: border-box;
+      font-family: 'Roboto', sans-serif;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #004d40;
+      box-shadow: 0 0 0 2px rgba(0, 121, 107, 0.3);
+      transform: scale(1.01);
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .dark-mode input, 
+    .dark-mode select,
+    .dark-mode textarea {
+      background-color: #555;
+      color: white;
+      border-color: #00796b;
+    }
+
+    button {
+      background-color: #00796b;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      grid-column: span 2;
+      margin-top: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 5px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.5);
+      opacity: 0;
+      border-radius: 100%;
+      transform: scale(1, 1) translate(-50%);
+      transform-origin: 50% 50%;
+    }
+
+    button:focus:not(:active)::after {
+      animation: ripple 1s ease-out;
+    }
+
+    .dark-mode button {
+      background-color: #004d40;
+    }
+
+    button:hover {
+      background-color: #004d40;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    /* Full width form elements */
+    .form-full-width {
+      grid-column: span 2;
+    }
+
+    /* Dark Mode Toggle */
+    .toggle-container {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      z-index: 2000;
+      transition: all 0.3s ease;
+    }
+
+    .toggle-container:hover {
+      transform: scale(1.05);
+    }
+
+    .toggle-container input[type="checkbox"] {
+      display: none;
+    }
+
+    .toggle-container label {
+      width: 60px;
+      height: 30px;
+      background-color: #ddd;
+      border-radius: 50px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .toggle-container label:before {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background-color: white;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      top: 3px;
+      left: 3px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle-container input[type="checkbox"]:checked + label {
+      background-color: #00796b;
+    }
+
+    .toggle-container input[type="checkbox"]:checked + label:before {
+      transform: translateX(30px);
+    }
+
+    .toggle-container label:hover {
+      background-color: #00796b;
+    }
+
+    /* Status List Styles */
+    #statusList {
+      margin-top: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .status {
+      background-color: #ffffff;
+      border: 1px solid #00796b;
+      padding: 20px;
+      margin-top: 15px;
+      border-radius: 8px;
+      opacity: 0;
+      animation: fadeIn 0.5s forwards;
+      width: 80%;
+      max-width: 800px;
+      transform-origin: top;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .status:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+    .status:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    .status:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    .status:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .dark-mode .status {
+      background-color: #444;
+      border: 1px solid #00796b;
+      color: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .status strong {
+      display: inline-block;
+      width: 120px;
+      font-weight: 600;
+    }
+
+    .status p {
+      margin: 8px 0;
+      transition: color 0.3s ease;
+    }
+
+    /* Loading spinner */
+    .spinner {
+      display: none;
+      width: 40px;
+      height: 40px;
+      margin: 20px auto;
+      border: 4px solid rgba(0, 121, 107, 0.2);
+      border-radius: 50%;
+      border-top-color: #00796b;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    .dark-mode .spinner {
+      border-top-color: #004d40;
+    }
+
     /* Error message styling */
     .error-message {
       color: #d32f2f;
@@ -35,12 +394,218 @@
       70% { box-shadow: 0 0 0 10px rgba(211, 47, 47, 0); }
       100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); }
     }
+
+    /* Animations */
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideUp {
+      0% {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes ripple {
+      0% {
+        transform: scale(0, 0);
+        opacity: 1;
+      }
+      20% {
+        transform: scale(25, 25);
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: scale(40, 40);
+      }
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    /* Notification */
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #00796b;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 5px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 3000;
+    }
+
+    .notification.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .notification.error {
+      background-color: #d32f2f;
+    }
+
+    /* Responsive Design for Mobile */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+        margin-top: 20px;
+        animation: none;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+
+      p {
+        font-size: 16px;
+      }
+
+      form {
+        padding: 20px;
+        width: 90%;
+        grid-template-columns: 1fr;
+        animation: none;
+      }
+
+      .form-full-width, button {
+        grid-column: span 1;
+      }
+
+      .status {
+        width: 90%;
+      }
+
+      #statusList {
+        margin-top: 20px;
+      }
+      
+      .toggle-container {
+        top: 80px;
+        right: auto;
+        left: 20px;
+      }
+      
+      #hamburgerMenu div {
+        background-color: #00796b;
+      }
+    }
   </style>
 </head>
 <body>
-  <!-- [Previous HTML remains exactly the same until the script section] -->
+  <div id="sideMenu">
+    <h2>Dog Walk Status</h2>
+    <a href="#">Home</a>
+    <a href="#">Submit Status</a>
+    <a href="#">View Statuses</a>
+  </div>
 
-  <!-- Firebase SDK -->
+  <!-- Hamburger Menu -->
+  <div id="hamburgerMenu" onclick="toggleMenu()">
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+
+  <div class="main-content">
+    <h1>Dog Walk Status</h1>
+    <p>Mark your dog walking status to help others avoid potential accidents.</p>
+
+    <form id="walkForm">
+      <label class="form-full-width">
+        Are you walking your dog?
+        <select id="walkingStatus">
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </label>
+
+      <label>
+        Location (e.g., Park Name or Area):
+        <input type="text" id="location" required maxlength="50" />
+        <div class="error-message"></div>
+      </label>
+
+      <label>
+        Walk Time:
+        <input type="time" id="walkTime" required />
+      </label>
+
+      <label>
+        Dog Status
+        <select id="dogStatus">
+          <option value="Friendly">Friendly</option>
+          <option value="Nervous">Nervous</option>
+          <option value="Not Friendly">Not Friendly</option>
+          <option value="Service Dog">Service Dog</option>
+        </select>
+      </label>
+
+      <label>
+        Safety Status
+        <select id="safetyOptions">
+          <option value="safe">Safe</option>
+          <option value="unsafe">Unsafe</option>
+          <option value="unknown">Unknown</option>
+        </select>
+      </label>
+
+      <label class="form-full-width">
+        Other Notes (optional):
+        <textarea id="otherNotes" maxlength="200"></textarea>
+        <div class="error-message"></div>
+      </label>
+
+      <button type="submit">Submit Status</button>
+    </form>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="spinner"></div>
+
+    <!-- Dark Mode Toggle -->
+    <div class="toggle-container">
+      <input type="checkbox" id="toggleModeCheckbox">
+      <label for="toggleModeCheckbox"></label>
+    </div>
+
+    <h2>Current Dog Walk Statuses</h2>
+    <div id="statusList"></div>
+  </div>
+
+  <!-- Notification -->
+  <div id="notification" class="notification">Status submitted successfully!</div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
@@ -87,18 +652,6 @@
         setTimeout(() => {
           inputElement.classList.remove('input-error');
         }, 1000);
-      } else {
-        // Create error element if it doesn't exist
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-message';
-        errorDiv.textContent = message;
-        inputElement.parentNode.insertBefore(errorDiv, inputElement.nextSibling);
-        inputElement.classList.add('input-error');
-        
-        // Remove error after animation
-        setTimeout(() => {
-          inputElement.classList.remove('input-error');
-        }, 1000);
       }
     }
 
@@ -109,13 +662,6 @@
         errorElement.style.display = 'none';
       }
     }
-
-    // Add error message elements after form inputs
-    document.querySelectorAll('#walkForm input, #walkForm textarea').forEach(input => {
-      const errorDiv = document.createElement('div');
-      errorDiv.className = 'error-message';
-      input.parentNode.insertBefore(errorDiv, input.nextSibling);
-    });
 
     // Display live updates
     onChildAdded(statusListRef, (snapshot) => {
@@ -205,7 +751,7 @@
       if (hasProfanity) {
         submitButton.disabled = false;
         document.getElementById('loadingSpinner').style.display = 'none';
-        showNotification('Please remove inappropriate language before submitting');
+        showNotification('Please remove inappropriate language before submitting', true);
         return;
       }
       
@@ -241,14 +787,62 @@
         // Reset form after submission
         document.getElementById('walkForm').reset();
       } catch (error) {
-        showNotification('Error submitting status. Please try again.');
+        showNotification('Error submitting status. Please try again.', true);
       } finally {
         submitButton.disabled = false;
         document.getElementById('loadingSpinner').style.display = 'none';
       }
     });
 
-    // [Rest of the JavaScript remains the same]
+    // Show notification
+    function showNotification(message, isError = false) {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.className = isError ? 'notification error show' : 'notification show';
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+
+    // Dark Mode Toggle
+    document.getElementById('toggleModeCheckbox').addEventListener('change', (e) => {
+      document.body.classList.toggle('dark-mode', e.target.checked);
+      localStorage.setItem('darkMode', e.target.checked);
+    });
+
+    // Check for saved dark mode preference
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.getElementById('toggleModeCheckbox').checked = true;
+      document.body.classList.add('dark-mode');
+    }
+
+    // Mobile Menu Toggle
+    function toggleMenu() {
+      const sideMenu = document.getElementById('sideMenu');
+      const hamburger = document.getElementById('hamburgerMenu');
+      sideMenu.classList.toggle('open');
+      hamburger.classList.toggle('open');
+    }
+
+    // Animate elements when they come into view
+    const animateOnScroll = () => {
+      const elements = document.querySelectorAll('.status, form, h1, h2');
+      
+      elements.forEach(element => {
+        const elementPosition = element.getBoundingClientRect().top;
+        const screenPosition = window.innerHeight / 1.2;
+        
+        if (elementPosition < screenPosition) {
+          element.style.animation = 'fadeIn 0.6s ease-out forwards';
+        }
+      });
+    };
+
+    // Add scroll event listener
+    window.addEventListener('scroll', animateOnScroll);
+    // Initial check in case elements are already in view
+    animateOnScroll();
   </script>
 </body>
 </html>
