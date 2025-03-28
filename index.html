@@ -1,18 +1,41 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dog Walk Status</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
     /* General styles */
+    :root {
+      --primary-color: #00796b;
+      --primary-dark: #004d40;
+      --primary-light: #b2dfdb;
+      --text-color: #333;
+      --text-light: #fff;
+      --bg-color: #f0f4f7;
+      --card-bg: #ffffff;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .dark-mode {
+      --primary-color: #26a69a;
+      --primary-dark: #00897b;
+      --primary-light: #b2dfdb;
+      --text-color: #f5f5f5;
+      --text-light: #f5f5f5;
+      --bg-color: #121212;
+      --card-bg: #1e1e1e;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
     body {
       font-family: 'Roboto', sans-serif;
       margin: 0;
-      background-color: #f0f4f7;
-      color: #333;
+      background-color: var(--bg-color);
+      color: var(--text-color);
       line-height: 1.6;
       position: relative;
       transition: background-color 0.5s ease, color 0.5s ease;
@@ -24,11 +47,7 @@
       padding: 20px;
       transition: margin-left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
       animation: fadeIn 0.8s ease-out;
-    }
-
-    .dark-mode .main-content {
-      background-color: #333;
-      color: #fff;
+      min-height: 100vh;
     }
 
     /* Side Menu */
@@ -38,8 +57,8 @@
       left: 0;
       width: 250px;
       height: 100%;
-      background-color: #00796b;
-      color: white;
+      background-color: var(--primary-color);
+      color: var(--text-light);
       padding: 20px;
       box-sizing: border-box;
       display: block;
@@ -49,21 +68,33 @@
       box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     }
 
-    #sideMenu a {
-      color: white;
-      display: block;
-      text-decoration: none;
-      margin: 15px 0;
-      font-size: 1.2rem;
-      padding: 8px 0;
-      border-bottom: 1px solid #004d40;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      transform: translateX(0);
+    #sideMenu h2 {
+      color: var(--text-light);
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      margin-bottom: 30px;
     }
 
-    #sideMenu a:hover {
-      background-color: #004d40;
-      padding-left: 10px;
+    #sideMenu a {
+      color: var(--text-light);
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      margin: 15px 0;
+      font-size: 1.1rem;
+      padding: 10px 15px;
+      border-radius: 5px;
+      transition: var(--transition);
+    }
+
+    #sideMenu a i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
+    }
+
+    #sideMenu a:hover, #sideMenu a.active {
+      background-color: var(--primary-dark);
       transform: translateX(5px);
     }
 
@@ -75,7 +106,11 @@
       left: 20px;
       cursor: pointer;
       z-index: 2000;
-      transition: transform 0.3s ease;
+      transition: var(--transition);
+      background: var(--card-bg);
+      padding: 10px;
+      border-radius: 50%;
+      box-shadow: var(--shadow);
     }
 
     #hamburgerMenu:hover {
@@ -83,11 +118,11 @@
     }
 
     #hamburgerMenu div {
-      width: 30px;
-      height: 4px;
-      background-color: #00796b;
-      margin: 6px 0;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      width: 25px;
+      height: 3px;
+      background-color: var(--primary-color);
+      margin: 5px 0;
+      transition: var(--transition);
     }
 
     /* Menu Animation (for mobile view) */
@@ -101,8 +136,8 @@
       }
 
       .main-content {
-        margin-left: 0; /* For mobile view */
-        padding-top: 70px; /* Add space for hamburger menu */
+        margin-left: 0;
+        padding-top: 70px;
       }
 
       #sideMenu.open {
@@ -111,7 +146,7 @@
       
       #hamburgerMenu.open div:nth-child(1) {
         transform: rotate(-45deg) translate(-5px, 6px);
-        background-color: white;
+        background-color: var(--text-light);
       }
       
       #hamburgerMenu.open div:nth-child(2) {
@@ -120,24 +155,50 @@
       
       #hamburgerMenu.open div:nth-child(3) {
         transform: rotate(45deg) translate(-5px, -6px);
-        background-color: white;
+        background-color: var(--text-light);
       }
+    }
+
+    /* Header styles */
+    h1 {
+      color: var(--primary-color);
+      margin-top: 0;
+      font-size: 2.5rem;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    h2 {
+      color: var(--primary-color);
+      margin-top: 40px;
+      font-size: 1.8rem;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background-color: var(--primary-color);
     }
 
     /* Form Styles */
     form {
-      background-color: #ffffff;
+      background-color: var(--card-bg);
       padding: 30px;
       border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--shadow);
       margin: 30px auto;
       width: 80%;
       max-width: 800px;
       display: grid;
-      gap: 15px;
+      gap: 20px;
       grid-template-columns: 1fr 1fr;
       transform: translateY(0);
-      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: var(--transition);
       animation: slideUp 0.6s ease-out;
     }
 
@@ -146,36 +207,29 @@
       transform: translateY(-3px);
     }
 
-    .dark-mode form {
-      background-color: #444;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    }
-
     label {
       font-weight: 500;
-      color: #00796b;
+      color: var(--primary-color);
       display: block;
-      margin-bottom: 5px;
+      margin-bottom: 8px;
       transition: color 0.3s ease;
-    }
-
-    .dark-mode label {
-      color: #ffffff;
     }
 
     input, select, textarea, button {
       padding: 12px;
       border-radius: 5px;
-      border: 1px solid #00796b;
+      border: 1px solid var(--primary-color);
       width: 100%;
       box-sizing: border-box;
       font-family: 'Roboto', sans-serif;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: var(--transition);
+      background-color: var(--card-bg);
+      color: var(--text-color);
     }
 
     input:focus, select:focus, textarea:focus {
       outline: none;
-      border-color: #004d40;
+      border-color: var(--primary-dark);
       box-shadow: 0 0 0 2px rgba(0, 121, 107, 0.3);
       transform: scale(1.01);
     }
@@ -185,18 +239,11 @@
       resize: vertical;
     }
 
-    .dark-mode input, 
-    .dark-mode select,
-    .dark-mode textarea {
-      background-color: #555;
-      color: white;
-      border-color: #00796b;
-    }
-
     button {
-      background-color: #00796b;
-      color: white;
+      background-color: var(--primary-color);
+      color: var(--text-light);
       font-size: 16px;
+      font-weight: 500;
       cursor: pointer;
       border: none;
       grid-column: span 2;
@@ -223,12 +270,8 @@
       animation: ripple 1s ease-out;
     }
 
-    .dark-mode button {
-      background-color: #004d40;
-    }
-
     button:hover {
-      background-color: #004d40;
+      background-color: var(--primary-dark);
       transform: translateY(-2px);
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
@@ -242,114 +285,68 @@
       grid-column: span 2;
     }
 
-    /* Dark Mode Toggle */
-    .toggle-container {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      display: flex;
-      align-items: center;
-      z-index: 2000;
-      transition: all 0.3s ease;
-    }
-
-    .toggle-container:hover {
-      transform: scale(1.05);
-    }
-
-    .toggle-container input[type="checkbox"] {
-      display: none;
-    }
-
-    .toggle-container label {
-      width: 60px;
-      height: 30px;
-      background-color: #ddd;
-      border-radius: 50px;
-      position: relative;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .toggle-container label:before {
-      content: '';
-      position: absolute;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background-color: white;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      top: 3px;
-      left: 3px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    }
-
-    .toggle-container input[type="checkbox"]:checked + label {
-      background-color: #00796b;
-    }
-
-    .toggle-container input[type="checkbox"]:checked + label:before {
-      transform: translateX(30px);
-    }
-
-    .toggle-container label:hover {
-      background-color: #00796b;
-    }
-
     /* Status List Styles */
     #statusList {
       margin-top: 40px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 20px;
+      width: 100%;
     }
 
     .status {
-      background-color: #ffffff;
-      border: 1px solid #00796b;
+      background-color: var(--card-bg);
+      border-left: 4px solid var(--primary-color);
       padding: 20px;
-      margin-top: 15px;
       border-radius: 8px;
       opacity: 0;
       animation: fadeIn 0.5s forwards;
-      width: 80%;
-      max-width: 800px;
-      transform-origin: top;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      position: relative;
     }
 
-    .status:nth-child(1) {
-      animation-delay: 0.1s;
+    .status.walking {
+      border-left-color: #4caf50;
     }
-    .status:nth-child(2) {
-      animation-delay: 0.2s;
-    }
-    .status:nth-child(3) {
-      animation-delay: 0.3s;
+
+    .status.not-walking {
+      border-left-color: #f44336;
     }
 
     .status:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-    }
-
-    .dark-mode .status {
-      background-color: #444;
-      border: 1px solid #00796b;
-      color: white;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     }
 
     .status strong {
       display: inline-block;
       width: 120px;
       font-weight: 600;
+      color: var(--primary-color);
     }
 
     .status p {
       margin: 8px 0;
       transition: color 0.3s ease;
+    }
+
+    .status .time-ago {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 0.8rem;
+      color: #888;
+    }
+
+    .dark-mode .status .time-ago {
+      color: #aaa;
+    }
+
+    /* Status icons */
+    .status-icon {
+      margin-right: 8px;
+      color: var(--primary-color);
     }
 
     /* Loading spinner */
@@ -360,12 +357,8 @@
       margin: 20px auto;
       border: 4px solid rgba(0, 121, 107, 0.2);
       border-radius: 50%;
-      border-top-color: #00796b;
+      border-top-color: var(--primary-color);
       animation: spin 1s ease-in-out infinite;
-    }
-
-    .dark-mode .spinner {
-      border-top-color: #004d40;
     }
 
     /* Animations */
@@ -429,15 +422,21 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background-color: #00796b;
-      color: white;
+      background-color: var(--primary-color);
+      color: var(--text-light);
       padding: 15px 25px;
       border-radius: 5px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      box-shadow: var(--shadow);
       transform: translateY(100px);
       opacity: 0;
-      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: var(--transition);
       z-index: 3000;
+      display: flex;
+      align-items: center;
+    }
+
+    .notification i {
+      margin-right: 10px;
     }
 
     .notification.show {
@@ -445,39 +444,79 @@
       opacity: 1;
     }
 
-    /* Responsive Design for Mobile */
+    /* Map container */
+    #mapContainer {
+      height: 300px;
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    /* Filter controls */
+    .filter-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 8px 15px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--primary-color);
+      color: var(--primary-color);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .filter-btn.active {
+      background-color: var(--primary-color);
+      color: var(--text-light);
+    }
+
+    .filter-btn:hover {
+      background-color: var(--primary-light);
+    }
+
+    /* Safety status indicators */
+    .safety-safe {
+      color: #4caf50;
+    }
+
+    .safety-unsafe {
+      color: #f44336;
+    }
+
+    .safety-unknown {
+      color: #ff9800;
+    }
+
+    /* Responsive Design */
     @media (max-width: 768px) {
       h1 {
         font-size: 2rem;
         margin-top: 20px;
-        animation: none;
       }
 
       h2 {
         font-size: 1.5rem;
       }
 
-      p {
-        font-size: 16px;
-      }
-
       form {
         padding: 20px;
         width: 90%;
         grid-template-columns: 1fr;
-        animation: none;
       }
 
       .form-full-width, button {
         grid-column: span 1;
       }
 
-      .status {
-        width: 90%;
-      }
-
       #statusList {
-        margin-top: 20px;
+        grid-template-columns: 1fr;
       }
       
       .toggle-container {
@@ -485,19 +524,104 @@
         right: auto;
         left: 20px;
       }
-      
-      #hamburgerMenu div {
-        background-color: #00796b;
+    }
+
+    @media (max-width: 480px) {
+      .main-content {
+        padding: 15px;
       }
+      
+      form {
+        padding: 15px;
+        width: 100%;
+      }
+      
+      .filter-controls {
+        justify-content: center;
+      }
+    }
+
+    /* Utility classes */
+    .hidden {
+      display: none !important;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .mt-20 {
+      margin-top: 20px;
+    }
+
+    /* Dark Mode Toggle */
+    .toggle-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      z-index: 2000;
+      transition: var(--transition);
+      background: var(--card-bg);
+      padding: 5px 10px;
+      border-radius: 30px;
+      box-shadow: var(--shadow);
+    }
+
+    .toggle-container:hover {
+      transform: scale(1.05);
+    }
+
+    .toggle-container input[type="checkbox"] {
+      display: none;
+    }
+
+    .toggle-container label {
+      width: 50px;
+      height: 26px;
+      background-color: #ddd;
+      border-radius: 50px;
+      position: relative;
+      cursor: pointer;
+      transition: var(--transition);
+      margin: 0 5px;
+    }
+
+    .toggle-container label:before {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: white;
+      transition: var(--transition);
+      top: 3px;
+      left: 3px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle-container input[type="checkbox"]:checked + label {
+      background-color: var(--primary-color);
+    }
+
+    .toggle-container input[type="checkbox"]:checked + label:before {
+      transform: translateX(24px);
+    }
+
+    .toggle-icon {
+      color: var(--primary-color);
+      font-size: 1rem;
     }
   </style>
 </head>
 <body>
   <div id="sideMenu">
-    <h2>Dog Walk Status</h2>
-    <a href="#">Home</a>
-    <a href="#">Submit Status</a>
-    <a href="#">View Statuses</a>
+    <h2><i class="fas fa-paw"></i> Dog Walk Status</h2>
+    <a href="#" class="active"><i class="fas fa-home"></i> Home</a>
+    <a href="#submit-status"><i class="fas fa-plus-circle"></i> Submit Status</a>
+    <a href="#view-status"><i class="fas fa-list"></i> View Statuses</a>
+    <a href="#map-view"><i class="fas fa-map-marked-alt"></i> Map View</a>
   </div>
 
   <!-- Hamburger Menu -->
@@ -508,21 +632,36 @@
   </div>
 
   <div class="main-content">
-    <h1>Dog Walk Status</h1>
-    <p>Mark your dog walking status to help others avoid potential accidents.</p>
+    <h1><i class="fas fa-paw"></i> Dog Walk Status</h1>
+    <p>Mark your dog walking status to help others avoid potential accidents and coordinate walks in your area.</p>
+
+    <!-- Map Container -->
+    <div id="mapContainer">
+      <!-- Map will be rendered here -->
+    </div>
+
+    <!-- Filter Controls -->
+    <div class="filter-controls">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="walking">Walking</button>
+      <button class="filter-btn" data-filter="not-walking">Not Walking</button>
+      <button class="filter-btn" data-filter="friendly">Friendly Dogs</button>
+      <button class="filter-btn" data-filter="service">Service Dogs</button>
+    </div>
 
     <form id="walkForm">
       <label class="form-full-width">
         Are you walking your dog?
         <select id="walkingStatus">
-          <option value="yes">Yes</option>
-          <option value="no">No</option>
+          <option value="yes">Yes, currently walking</option>
+          <option value="no">No, not currently walking</option>
+          <option value="planning">Planning to walk soon</option>
         </select>
       </label>
 
       <label>
         Location (e.g., Park Name or Area):
-        <input type="text" id="location" required maxlength="50" />
+        <input type="text" id="location" required maxlength="50" placeholder="Central Park, Dog Run Area" />
       </label>
 
       <label>
@@ -533,28 +672,30 @@
       <label>
         Dog Status
         <select id="dogStatus">
-          <option value="Friendly">Friendly</option>
-          <option value="Nervous">Nervous</option>
-          <option value="Not Friendly">Not Friendly</option>
-          <option value="Service Dog">Service Dog</option>
+          <option value="Friendly">Friendly with dogs/people</option>
+          <option value="Nervous">Nervous/Shy</option>
+          <option value="Not Friendly">Not friendly (please keep distance)</option>
+          <option value="Service Dog">Service Dog (do not disturb)</option>
+          <option value="In Training">In Training</option>
         </select>
       </label>
 
       <label>
         Safety Status
         <select id="safetyOptions">
-          <option value="safe">Safe</option>
-          <option value="unsafe">Unsafe</option>
-          <option value="unknown">Unknown</option>
+          <option value="safe">Safe area</option>
+          <option value="unsafe">Unsafe (recent incidents)</option>
+          <option value="unknown">Unknown safety</option>
+          <option value="busy">Very busy area</option>
         </select>
       </label>
 
       <label class="form-full-width">
         Other Notes (optional):
-        <textarea id="otherNotes" maxlength="200"></textarea>
+        <textarea id="otherNotes" maxlength="200" placeholder="E.g., 'We'll be wearing red bandanas', 'Avoid the north side of park'"></textarea>
       </label>
 
-      <button type="submit">Submit Status</button>
+      <button type="submit"><i class="fas fa-paper-plane"></i> Submit Status</button>
     </form>
 
     <!-- Loading Spinner -->
@@ -562,21 +703,34 @@
 
     <!-- Dark Mode Toggle -->
     <div class="toggle-container">
+      <i class="fas fa-sun toggle-icon"></i>
       <input type="checkbox" id="toggleModeCheckbox">
       <label for="toggleModeCheckbox"></label>
+      <i class="fas fa-moon toggle-icon"></i>
     </div>
 
-    <h2>Current Dog Walk Statuses</h2>
-    <div id="statusList"></div>
+    <h2><i class="fas fa-list-ul"></i> Current Dog Walk Statuses</h2>
+    <div id="statusList">
+      <!-- Status cards will be inserted here -->
+    </div>
+
+    <div id="emptyState" class="text-center mt-20 hidden">
+      <i class="fas fa-dog" style="font-size: 3rem; color: var(--primary-color);"></i>
+      <h3>No walk statuses found</h3>
+      <p>Be the first to submit a dog walk status in your area!</p>
+    </div>
   </div>
 
   <!-- Notification -->
-  <div id="notification" class="notification">Status submitted successfully!</div>
+  <div id="notification" class="notification">
+    <i class="fas fa-check-circle"></i>
+    <span>Status submitted successfully!</span>
+  </div>
 
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
+    import { getDatabase, ref, push, onChildAdded, onChildRemoved, query, orderByChild } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCTLsji9XOlgHK-YUPrQYSfLPB5NoerVWY",
@@ -591,102 +745,310 @@
 
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
-    const statusListRef = ref(database, 'dogWalkStatuses');
+    const statusListRef = query(ref(database, 'dogWalkStatuses'), orderByChild('timestamp'));
 
-    // Display live updates
-    onChildAdded(statusListRef, (snapshot) => {
-      const statusData = snapshot.val();
-      const statusDiv = document.createElement('div');
-      statusDiv.className = 'status';
+    // Initialize variables
+    let map;
+    let markers = [];
+    let currentFilter = 'all';
+    let geocoder;
+
+    // DOM elements
+    const statusListEl = document.getElementById('statusList');
+    const emptyStateEl = document.getElementById('emptyState');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const mapContainer = document.getElementById('mapContainer');
+
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', () => {
+      initEventListeners();
+      checkGeolocation();
+      loadMapLibrary();
+    });
+
+    function initEventListeners() {
+      // Form submission
+      document.getElementById('walkForm').addEventListener('submit', handleFormSubmit);
       
-      let notesContent = '';
-      if (statusData.notes) {
-        notesContent = `<p><strong>Notes:</strong> ${statusData.notes}</p>`;
-      }
+      // Dark mode toggle
+      document.getElementById('toggleModeCheckbox').addEventListener('change', toggleDarkMode);
       
-      statusDiv.innerHTML = ` 
-        <p><strong>Status:</strong> ${statusData.status}</p>
-        <p><strong>Location:</strong> ${statusData.location}</p>
-        <p><strong>Time:</strong> ${statusData.time}</p>
-        <p><strong>Dog Status:</strong> ${statusData.dogStatus}</p>
-        <p><strong>Safety Status:</strong> ${statusData.safety}</p>
-        ${notesContent}
-      `;
-      
-      // Add pulsing animation for new status
-      statusDiv.style.animation = 'fadeIn 0.5s ease-out forwards';
-      statusDiv.addEventListener('animationend', () => {
-        statusDiv.style.animation = '';
+      // Filter buttons
+      filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentFilter = btn.dataset.filter;
+          filterStatuses();
+        });
       });
       
-      // Prepend new statuses to the list so they appear at the top
-      document.getElementById('statusList').insertBefore(statusDiv, document.getElementById('statusList').firstChild);
+      // Hash-based navigation
+      window.addEventListener('hashchange', handleHashChange);
+      handleHashChange();
+    }
+
+    function handleHashChange() {
+      const hash = window.location.hash;
+      const sideMenuLinks = document.querySelectorAll('#sideMenu a');
       
-      // Show notification for new status (only if it's not the initial load)
-      if (statusData.isNew) {
-        showNotification('New dog walk status added!');
+      sideMenuLinks.forEach(link => {
+        link.classList.remove('active'));
+        if (link.getAttribute('href') === hash) {
+          link.classList.add('active');
+        }
+      });
+      
+      // Scroll to appropriate section
+      if (hash === '#map-view') {
+        showMapView();
+      } else if (hash === '#submit-status') {
+        document.getElementById('walkForm').scrollIntoView({ behavior: 'smooth' });
+      } else if (hash === '#view-status') {
+        document.querySelector('h2').scrollIntoView({ behavior: 'smooth' });
       }
-    });
+    }
 
-    // Form submission
-    document.getElementById('walkForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const submitButton = e.target.querySelector('button[type="submit"]');
-      submitButton.disabled = true;
-      document.getElementById('loadingSpinner').style.display = 'block';
-      
-      // Add slight delay to show loading state
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const walkingStatus = document.getElementById('walkingStatus').value;
-      const location = document.getElementById('location').value;
-      const walkTime = document.getElementById('walkTime').value;
-      const dogStatus = document.getElementById('dogStatus').value;
-      const safetyStatus = document.getElementById('safetyOptions').value;
-      const otherNotes = document.getElementById('otherNotes').value;
+    function showMapView() {
+      mapContainer.style.display = 'block';
+      statusListEl.style.display = 'none';
+      initMap();
+    }
 
-      const statusData = {
-        status: walkingStatus === 'yes' ? 'Walking' : 'Not Walking',
-        location,
-        time: walkTime,
-        dogStatus,
-        safety: safetyStatus,
-        isNew: true // Flag to identify new submissions
+    function showListView() {
+      mapContainer.style.display = 'none';
+      statusListEl.style.display = 'grid';
+    }
+
+    function loadMapLibrary() {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${firebaseConfig.apiKey}&libraries=places&callback=initMap`;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+
+    function initMap() {
+      if (typeof google === 'undefined') return;
+      
+      // Try to center map on user's location or default to a central point
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          
+          map = new google.maps.Map(mapContainer, {
+            center: userLocation,
+            zoom: 13,
+            styles: getMapStyle()
+          });
+          
+          geocoder = new google.maps.Geocoder();
+          addExistingMarkers();
+        },
+        () => {
+          // Default to New York if geolocation fails
+          map = new google.maps.Map(mapContainer, {
+            center: { lat: 40.7128, lng: -74.0060 },
+            zoom: 12,
+            styles: getMapStyle()
+          });
+          
+          geocoder = new google.maps.Geocoder();
+          addExistingMarkers();
+        }
+      );
+    }
+
+    function getMapStyle() {
+      return document.body.classList.contains('dark-mode') ? [
+        { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+        { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+        { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+        {
+          featureType: "administrative.locality",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#d59563" }]
+        },
+        {
+          featureType: "poi",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#d59563" }]
+        },
+        {
+          featureType: "poi.park",
+          elementType: "geometry",
+          stylers: [{ color: "#263c3f" }]
+        },
+        {
+          featureType: "poi.park",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#6b9a76" }]
+        },
+        {
+          featureType: "road",
+          elementType: "geometry",
+          stylers: [{ color: "#38414e" }]
+        },
+        {
+          featureType: "road",
+          elementType: "geometry.stroke",
+          stylers: [{ color: "#212a37" }]
+        },
+        {
+          featureType: "road",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#9ca5b3" }]
+        },
+        {
+          featureType: "road.highway",
+          elementType: "geometry",
+          stylers: [{ color: "#746855" }]
+        },
+        {
+          featureType: "road.highway",
+          elementType: "geometry.stroke",
+          stylers: [{ color: "#1f2835" }]
+        },
+        {
+          featureType: "road.highway",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#f3d19c" }]
+        },
+        {
+          featureType: "transit",
+          elementType: "geometry",
+          stylers: [{ color: "#2f3948" }]
+        },
+        {
+          featureType: "transit.station",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#d59563" }]
+        },
+        {
+          featureType: "water",
+          elementType: "geometry",
+          stylers: [{ color: "#17263c" }]
+        },
+        {
+          featureType: "water",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#515c6d" }]
+        },
+        {
+          featureType: "water",
+          elementType: "labels.text.stroke",
+          stylers: [{ color: "#17263c" }]
+        }
+      ] : [];
+    }
+
+    function addMarker(statusData, statusId) {
+      if (!map || !geocoder) return;
+      
+      geocoder.geocode({ address: statusData.location }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+          const marker = new google.maps.Marker({
+            map: map,
+            position: results[0].geometry.location,
+            title: statusData.location,
+            icon: getMarkerIcon(statusData)
+          });
+          
+          const infoWindow = new google.maps.InfoWindow({
+            content: createMarkerContent(statusData)
+          });
+          
+          marker.addListener('click', () => {
+            infoWindow.open(map, marker);
+          });
+          
+          markers.push({ id: statusId, marker: marker });
+        }
+      });
+    }
+
+    function getMarkerIcon(statusData) {
+      const baseIcon = {
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: statusData.status === 'Walking' ? '#4CAF50' : '#F44336',
+        fillOpacity: 0.9,
+        scale: 8,
+        strokeColor: 'white',
+        strokeWeight: 2
       };
+      
+      return baseIcon;
+    }
 
-      // Add notes only if they exist
-      if (otherNotes.trim() !== '') {
-        statusData.notes = otherNotes;
+    function createMarkerContent(statusData) {
+      return `
+        <div style="padding: 10px; max-width: 200px;">
+          <h3 style="margin: 0 0 5px 0; color: ${statusData.status === 'Walking' ? '#4CAF50' : '#F44336'}">
+            ${statusData.status === 'Walking' ? 'Currently Walking' : 'Not Walking'}
+          </h3>
+          <p style="margin: 0 0 5px 0;"><strong>Location:</strong> ${statusData.location}</p>
+          <p style="margin: 0 0 5px 0;"><strong>Time:</strong> ${statusData.time}</p>
+          <p style="margin: 0 0 5px 0;"><strong>Dog:</strong> ${statusData.dogStatus}</p>
+          <p style="margin: 0;"><strong>Safety:</strong> <span class="${getSafetyClass(statusData.safety)}">${statusData.safety}</span></p>
+        </div>
+      `;
+    }
+
+    function addExistingMarkers() {
+      if (!map) return;
+      
+      // Clear existing markers
+      markers.forEach(m => m.marker.setMap(null));
+      markers = [];
+      
+      // Add markers for each status
+      document.querySelectorAll('.status').forEach(statusEl => {
+        const statusId = statusEl.dataset.id;
+        const statusData = JSON.parse(statusEl.dataset.status);
+        addMarker(statusData, statusId);
+      });
+    }
+
+    function checkGeolocation() {
+      if (navigator.geolocation) {
+        // Geolocation is available
+        document.getElementById('location').addEventListener('focus', suggestCurrentLocation);
       }
+    }
 
-      try {
-        // Add new status to Firebase
-        await push(statusListRef, statusData);
-        
-        // Show success animation
-        submitButton.style.animation = 'pulse 0.5s ease';
-        submitButton.addEventListener('animationend', () => {
-          submitButton.style.animation = '';
-        });
-        
-        showNotification('Status submitted successfully!');
-        
-        // Reset form after submission
-        document.getElementById('walkForm').reset();
-      } catch (error) {
-        showNotification('Error submitting status. Please try again.');
-      } finally {
-        submitButton.disabled = false;
-        document.getElementById('loadingSpinner').style.display = 'none';
-      }
-    });
+    function suggestCurrentLocation() {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          if (!geocoder) return;
+          
+          geocoder.geocode(
+            { location: { lat: position.coords.latitude, lng: position.coords.longitude } },
+            (results, status) => {
+              if (status === 'OK' && results[0]) {
+                const locationInput = document.getElementById('location');
+                locationInput.placeholder = `Near ${results[0].formatted_address}`;
+              }
+            }
+          );
+        },
+        (error) => {
+          console.log('Geolocation error:', error);
+        }
+      );
+    }
 
-    // Dark Mode Toggle
-    document.getElementById('toggleModeCheckbox').addEventListener('change', (e) => {
+    function toggleDarkMode(e) {
       document.body.classList.toggle('dark-mode', e.target.checked);
       localStorage.setItem('darkMode', e.target.checked);
-    });
+      
+      // Update map style if it exists
+      if (map) {
+        map.setOptions({ styles: getMapStyle() });
+      }
+    }
 
     // Check for saved dark mode preference
     if (localStorage.getItem('darkMode') === 'true') {
@@ -703,15 +1065,238 @@
     }
 
     // Show notification
-    function showNotification(message) {
+    function showNotification(message, isError = false) {
       const notification = document.getElementById('notification');
-      notification.textContent = message;
+      const icon = notification.querySelector('i');
+      const text = notification.querySelector('span');
+      
+      text.textContent = message;
+      notification.style.backgroundColor = isError ? '#f44336' : 'var(--primary-color)';
+      
+      if (isError) {
+        icon.className = 'fas fa-exclamation-circle';
+      } else {
+        icon.className = 'fas fa-check-circle';
+      }
+      
       notification.classList.add('show');
       
       setTimeout(() => {
         notification.classList.remove('show');
       }, 3000);
     }
+
+    function formatTimeAgo(timestamp) {
+      const now = new Date();
+      const seconds = Math.floor((now - timestamp) / 1000);
+      
+      if (seconds < 60) return 'Just now';
+      if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
+      if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+      return `${Math.floor(seconds / 86400)} days ago`;
+    }
+
+    function getSafetyClass(safetyStatus) {
+      switch(safetyStatus.toLowerCase()) {
+        case 'safe': return 'safety-safe';
+        case 'unsafe': return 'safety-unsafe';
+        case 'busy': return 'safety-unknown';
+        default: return 'safety-unknown';
+      }
+    }
+
+    function getStatusIcon(status) {
+      switch(status.toLowerCase()) {
+        case 'walking': return 'fas fa-walking';
+        case 'not walking': return 'fas fa-home';
+        case 'planning': return 'fas fa-clock';
+        default: return 'fas fa-paw';
+      }
+    }
+
+    function createStatusElement(statusData, statusId) {
+      const statusDiv = document.createElement('div');
+      statusDiv.className = `status ${statusData.status.toLowerCase().replace(' ', '-')}`;
+      statusDiv.dataset.id = statusId;
+      statusDiv.dataset.status = JSON.stringify(statusData);
+      
+      const timeAgo = statusData.timestamp ? formatTimeAgo(new Date(statusData.timestamp)) : 'Recently';
+      
+      let notesContent = '';
+      if (statusData.notes) {
+        notesContent = `<p><strong><i class="fas fa-sticky-note status-icon"></i>Notes:</strong> ${statusData.notes}</p>`;
+      }
+      
+      statusDiv.innerHTML = ` 
+        <span class="time-ago">${timeAgo}</span>
+        <p><strong><i class="${getStatusIcon(statusData.status)} status-icon"></i>Status:</strong> ${statusData.status}</p>
+        <p><strong><i class="fas fa-map-marker-alt status-icon"></i>Location:</strong> ${statusData.location}</p>
+        <p><strong><i class="far fa-clock status-icon"></i>Time:</strong> ${statusData.time}</p>
+        <p><strong><i class="fas fa-dog status-icon"></i>Dog:</strong> ${statusData.dogStatus}</p>
+        <p><strong><i class="fas fa-shield-alt status-icon"></i>Safety:</strong> <span class="${getSafetyClass(statusData.safety)}">${statusData.safety}</span></p>
+        ${notesContent}
+      `;
+      
+      return statusDiv;
+    }
+
+    function filterStatuses() {
+      const statuses = document.querySelectorAll('.status');
+      let visibleCount = 0;
+      
+      statuses.forEach(status => {
+        const statusData = JSON.parse(status.dataset.status);
+        let shouldShow = false;
+        
+        switch(currentFilter) {
+          case 'all':
+            shouldShow = true;
+            break;
+          case 'walking':
+            shouldShow = statusData.status.toLowerCase().includes('walking');
+            break;
+          case 'not-walking':
+            shouldShow = !statusData.status.toLowerCase().includes('walking');
+            break;
+          case 'friendly':
+            shouldShow = statusData.dogStatus.toLowerCase().includes('friendly');
+            break;
+          case 'service':
+            shouldShow = statusData.dogStatus.toLowerCase().includes('service');
+            break;
+          default:
+            shouldShow = true;
+        }
+        
+        if (shouldShow) {
+          status.style.display = 'block';
+          visibleCount++;
+        } else {
+          status.style.display = 'none';
+        }
+      });
+      
+      // Show empty state if no statuses match the filter
+      if (visibleCount === 0) {
+        emptyStateEl.classList.remove('hidden');
+      } else {
+        emptyStateEl.classList.add('hidden');
+      }
+    }
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      
+      const submitButton = e.target.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+      document.getElementById('loadingSpinner').style.display = 'block';
+      
+      try {
+        // Add slight delay to show loading state
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        const walkingStatus = document.getElementById('walkingStatus').value;
+        const location = document.getElementById('location').value.trim();
+        const walkTime = document.getElementById('walkTime').value;
+        const dogStatus = document.getElementById('dogStatus').value;
+        const safetyStatus = document.getElementById('safetyOptions').value;
+        const otherNotes = document.getElementById('otherNotes').value.trim();
+
+        if (!location) {
+          throw new Error('Location is required');
+        }
+
+        const statusData = {
+          status: walkingStatus === 'yes' ? 'Walking' : 
+                 walkingStatus === 'no' ? 'Not Walking' : 'Planning to walk',
+          location,
+          time: walkTime,
+          dogStatus,
+          safety: safetyStatus,
+          isNew: true,
+          timestamp: Date.now()
+        };
+
+        // Add notes only if they exist
+        if (otherNotes !== '') {
+          statusData.notes = otherNotes;
+        }
+
+        // Add new status to Firebase
+        await push(statusListRef, statusData);
+        
+        // Show success animation
+        submitButton.style.animation = 'pulse 0.5s ease';
+        submitButton.addEventListener('animationend', () => {
+          submitButton.style.animation = '';
+        });
+        
+        showNotification('Status submitted successfully!');
+        
+        // Reset form after submission
+        document.getElementById('walkForm').reset();
+      } catch (error) {
+        console.error('Submission error:', error);
+        showNotification(error.message || 'Error submitting status. Please try again.', true);
+      } finally {
+        submitButton.disabled = false;
+        document.getElementById('loadingSpinner').style.display = 'none';
+      }
+    }
+
+    // Display live updates
+    onChildAdded(statusListRef, (snapshot) => {
+      const statusData = snapshot.val();
+      const statusId = snapshot.key;
+      
+      const statusDiv = createStatusElement(statusData, statusId);
+      
+      // Add pulsing animation for new status
+      if (statusData.isNew) {
+        statusDiv.style.animation = 'fadeIn 0.5s ease-out forwards';
+        statusDiv.addEventListener('animationend', () => {
+          statusDiv.style.animation = '';
+        });
+        
+        showNotification('New dog walk status added!');
+        
+        // Remove the isNew flag to prevent showing notification on page refresh
+        const statusRef = ref(database, `dogWalkStatuses/${statusId}`);
+        // Note: In a real app, you'd update this on the server side
+      }
+      
+      // Prepend new statuses to the list so they appear at the top
+      statusListEl.insertBefore(statusDiv, statusListEl.firstChild);
+      
+      // Add marker to map if it exists
+      if (map) {
+        addMarker(statusData, statusId);
+      }
+      
+      // Filter the new status
+      filterStatuses();
+    });
+
+    // Handle removed statuses
+    onChildRemoved(statusListRef, (snapshot) => {
+      const statusId = snapshot.key;
+      
+      // Remove from DOM
+      const statusEl = document.querySelector(`.status[data-id="${statusId}"]`);
+      if (statusEl) {
+        statusEl.remove();
+      }
+      
+      // Remove from map
+      const markerIndex = markers.findIndex(m => m.id === statusId);
+      if (markerIndex !== -1) {
+        markers[markerIndex].marker.setMap(null);
+        markers.splice(markerIndex, 1);
+      }
+      
+      // Check if we need to show empty state
+      filterStatuses();
+    });
 
     // Animate elements when they come into view
     const animateOnScroll = () => {
@@ -731,6 +1316,9 @@
     window.addEventListener('scroll', animateOnScroll);
     // Initial check in case elements are already in view
     animateOnScroll();
+
+    // Expose initMap to global scope for Google Maps callback
+    window.initMap = initMap;
   </script>
 </body>
 </html>
