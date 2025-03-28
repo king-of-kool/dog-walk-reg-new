@@ -91,10 +91,23 @@
 
       .main-content {
         margin-left: 0; /* For mobile view */
+        padding-top: 70px; /* Add space for hamburger menu */
       }
 
       #sideMenu.open {
         transform: translateX(0);
+      }
+      
+      #hamburgerMenu.open div:nth-child(1) {
+        transform: rotate(-45deg) translate(-5px, 6px);
+      }
+      
+      #hamburgerMenu.open div:nth-child(2) {
+        opacity: 0;
+      }
+      
+      #hamburgerMenu.open div:nth-child(3) {
+        transform: rotate(45deg) translate(-5px, -6px);
       }
     }
 
@@ -104,12 +117,12 @@
       padding: 30px;
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      margin: 30px 0;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
+      margin: 30px auto;
+      width: 80%;
+      max-width: 800px;
       display: grid;
       gap: 15px;
+      grid-template-columns: 1fr 1fr;
     }
 
     .dark-mode form {
@@ -119,21 +132,31 @@
     label {
       font-weight: 500;
       color: #00796b;
+      display: block;
+      margin-bottom: 5px;
     }
 
     .dark-mode label {
       color: #ffffff;
     }
 
-    input, select, button {
+    input, select, textarea, button {
       padding: 12px;
       border-radius: 5px;
       border: 1px solid #00796b;
       width: 100%;
       box-sizing: border-box;
+      font-family: 'Roboto', sans-serif;
     }
 
-    .dark-mode input, .dark-mode select {
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .dark-mode input, 
+    .dark-mode select,
+    .dark-mode textarea {
       background-color: #555;
       color: white;
       border-color: #00796b;
@@ -145,6 +168,8 @@
       font-size: 16px;
       cursor: pointer;
       border: none;
+      grid-column: span 2;
+      margin-top: 10px;
     }
 
     .dark-mode button {
@@ -153,6 +178,11 @@
 
     button:hover {
       background-color: #004d40;
+    }
+
+    /* Full width form elements */
+    .form-full-width {
+      grid-column: span 2;
     }
 
     /* Dark Mode Toggle */
@@ -220,19 +250,24 @@
       border-radius: 8px;
       opacity: 0;
       animation: fadeIn 0.5s forwards;
-      width: 100%;
-      max-width: 600px;
+      width: 80%;
+      max-width: 800px;
     }
 
     .dark-mode .status {
       background-color: #444;
       border: 1px solid #00796b;
+      color: white;
     }
 
     .status strong {
       display: inline-block;
-      width: 100px;
+      width: 120px;
       font-weight: 600;
+    }
+
+    .status p {
+      margin: 8px 0;
     }
 
     /* Animation for fading in new status */
@@ -251,6 +286,11 @@
     @media (max-width: 768px) {
       h1 {
         font-size: 2rem;
+        margin-top: 20px;
+      }
+
+      h2 {
+        font-size: 1.5rem;
       }
 
       p {
@@ -260,6 +300,11 @@
       form {
         padding: 20px;
         width: 90%;
+        grid-template-columns: 1fr;
+      }
+
+      .form-full-width, button {
+        grid-column: span 1;
       }
 
       .status {
@@ -268,6 +313,16 @@
 
       #statusList {
         margin-top: 20px;
+      }
+      
+      .toggle-container {
+        top: 80px;
+        right: auto;
+        left: 20px;
+      }
+      
+      #hamburgerMenu div {
+        background-color: white;
       }
     }
   </style>
@@ -292,7 +347,7 @@
     <p>Mark your dog walking status to help others avoid potential accidents.</p>
 
     <form id="walkForm">
-      <label>
+      <label class="form-full-width">
         Are you walking your dog?
         <select id="walkingStatus">
           <option value="yes">Yes</option>
@@ -310,20 +365,29 @@
         <input type="time" id="walkTime" required />
       </label>
 
-      <label for="dogStatus">Dog Status</label>
-      <select id="dogStatus">
-        <option value="Friendly">Friendly</option>
-        <option value="Nervous">Nervous</option>
-        <option value="Not Friendly">Not Friendly</option>
-        <option value="Service Dog">Service Dog</option>
-      </select>
+      <label>
+        Dog Status
+        <select id="dogStatus">
+          <option value="Friendly">Friendly</option>
+          <option value="Nervous">Nervous</option>
+          <option value="Not Friendly">Not Friendly</option>
+          <option value="Service Dog">Service Dog</option>
+        </select>
+      </label>
 
-      <label for="safetyOptions">Safety Status</label>
-      <select id="safetyOptions">
-        <option value="safe">Safe</option>
-        <option value="unsafe">Unsafe</option>
-        <option value="unknown">Unknown</option>
-      </select>
+      <label>
+        Safety Status
+        <select id="safetyOptions">
+          <option value="safe">Safe</option>
+          <option value="unsafe">Unsafe</option>
+          <option value="unknown">Unknown</option>
+        </select>
+      </label>
+
+      <label class="form-full-width">
+        Other Notes (optional):
+        <textarea id="otherNotes" maxlength="200"></textarea>
+      </label>
 
       <button type="submit">Submit Status</button>
     </form>
@@ -363,12 +427,19 @@
       const statusData = snapshot.val();
       const statusDiv = document.createElement('div');
       statusDiv.className = 'status';
+      
+      let notesContent = '';
+      if (statusData.notes) {
+        notesContent = `<p><strong>Notes:</strong> ${statusData.notes}</p>`;
+      }
+      
       statusDiv.innerHTML = ` 
-        <strong>Status:</strong> ${statusData.status}<br>
-        <strong>Location:</strong> ${statusData.location}<br>
-        <strong>Time:</strong> ${statusData.time}<br>
-        <strong>Dog Status:</strong> ${statusData.dogStatus}<br>
-        <strong>Safety Status:</strong> ${statusData.safety}
+        <p><strong>Status:</strong> ${statusData.status}</p>
+        <p><strong>Location:</strong> ${statusData.location}</p>
+        <p><strong>Time:</strong> ${statusData.time}</p>
+        <p><strong>Dog Status:</strong> ${statusData.dogStatus}</p>
+        <p><strong>Safety Status:</strong> ${statusData.safety}</p>
+        ${notesContent}
       `;
       // Prepend new statuses to the list so they appear at the top
       document.getElementById('statusList').insertBefore(statusDiv, document.getElementById('statusList').firstChild);
@@ -383,6 +454,7 @@
       const walkTime = document.getElementById('walkTime').value;
       const dogStatus = document.getElementById('dogStatus').value;
       const safetyStatus = document.getElementById('safetyOptions').value;
+      const otherNotes = document.getElementById('otherNotes').value;
 
       const statusData = {
         status: walkingStatus === 'yes' ? 'Walking' : 'Not Walking',
@@ -391,6 +463,11 @@
         dogStatus,
         safety: safetyStatus
       };
+
+      // Add notes only if they exist
+      if (otherNotes.trim() !== '') {
+        statusData.notes = otherNotes;
+      }
 
       // Add new status to Firebase
       push(statusListRef, statusData);
@@ -407,7 +484,9 @@
     // Mobile Menu Toggle
     function toggleMenu() {
       const sideMenu = document.getElementById('sideMenu');
+      const hamburger = document.getElementById('hamburgerMenu');
       sideMenu.classList.toggle('open');
+      hamburger.classList.toggle('open');
     }
   </script>
 </body>
