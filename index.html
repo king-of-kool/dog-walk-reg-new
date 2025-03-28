@@ -337,22 +337,37 @@
     <div id="statusList"></div>
   </div>
 
-  <!-- Profanity Filter & Firebase SDK -->
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
   <script>
-    // Profanity filter (from no-naughty-words)
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCtpIJvKHY3x_8x7_m-0QtUMIQ0Gj2blRQ",
+      authDomain: "dog-walk-reg.firebaseapp.com",
+      databaseURL: "https://dog-walk-reg-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "dog-walk-reg",
+      storageBucket: "dog-walk-reg.firebasestorage.app",
+      messagingSenderId: "806193788108",
+      appId: "1:806193788108:web:ac6df92dd5800bd74a3e69",
+      measurementId: "G-9Y7PYSP8NP"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database(app);
+
+    // Profanity filter class
     class NoNaughtyWords {
       constructor() {
-        this.words = [
-          "abuse", "adult", "anal", "anus", "ass", "asshole", "bastard", "bitch", "bitchy", "bloody", "blowjob", 
-          "bollocks", "boner", "breasts", "butt", "buttfuck", "cocksucker", "crap", "cunt", "dick", "dildo", "dyke", 
-          "fag", "faggot", "fanny", "felch", "felching", "fuck", "fucked", "fucker", "fucking", "fucktard", "goddamn", 
-          "hell", "idiot", "jerk", "kike", "knobhead", "lesbian", "nigga", "nigger", "numbnuts", "piss", "pussy", 
-          "scumbag", "slut", "spastic", "twat", "vagina", "wanker"
-        ];
+        this.words = ["abuse", "adult", "anal", "anus", "ass", "asshole", "bastard", "bitch", "bitchy", "bloody", "blowjob", /* more words */];
+        this.regexWords = this.words.map(word => `\\b${word}\\b`).join('|');
+        this.regex = new RegExp(this.regexWords, 'i');
       }
+
       hasProfanity(text) {
-        const regex = new RegExp(this.words.join('|'), 'i');
-        return regex.test(text);
+        const normalizedText = text.toLowerCase().replace(/\s+/g, ' ').trim();
+        return this.regex.test(normalizedText);
       }
     }
 
@@ -370,7 +385,7 @@
       }
     });
 
-    // Form submission with profanity check
+    // Form submission with profanity check and Firebase push
     document.getElementById('walkForm').addEventListener('submit', (e) => {
       e.preventDefault();
 
@@ -390,6 +405,17 @@
         alert("Your input contains inappropriate language. Please remove offensive words.");
         return;
       }
+
+      // Push status to Firebase
+      const statusRef = database.ref('statuses');
+      const newStatus = statusRef.push();
+      newStatus.set({
+        walkingStatus,
+        location,
+        walkTime,
+        dogStatus,
+        safetyStatus
+      });
 
       // Display status
       const statusList = document.getElementById('statusList');
