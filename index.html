@@ -43,7 +43,7 @@
 
     /* Layout for Main Content */
     .main-content {
-      margin-left: 250px; /* For the side menu */
+      margin-left: 250px;
       padding: 20px;
       transition: margin-left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
       animation: fadeIn 0.8s ease-out;
@@ -128,7 +128,1492 @@
     /* Menu Animation (for mobile view) */
     @media (max-width: 768px) {
       #sideMenu {
-        transform: translateX(-250px); /* Hide side menu off-screen */
+        transform: translateX(-250px);
+      }
+
+      #hamburgerMenu {
+        display: block;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding-top: 70px;
+      }
+
+      #sideMenu.open {
+        transform: translateX(0);
+      }
+      
+      #hamburgerMenu.open div:nth-child(1) {
+        transform: rotate(-45deg) translate(-5px, 6px);
+        background-color: var(--text-light);
+      }
+      
+      #hamburgerMenu.open div:nth-child(2) {
+        opacity: 0;
+      }
+      
+      #hamburgerMenu.open div:nth-child(3) {
+        transform: rotate(45deg) translate(-5px, -6px);
+        background-color: var(--text-light);
+      }
+    }
+
+    /* Header styles */
+    h1 {
+      color: var(--primary-color);
+      margin-top: 0;
+      font-size: 2.5rem;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    h2 {
+      color: var(--primary-color);
+      margin-top: 40px;
+      font-size: 1.8rem;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background-color: var(--primary-color);
+    }
+
+    /* Form Styles */
+    form {
+      background-color: var(--card-bg);
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      margin: 30px auto;
+      width: 80%;
+      max-width: 800px;
+      display: grid;
+      gap: 20px;
+      grid-template-columns: 1fr 1fr;
+      transform: translateY(0);
+      transition: var(--transition);
+      animation: slideUp 0.6s ease-out;
+    }
+
+    form:hover {
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      transform: translateY(-3px);
+    }
+
+    label {
+      font-weight: 500;
+      color: var(--primary-color);
+      display: block;
+      margin-bottom: 8px;
+      transition: color 0.3s ease;
+    }
+
+    input, select, textarea, button {
+      padding: 12px;
+      border-radius: 5px;
+      border: 1px solid var(--primary-color);
+      width: 100%;
+      box-sizing: border-box;
+      font-family: 'Roboto', sans-serif;
+      transition: var(--transition);
+      background-color: var(--card-bg);
+      color: var(--text-color);
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary-dark);
+      box-shadow: 0 0 0 2px rgba(0, 121, 107, 0.3);
+      transform: scale(1.01);
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    button {
+      background-color: var(--primary-color);
+      color: var(--text-light);
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      grid-column: span 2;
+      margin-top: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 5px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.5);
+      opacity: 0;
+      border-radius: 100%;
+      transform: scale(1, 1) translate(-50%);
+      transform-origin: 50% 50%;
+    }
+
+    button:focus:not(:active)::after {
+      animation: ripple 1s ease-out;
+    }
+
+    button:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    /* Full width form elements */
+    .form-full-width {
+      grid-column: span 2;
+    }
+
+    /* Status List Styles */
+    #statusList {
+      margin-top: 40px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 20px;
+      width: 100%;
+    }
+
+    .status {
+      background-color: var(--card-bg);
+      border-left: 4px solid var(--primary-color);
+      padding: 20px;
+      border-radius: 8px;
+      opacity: 0;
+      animation: fadeIn 0.5s forwards;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .status.walking {
+      border-left-color: #4caf50;
+    }
+
+    .status.not-walking {
+      border-left-color: #f44336;
+    }
+
+    .status:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .status strong {
+      display: inline-block;
+      width: 120px;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .status p {
+      margin: 8px 0;
+      transition: color 0.3s ease;
+    }
+
+    .status .time-ago {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 0.8rem;
+      color: #888;
+    }
+
+    .dark-mode .status .time-ago {
+      color: #aaa;
+    }
+
+    /* Status icons */
+    .status-icon {
+      margin-right: 8px;
+      color: var(--primary-color);
+    }
+
+    /* Loading spinner */
+    .spinner {
+      display: none;
+      width: 40px;
+      height: 40px;
+      margin: 20px auto;
+      border: 4px solid rgba(0, 121, 107, 0.2);
+      border-radius: 50%;
+      border-top-color: var(--primary-color);
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideUp {
+      0% {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes ripple {
+      0% {
+        transform: scale(0, 0);
+        opacity: 1;
+      }
+      20% {
+        transform: scale(25, 25);
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: scale(40, 40);
+      }
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    /* Notification */
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: var(--primary-color);
+      color: var(--text-light);
+      padding: 15px 25px;
+      border-radius: 5px;
+      box-shadow: var(--shadow);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: var(--transition);
+      z-index: 3000;
+      display: flex;
+      align-items: center;
+    }
+
+    .notification i {
+      margin-right: 10px;
+    }
+
+    .notification.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Map container */
+    #mapContainer {
+      height: 300px;
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    /* Map selection container */
+    #mapSelectionContainer {
+      height: 300px;
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      display: none;
+      border: 2px solid var(--primary-color);
+    }
+
+    /* Map controls */
+    .map-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .map-btn {
+      padding: 8px 15px;
+      background-color: var(--primary-color);
+      color: var(--text-light);
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .map-btn:hover {
+      background-color: var(--primary-dark);
+    }
+
+    /* Filter controls */
+    .filter-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 8px 15px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--primary-color);
+      color: var(--primary-color);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .filter-btn.active {
+      background-color: var(--primary-color);
+      color: var(--text-light);
+    }
+
+    .filter-btn:hover {
+      background-color: var(--primary-light);
+    }
+
+    /* Safety status indicators */
+    .safety-safe {
+      color: #4caf50;
+    }
+
+    .safety-unsafe {
+      color: #f44336;
+    }
+
+    .safety-unknown {
+      color: #ff9800;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+        margin-top: 20px;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+
+      form {
+        padding: 20px;
+        width: 90%;
+        grid-template-columns: 1fr;
+      }
+
+      .form-full-width, button {
+        grid-column: span 1;
+      }
+
+      #statusList {
+        grid-template-columns: 1fr;
+      }
+      
+      .toggle-container {
+        top: 80px;
+        right: auto;
+        left: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .main-content {
+        padding: 15px;
+      }
+      
+      form {
+        padding: 15px;
+        width: 100%;
+      }
+      
+      .filter-controls {
+        justify-content: center;
+      }
+    }
+
+    /* Utility classes */
+    .hidden {
+      display: none !important;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .mt-20 {
+      margin-top: 20px;
+    }
+
+    /* Dark Mode Toggle */
+    .toggle-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      z-index: 2000;
+      transition: var(--transition);
+      background: var(--card-bg);
+      padding: 5px 10px;
+      border-radius: 30px;
+      box-shadow: var(--shadow);
+    }
+
+    .toggle-container:hover {
+      transform: scale(1.05);
+    }
+
+    .toggle-container input[type="checkbox"] {
+      display: none;
+    }
+
+    .toggle-container label {
+      width: 50px;
+      height: 26px;
+      background-color: #ddd;
+      border-radius: 50px;
+      position: relative;
+      cursor: pointer;
+      transition: var(--transition);
+      margin: 0 5px;
+    }
+
+    .toggle-container label:before {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: white;
+      transition: var(--transition);
+      top: 3px;
+      left: 3px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle-container input[type="checkbox"]:checked + label {
+      background-color: var(--primary-color);
+    }
+
+    .toggle-container input[type="checkbox"]:checked + label:before {
+      transform: translateX(24px);
+    }
+
+    .toggle-icon {
+      color: var(--primary-color);
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="sideMenu">
+    <h2><i class="fas fa-paw"></i> Dog Walk Status</h2>
+    <a href="#" class="active"><i class="fas fa-home"></i> Home</a>
+    <a href="#submit-status"><i class="fas fa-plus-circle"></i> Submit Status</a>
+    <a href="#view-status"><i class="fas fa-list"></i> View Statuses</a>
+    <a href="#map-view"><i class="fas fa-map-marked-alt"></i> Map View</a>
+  </div>
+
+  <!-- Hamburger Menu -->
+  <div id="hamburgerMenu" onclick="toggleMenu()">
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+
+  <div class="main-content">
+    <h1><i class="fas fa-paw"></i> Dog Walk Status</h1>
+    <p>Mark your dog walking status to help others avoid potential accidents and coordinate walks in your area.</p>
+
+    <!-- Map Container -->
+    <div id="mapContainer">
+      <!-- Map will be rendered here -->
+    </div>
+
+    <!-- Filter Controls -->
+    <div class="filter-controls">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="walking">Walking</button>
+      <button class="filter-btn" data-filter="not-walking">Not Walking</button>
+      <button class="filter-btn" data-filter="friendly">Friendly Dogs</button>
+      <button class="filter-btn" data-filter="service">Service Dogs</button>
+    </div>
+
+    <form id="walkForm">
+      <label class="form-full-width">
+        Are you walking your dog?
+        <select id="walkingStatus" required>
+          <option value="yes">Yes, currently walking</option>
+          <option value="no">No, not currently walking</option>
+          <option value="planning">Planning to walk soon</option>
+        </select>
+      </label>
+
+      <label class="form-full-width">
+        Location (e.g., Park Name or Area):
+        <div class="map-controls">
+          <input type="text" id="location" required maxlength="50" placeholder="Central Park, Dog Run Area" />
+          <button type="button" id="selectOnMapBtn" class="map-btn"><i class="fas fa-map-marker-alt"></i> Select on Map</button>
+        </div>
+      </label>
+
+      <div id="mapSelectionContainer"></div>
+
+      <label>
+        Walk Time:
+        <input type="time" id="walkTime" required />
+      </label>
+
+      <label>
+        Dog Status
+        <select id="dogStatus" required>
+          <option value="Friendly">Friendly with dogs/people</option>
+          <option value="Nervous">Nervous/Shy</option>
+          <option value="Not Friendly">Not friendly (please keep distance)</option>
+          <option value="Service Dog">Service Dog (do not disturb)</option>
+          <option value="In Training">In Training</option>
+        </select>
+      </label>
+
+      <label>
+        Safety Status
+        <select id="safetyOptions" required>
+          <option value="safe">Safe area</option>
+          <option value="unsafe">Unsafe (recent incidents)</option>
+          <option value="unknown">Unknown safety</option>
+          <option value="busy">Very busy area</option>
+        </select>
+      </label>
+
+      <label class="form-full-width">
+        Other Notes (optional):
+        <textarea id="otherNotes" maxlength="200" placeholder="E.g., 'We'll be wearing red bandanas', 'Avoid the north side of park'"></textarea>
+      </label>
+
+      <button type="submit"><i class="fas fa-paper-plane"></i> Submit Status</button>
+    </form>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="spinner"></div>
+
+    <!-- Dark Mode Toggle -->
+    <div class="toggle-container">
+      <i class="fas fa-sun toggle-icon"></i>
+      <input type="checkbox" id="toggleModeCheckbox">
+      <label for="toggleModeCheckbox"></label>
+      <i class="fas fa-moon toggle-icon"></i>
+    </div>
+
+    <h2><i class="fas fa-list-ul"></i> Current Dog Walk Statuses</h2>
+    <div id="statusList">
+      <!-- Status cards will be inserted here -->
+    </div>
+
+    <div id="emptyState" class="text-center mt-20 hidden">
+      <i class="fas fa-dog" style="font-size: 3rem; color: var(--primary-color);"></i>
+      <h3>No walk statuses found</h3>
+      <p>Be the first to submit a dog walk status in your area!</p>
+    </div>
+  </div>
+
+  <!-- Notification -->
+  <div id="notification" class="notification">
+    <i class="fas fa-check-circle"></i>
+    <span>Status submitted successfully!</span>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, push, onChildAdded, onChildRemoved, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCTLsji9XOlgHK-YUPrQYSfLPB5NoerVWY",
+      authDomain: "dog-walk-reg.firebaseapp.com",
+      databaseURL: "https://dog-walk-reg-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "dog-walk-reg",
+      storageBucket: "dog-walk-reg.appspot.com",
+      messagingSenderId: "806193788108",
+      appId: "1:806193788108:web:ac6df92dd5800bd74a3e69",
+      measurementId: "G-9Y7PYSP8NP"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    const statusListRef = query(ref(database, 'dogWalkStatuses'), orderByChild('timestamp'));
+
+    // Initialize variables
+    let map;
+    let selectionMap;
+    let markers = [];
+    let currentFilter = 'all';
+    let geocoder;
+    let selectionMarker;
+    let autocomplete;
+
+    // DOM elements
+    const statusListEl = document.getElementById('statusList');
+    const emptyStateEl = document.getElementById('emptyState');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const mapContainer = document.getElementById('mapContainer');
+    const mapSelectionContainer = document.getElementById('mapSelectionContainer');
+    const selectOnMapBtn = document.getElementById('selectOnMapBtn');
+    const locationInput = document.getElementById('location');
+    const walkForm = document.getElementById('walkForm');
+
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', () => {
+      initEventListeners();
+      checkGeolocation();
+      loadMapLibrary();
+      loadInitialData();
+    });
+
+    function initEventListeners() {
+      // Form submission
+      walkForm.addEventListener('submit', handleFormSubmit);
+      
+      // Dark mode toggle
+      document.getElementById('toggleModeCheckbox').addEventListener('change', toggleDarkMode);
+      
+      // Filter buttons
+      filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentFilter = btn.dataset.filter;
+          filterStatuses();
+        });
+      });
+      
+      // Map selection button
+      selectOnMapBtn.addEventListener('click', showMapSelection);
+      
+      // Hash-based navigation
+      window.addEventListener('hashchange', handleHashChange);
+      handleHashChange();
+    }
+
+    function loadInitialData() {
+      // Data will be loaded via the onChildAdded listener
+    }
+
+    function handleHashChange() {
+      const hash = window.location.hash;
+      const sideMenuLinks = document.querySelectorAll('#sideMenu a');
+      
+      sideMenuLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === hash) {
+          link.classList.add('active');
+        }
+      });
+      
+      // Scroll to appropriate section
+      if (hash === '#map-view') {
+        showMapView();
+      } else if (hash === '#submit-status') {
+        document.getElementById('walkForm').scrollIntoView({ behavior: 'smooth' });
+      } else if (hash === '#view-status') {
+        document.querySelector('h2').scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function showMapView() {
+      mapContainer.style.display = 'block';
+      statusListEl.style.display = 'none';
+      initMap();
+    }
+
+    function showListView() {
+      mapContainer.style.display = 'none';
+      statusListEl.style.display = 'grid';
+    }
+
+    function loadMapLibrary() {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${firebaseConfig.apiKey}&libraries=places&callback=initMaps`;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+
+    function initMaps() {
+      initMainMap();
+      initSelectionMap();
+      initAutocomplete();
+    }
+
+    function initMainMap() {
+      if (typeof google === 'undefined') return;
+      
+      // Try to center map on user's location or default to a central point
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          
+          map = new google.maps.Map(mapContainer, {
+            center: userLocation,
+            zoom: 13,
+            styles: getMapStyle()
+          });
+          
+          geocoder = new google.maps.Geocoder();
+          addExistingMarkers();
+        },
+        () => {
+          // Default to New York if geolocation fails
+          map = new google.maps.Map(mapContainer, {
+            center: { lat: 40.7128, lng: -74.0060 },
+            zoom: 12,
+            styles: getMapStyle()
+          });
+          
+          geocoder = new google.maps.Geocoder();
+          addExistingMarkers();
+        }
+      );
+    }
+
+    function initSelectionMap() {
+      if (typeof google === 'undefined') return;
+      
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          
+          selectionMap = new google.maps.Map(mapSelectionContainer, {
+            center: userLocation,
+            zoom: 15,
+            styles: getMapStyle()
+          });
+          
+          // Add click listener for marker placement
+          selectionMap.addListener('click', (e) => {
+            placeSelectionMarker(e.latLng);
+            reverseGeocode(e.latLng);
+          });
+        },
+        () => {
+          // Default to New York if geolocation fails
+          selectionMap = new google.maps.Map(mapSelectionContainer, {
+            center: { lat: 40.7128, lng: -74.0060 },
+            zoom: 12,
+            styles: getMapStyle()
+          });
+          
+          // Add click listener for marker placement
+          selectionMap.addListener('click', (e) => {
+            placeSelectionMarker(e.latLng);
+            reverseGeocode(e.latLng);
+          });
+        }
+      );
+    }
+
+    function initAutocomplete() {
+      if (typeof google === 'undefined') return;
+      
+      autocomplete = new google.maps.places.Autocomplete(locationInput, {
+        types: ['establishment', 'geocode'],
+        fields: ['formatted_address', 'geometry']
+      });
+      
+      autocomplete.addListener('place_changed', () => {
+        const place = autocomplete.getPlace();
+        if (!place.geometry) {
+          return;
+        }
+        
+        if (selectionMap) {
+          selectionMap.setCenter(place.geometry.location);
+          selectionMap.setZoom(17);
+          placeSelectionMarker(place.geometry.location);
+        }
+      });
+    }
+
+    function placeSelectionMarker(location) {
+      if (selectionMarker) {
+        selectionMarker.setPosition(location);
+      } else {
+        selectionMarker = new google.maps.Marker({
+          position: location,
+          map: selectionMap,
+          draggable: true,
+          title: "Selected Location"
+        });
+        
+        selectionMarker.addListener('dragend', () => {
+          reverseGeocode(selectionMarker.getPosition());
+        });
+      }
+    }
+
+    function reverseGeocode(latLng) {
+      if (!geocoder) return;
+      
+      geocoder.geocode({ location: latLng }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+          locationInput.value = results[0].formatted_address;
+        }
+      });
+    }
+
+    function showMapSelection() {
+      mapSelectionContainer.style.display = 'block';
+      
+      // Center map on current location if available
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            if (selectionMap) {
+              selectionMap.setCenter({
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+              });
+              selectionMap.setZoom(15);
+            }
+          },
+          () => {
+            // Default to New York if geolocation fails
+            if (selectionMap) {
+              selectionMap.setCenter({ lat: 40.7128, lng: -74.0060 });
+              selectionMap.setZoom(12);
+            }
+          }
+        );
+      }
+    }
+
+    function getMapStyle() {
+      return document.body.classList.contains('dark-mode') ? [
+        { elementType: "geometry", stylers: [{ color: "#1e293b" }] },
+        { elementType: "labels.text.stroke", stylers: [{ color: "#1e293b" }] },
+        { elementType: "labels.text.fill", stylers: [{ color: "#9ca3af" }] },
+        {
+          featureType: "administrative.locality",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#93c5fd" }]
+        },
+        {
+          featureType: "poi",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#93c5fd" }]
+        },
+        {
+          featureType: "poi.park",
+          elementType: "geometry",
+          stylers: [{ color: "#1e3a8a" }]
+        },
+        {
+          featureType: "poi.park",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#86efac" }]
+        },
+        {
+          featureType: "road",
+          elementType: "geometry",
+          stylers: [{ color: "#1f2937" }]
+        },
+        {
+          featureType: "road",
+          elementType: "geometry.stroke",
+          stylers: [{ color: "#1e293b" }]
+        },
+        {
+          featureType: "road",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#9ca3af" }]
+        },
+        {
+          featureType: "road.highway",
+          elementType: "geometry",
+          stylers: [{ color: "#1e40af" }]
+        },
+        {
+          featureType: "road.highway",
+          elementType: "geometry.stroke",
+          stylers: [{ color: "#1e293b" }]
+        },
+        {
+          featureType: "road.highway",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#bfdbfe" }]
+        },
+        {
+          featureType: "transit",
+          elementType: "geometry",
+          stylers: [{ color: "#1e293b" }]
+        },
+        {
+          featureType: "transit.station",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#93c5fd" }]
+        },
+        {
+          featureType: "water",
+          elementType: "geometry",
+          stylers: [{ color: "#1e3a8a" }]
+        },
+        {
+          featureType: "water",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#60a5fa" }]
+        },
+        {
+          featureType: "water",
+          elementType: "labels.text.stroke",
+          stylers: [{ color: "#1e3a8a" }]
+        }
+      ] : [];
+    }
+
+    function addMarker(statusData, statusId) {
+      if (!map || !geocoder) return;
+      
+      geocoder.geocode({ address: statusData.location }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+          const marker = new google.maps.Marker({
+            map: map,
+            position: results[0].geometry.location,
+            title: statusData.location,
+            icon: getMarkerIcon(statusData)
+          });
+          
+          const infoWindow = new google.maps.InfoWindow({
+            content: createMarkerContent(statusData)
+          });
+          
+          marker.addListener('click', () => {
+            infoWindow.open(map, marker);
+          });
+          
+          markers.push({ id: statusId, marker: marker });
+        }
+      });
+    }
+
+    function getMarkerIcon(statusData) {
+      const baseIcon = {
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: statusData.status === 'Walking' ? '#4CAF50' : '#F44336',
+        fillOpacity: 0.9,
+        scale: 8,
+        strokeColor: 'white',
+        strokeWeight: 2
+      };
+      
+      return baseIcon;
+    }
+
+    function createMarkerContent(statusData) {
+      return `
+        <div style="padding: 10px; max-width: 200px;">
+          <h3 style="margin: 0 0 5px 0; color: ${statusData.status === 'Walking' ? '#4CAF50' : '#F44336'}">
+            ${statusData.status === 'Walking' ? 'Currently Walking' : 'Not Walking'}
+          </h3>
+          <p style="margin: 0 0 5px 0;"><strong>Location:</strong> ${statusData.location}</p>
+          <p style="margin: 0 0 5px 0;"><strong>Time:</strong> ${statusData.time}</p>
+          <p style="margin: 0 0 5px 0;"><strong>Dog:</strong> ${statusData.dogStatus}</p>
+          <p style="margin: 0;"><strong>Safety:</strong> <span class="${getSafetyClass(statusData.safety)}">${statusData.safety}</span></p>
+        </div>
+      `;
+    }
+
+    function addExistingMarkers() {
+      if (!map) return;
+      
+      // Clear existing markers
+      markers.forEach(m => m.marker.setMap(null));
+      markers = [];
+      
+      // Add markers for each status
+      document.querySelectorAll('.status').forEach(statusEl => {
+        const statusId = statusEl.dataset.id;
+        const statusData = JSON.parse(statusEl.dataset.status);
+        addMarker(statusData, statusId);
+      });
+    }
+
+    function checkGeolocation() {
+      if (navigator.geolocation) {
+        // Geolocation is available
+        document.getElementById('location').addEventListener('focus', suggestCurrentLocation);
+      }
+    }
+
+    function suggestCurrentLocation() {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          if (!geocoder) return;
+          
+          geocoder.geocode(
+            { location: { lat: position.coords.latitude, lng: position.coords.longitude } },
+            (results, status) => {
+              if (status === 'OK' && results[0]) {
+                locationInput.placeholder = `Near ${results[0].formatted_address}`;
+              }
+            }
+          );
+        },
+        (error) => {
+          console.log('Geolocation error:', error);
+        }
+      );
+    }
+
+    function toggleDarkMode(e) {
+      document.body.classList.toggle('dark-mode', e.target.checked);
+      localStorage.setItem('darkMode', e.target.checked);
+      
+      // Update map style if it exists
+      if (map) {
+        map.setOptions({ styles: getMapStyle() });
+      }
+      if (selectionMap) {
+        selectionMap.setOptions({ styles: getMapStyle() });
+      }
+    }
+
+    // Check for saved dark mode preference
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.getElementById('toggleModeCheckbox').checked = true;
+      document.body.classList.add('dark-mode');
+    }
+
+    // Mobile Menu Toggle
+    function toggleMenu() {
+      const sideMenu = document.getElementById('sideMenu');
+      const hamburger = document.getElementById('hamburgerMenu');
+      sideMenu.classList.toggle('open');
+      hamburger.classList.toggle('open');
+    }
+
+    // Show notification
+    function showNotification(message, isError = false) {
+      const notification = document.getElementById('notification');
+      const icon = notification.querySelector('i');
+      const text = notification.querySelector('span');
+      
+      text.textContent = message;
+      notification.style.backgroundColor = isError ? '#f44336' : 'var(--primary-color)';
+      
+      if (isError) {
+        icon.className = 'fas fa-exclamation-circle';
+      } else {
+        icon.className = 'fas fa-check-circle';
+      }
+      
+      notification.classList.add('show');
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+
+    function formatTimeAgo(timestamp) {
+      const now = new Date();
+      const seconds = Math.floor((now - timestamp) / 1000);
+      
+      if (seconds < 60) return 'Just now';
+      if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
+      if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+      return `${Math.floor(seconds / 86400)} days ago`;
+    }
+
+    function getSafetyClass(safetyStatus) {
+      switch(safetyStatus.toLowerCase()) {
+        case 'safe': return 'safety-safe';
+        case 'unsafe': return 'safety-unsafe';
+        case 'busy': return 'safety-unknown';
+        default: return 'safety-unknown';
+      }
+    }
+
+    function getStatusIcon(status) {
+      switch(status.toLowerCase()) {
+        case 'walking': return 'fas fa-walking';
+        case 'not walking': return 'fas fa-home';
+        case 'planning': return 'fas fa-clock';
+        default: return 'fas fa-paw';
+      }
+    }
+
+    function createStatusElement(statusData, statusId) {
+      const statusDiv = document.createElement('div');
+      statusDiv.className = `status ${statusData.status.toLowerCase().replace(' ', '-')}`;
+      statusDiv.dataset.id = statusId;
+      statusDiv.dataset.status = JSON.stringify(statusData);
+      
+      const timeAgo = statusData.timestamp ? formatTimeAgo(new Date(statusData.timestamp)) : 'Recently';
+      
+      let notesContent = '';
+      if (statusData.notes) {
+        notesContent = `<p><strong><i class="fas fa-sticky-note status-icon"></i>Notes:</strong> ${statusData.notes}</p>`;
+      }
+      
+      statusDiv.innerHTML = ` 
+        <span class="time-ago">${timeAgo}</span>
+        <p><strong><i class="${getStatusIcon(statusData.status)} status-icon"></i>Status:</strong> ${statusData.status}</p>
+        <p><strong><i class="fas fa-map-marker-alt status-icon"></i>Location:</strong> ${statusData.location}</p>
+        <p><strong><i class="far fa-clock status-icon"></i>Time:</strong> ${statusData.time}</p>
+        <p><strong><i class="fas fa-dog status-icon"></i>Dog:</strong> ${statusData.dogStatus}</p>
+        <p><strong><i class="fas fa-shield-alt status-icon"></i>Safety:</strong> <span class="${getSafetyClass(statusData.safety)}">${statusData.safety}</span></p>
+        ${notesContent}
+      `;
+      
+      return statusDiv;
+    }
+
+    function filterStatuses() {
+      const statuses = document.querySelectorAll('.status');
+      let visibleCount = 0;
+      
+      statuses.forEach(status => {
+        const statusData = JSON.parse(status.dataset.status);
+        let shouldShow = false;
+        
+        switch(currentFilter) {
+          case 'all':
+            shouldShow = true;
+            break;
+          case 'walking':
+            shouldShow = statusData.status.toLowerCase().includes('walking');
+            break;
+          case 'not-walking':
+            shouldShow = !statusData.status.toLowerCase().includes('walking');
+            break;
+          case 'friendly':
+            shouldShow = statusData.dogStatus.toLowerCase().includes('friendly');
+            break;
+          case 'service':
+            shouldShow = statusData.dogStatus.toLowerCase().includes('service');
+            break;
+          default:
+            shouldShow = true;
+        }
+        
+        if (shouldShow) {
+          status.style.display = 'block';
+          visibleCount++;
+        } else {
+          status.style.display = 'none';
+        }
+      });
+      
+      // Show empty state if no statuses match the filter
+      if (visibleCount === 0) {
+        emptyStateEl.classList.remove('hidden');
+      } else {
+        emptyStateEl.classList.add('hidden');
+      }
+    }
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      
+      const submitButton = e.target.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+      document.getElementById('loadingSpinner').style.display = 'block';
+      
+      try {
+        // Get form values
+        const walkingStatus = document.getElementById('walkingStatus').value;
+        const location = document.getElementById('location').value.trim();
+        const walkTime = document.getElementById('walkTime').value;
+        const dogStatus = document.getElementById('dogStatus').value;
+        const safetyStatus = document.getElementById('safetyOptions').value;
+        const otherNotes = document.getElementById('otherNotes').value.trim();
+
+        // Validate required fields
+        if (!location || !walkTime || !dogStatus || !safetyStatus) {
+          throw new Error('Please fill in all required fields');
+        }
+
+        // Prepare status data
+        const statusData = {
+          status: walkingStatus === 'yes' ? 'Walking' : 
+                 walkingStatus === 'no' ? 'Not Walking' : 'Planning to walk',
+          location: location,
+          time: walkTime,
+          dogStatus: dogStatus,
+          safety: safetyStatus,
+          timestamp: Date.now()
+        };
+
+        // Add optional notes if provided
+        if (otherNotes) {
+          statusData.notes = otherNotes;
+        }
+
+        // Push data to Firebase
+        await push(statusListRef, statusData);
+        
+        // Show success notification
+        showNotification('Status submitted successfully!');
+        
+        // Reset form
+        walkForm.reset();
+        mapSelectionContainer.style.display = 'none';
+      } catch (error) {
+        console.error('Error submitting status:', error);
+        showNotification(error.message || 'Error submitting status. Please try again.', true);
+      } finally {
+        submitButton.disabled = false;
+        document.getElementById('loadingSpinner').style.display = 'none';
+      }
+    }
+
+    // Listen for new status additions
+    onChildAdded(statusListRef, (snapshot) => {
+      const statusData = snapshot.val();
+      const statusId = snapshot.key;
+      
+      const statusDiv = createStatusElement(statusData, statusId);
+      
+      // Add animation for new status
+      statusDiv.style.animation = 'fadeIn 0.5s ease-out forwards';
+      statusDiv.addEventListener('animationend', () => {
+        statusDiv.style.animation = '';
+      });
+      
+      // Prepend new status to the list
+      statusListEl.insertBefore(statusDiv, statusListEl.firstChild);
+      
+      // Add marker to map if available
+      if (map) {
+        addMarker(statusData, statusId);
+      }
+      
+      // Update filter view
+      filterStatuses();
+    });
+
+    // Listen for status removals
+    onChildRemoved(statusListRef, (snapshot) => {
+      const statusId = snapshot.key;
+      
+      // Remove from DOM
+      const statusEl = document.querySelector(`.status[data-id="${statusId}"]`);
+      if (statusEl) {
+        statusEl.remove();
+      }
+      
+      // Remove from map
+      const markerIndex = markers.findIndex(m => m.id === statusId);
+      if (markerIndex !== -1) {
+        markers[markerIndex].marker.setMap(null);
+        markers.splice(markerIndex, 1);
+      }
+      
+      // Update filter view
+      filterStatuses();
+    });
+
+    // Animate elements when they come into view
+    const animateOnScroll = () => {
+      const elements = document.querySelectorAll('.status, form, h1, h2');
+      
+      elements.forEach(element => {
+        const elementPosition = element.getBoundingClientRect().top;
+        const screenPosition = window.innerHeight / 1.2;
+        
+        if (elementPosition < screenPosition) {
+          element.style.animation = 'fadeIn 0.6s ease-out forwards';
+        }
+      });
+    };
+
+    // Add scroll event listener
+    window.addEventListener('scroll', animateOnScroll);
+    // Initial check in case elements are already in view
+    animateOnScroll();
+
+    // Expose initMaps to global scope for Google Maps callback
+    window.initMaps = initMaps;
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dog Walk Status</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    /* General styles */
+    :root {
+      --primary-color: #00796b;
+      --primary-dark: #004d40;
+      --primary-light: #b2dfdb;
+      --text-color: #333;
+      --text-light: #fff;
+      --bg-color: #f0f4f7;
+      --card-bg: #ffffff;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .dark-mode {
+      --primary-color: #1565c0;
+      --primary-dark: #0d47a1;
+      --primary-light: #bbdefb;
+      --text-color: #e0e0e0;
+      --text-light: #ffffff;
+      --bg-color: #121a24;
+      --card-bg: #1e293b;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      position: relative;
+      transition: background-color 0.5s ease, color 0.5s ease;
+    }
+
+    /* Layout for Main Content */
+    .main-content {
+      margin-left: 250px;
+      padding: 20px;
+      transition: margin-left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: fadeIn 0.8s ease-out;
+      min-height: 100vh;
+    }
+
+    /* Side Menu */
+    #sideMenu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 250px;
+      height: 100%;
+      background-color: var(--primary-color);
+      color: var(--text-light);
+      padding: 20px;
+      box-sizing: border-box;
+      display: block;
+      transform: translateX(0);
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #sideMenu h2 {
+      color: var(--text-light);
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      margin-bottom: 30px;
+    }
+
+    #sideMenu a {
+      color: var(--text-light);
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      margin: 15px 0;
+      font-size: 1.1rem;
+      padding: 10px 15px;
+      border-radius: 5px;
+      transition: var(--transition);
+    }
+
+    #sideMenu a i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
+    }
+
+    #sideMenu a:hover, #sideMenu a.active {
+      background-color: var(--primary-dark);
+      transform: translateX(5px);
+    }
+
+    /* Hamburger Menu */
+    #hamburgerMenu {
+      display: none;
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      cursor: pointer;
+      z-index: 2000;
+      transition: var(--transition);
+      background: var(--card-bg);
+      padding: 10px;
+      border-radius: 50%;
+      box-shadow: var(--shadow);
+    }
+
+    #hamburgerMenu:hover {
+      transform: scale(1.1);
+    }
+
+    #hamburgerMenu div {
+      width: 25px;
+      height: 3px;
+      background-color: var(--primary-color);
+      margin: 5px 0;
+      transition: var(--transition);
+    }
+
+    /* Menu Animation (for mobile view) */
+    @media (max-width: 768px) {
+      #sideMenu {
+        transform: translateX(-250px);
       }
 
       #hamburgerMenu {
