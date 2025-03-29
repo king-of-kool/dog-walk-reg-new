@@ -444,25 +444,48 @@
       opacity: 1;
     }
 
-    /* Map container */
-    #mapContainer {
-      height: 300px;
+    /* Updated Map Container Styles */
+    #map, #selectionMap {
+      height: 100%;
       width: 100%;
-      border-radius: 8px;
-      overflow: hidden;
-      margin-bottom: 20px;
-      display: none;
     }
 
-    /* Map selection container */
-    #mapSelectionContainer {
-      height: 300px;
+    #mapContainer, #mapSelectionContainer {
+      position: relative;
+      height: 400px;
       width: 100%;
       border-radius: 8px;
       overflow: hidden;
       margin-bottom: 20px;
-      display: none;
       border: 2px solid var(--primary-color);
+    }
+
+    #mapError, #selectionMapError, #mapLoading {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255,255,255,0.9);
+      z-index: 1;
+    }
+
+    .map-loading {
+      color: var(--primary-color);
+    }
+
+    .map-error {
+      color: #f44336;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .map-error h3 {
+      margin-top: 0;
     }
 
     /* Map controls */
@@ -673,9 +696,20 @@
     <h1><i class="fas fa-paw"></i> Narberth Dog Walk Status</h1>
     <p>Share your dog walking status with other owners in Narberth to help coordinate walks and avoid busy areas.</p>
 
-    <!-- Map Container -->
+    <!-- Updated Map Container -->
     <div id="mapContainer">
-      <!-- Map will be rendered here -->
+      <div id="map"></div>
+      <div id="mapError" class="map-error hidden">
+        <i class="fas fa-exclamation-triangle"></i>
+        <h3>Map Loading Failed</h3>
+        <p>We couldn't load the Narberth map.</p>
+        <button id="retryMap" class="map-btn">
+          <i class="fas fa-sync-alt"></i> Try Again
+        </button>
+      </div>
+      <div id="mapLoading" class="map-loading">
+        <i class="fas fa-spinner fa-spin"></i> Loading Narberth Map...
+      </div>
     </div>
 
     <!-- Filter Controls -->
@@ -714,7 +748,18 @@
         </div>
       </label>
 
-      <div id="mapSelectionContainer"></div>
+      <!-- Map Selection Container -->
+      <div id="mapSelectionContainer" class="hidden">
+        <div id="selectionMap"></div>
+        <div id="selectionMapError" class="map-error hidden">
+          <i class="fas fa-exclamation-triangle"></i>
+          <h3>Map Loading Failed</h3>
+          <p>We couldn't load the map selector.</p>
+          <button id="retrySelectionMap" class="map-btn">
+            <i class="fas fa-sync-alt"></i> Try Again
+          </button>
+        </div>
+      </div>
 
       <label>
         Walk Time:
@@ -784,7 +829,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded, onChildRemoved, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // Note: In production, these should come from environment variables
     const firebaseConfig = {
       apiKey: "AIzaSyCTLsji9XOlgHK-YUPrQYSfLPB5NoerVWY",
       authDomain: "dog-walk-reg.firebaseapp.com",
@@ -801,17 +845,16 @@
     const database = getDatabase(app);
     const statusListRef = query(ref(database, 'narberthDogWalkStatuses'), orderByChild('timestamp'));
 
-    // Initialize variables
-    let map;
-    let selectionMap;
+    // Map Variables
+    const NARBERTH_CENTER = { lat: 51.7978, lng: -4.7427 };
+    const DEFAULT_ZOOM = 15;
+    let map, selectionMap, geocoder, autocomplete, selectionMarker;
+    let mapsApiLoaded = false;
+    let mapsApiLoading = false;
     let markers = [];
     let currentFilter = 'all';
-    let geocoder;
-    let selectionMarker;
-    let autocomplete;
-    let isThrottled = false;
 
-    // DOM elements
+    // DOM Elements
     const statusListEl = document.getElementById('statusList');
     const emptyStateEl = document.getElementById('emptyState');
     const filterButtons = document.querySelectorAll('.filter-btn');
@@ -820,16 +863,13 @@
     const selectOnMapBtn = document.getElementById('selectOnMapBtn');
     const locationInput = document.getElementById('location');
     const walkForm = document.getElementById('walkForm');
-
-    // Narberth coordinates (latitude, longitude)
-    const NARBERTH_CENTER = { lat: 51.7978, lng: -4.7427 };
-    const DEFAULT_ZOOM = 15;
+    const retryMapBtn = document.getElementById('retryMap');
+    const retrySelectionMapBtn = document.getElementById('retrySelectionMap');
 
     // Initialize the application
     document.addEventListener('DOMContentLoaded', () => {
       initEventListeners();
       checkGeolocation();
-      loadMapLibrary();
       loadInitialData();
       
       // Initialize dark mode from localStorage
@@ -858,6 +898,10 @@
       
       // Map selection button
       selectOnMapBtn.addEventListener('click', showMapSelection);
+      
+      // Retry buttons
+      retryMapBtn?.addEventListener('click', initMaps);
+      retrySelectionMapBtn?.addEventListener('click', initMaps);
       
       // Hash-based navigation
       window.addEventListener('hashchange', handleHashChange);
@@ -892,9 +936,7 @@
     function showMapView() {
       mapContainer.style.display = 'block';
       statusListEl.style.display = 'none';
-      if (typeof google !== 'undefined' && !map) {
-        initMainMap();
-      }
+      initMaps();
     }
 
     function showListView() {
@@ -902,63 +944,93 @@
       statusListEl.style.display = 'grid';
     }
 
-    function loadMapLibrary() {
-      // Only load if not already loaded
-      if (typeof google === 'undefined') {
-        const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${firebaseConfig.apiKey}&libraries=places&callback=initMaps`;
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
+    // Map Functions
+    function initMaps() {
+      if (mapsApiLoaded) {
+        createMaps();
+        return;
+      }
+
+      if (mapsApiLoading) return;
+      
+      showMapLoading();
+      mapsApiLoading = true;
+
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${firebaseConfig.apiKey}&libraries=places&callback=handleMapsLoaded`;
+      script.async = true;
+      script.defer = true;
+      script.onerror = handleMapsError;
+      document.head.appendChild(script);
+    }
+
+    function handleMapsLoaded() {
+      mapsApiLoaded = true;
+      mapsApiLoading = false;
+      hideMapLoading();
+      createMaps();
+    }
+
+    function handleMapsError() {
+      mapsApiLoading = false;
+      showMapError();
+      console.error("Failed to load Google Maps API");
+    }
+
+    function createMaps() {
+      try {
+        // Main Map
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: NARBERTH_CENTER,
+          zoom: DEFAULT_ZOOM,
+          styles: getMapStyle()
+        });
+        
+        // Selection Map
+        selectionMap = new google.maps.Map(document.getElementById('selectionMap'), {
+          center: NARBERTH_CENTER,
+          zoom: DEFAULT_ZOOM,
+          styles: getMapStyle()
+        });
+        
+        geocoder = new google.maps.Geocoder();
+        initAutocomplete();
+        
+        // Add map event listeners
+        selectionMap.addListener('click', (e) => {
+          placeSelectionMarker(e.latLng);
+          reverseGeocode(e.latLng);
+        });
+
+        // Add existing markers if any
+        addExistingMarkers();
+
+      } catch (error) {
+        console.error("Map creation error:", error);
+        showMapError();
       }
     }
 
-    function initMaps() {
-      initMainMap();
-      initSelectionMap();
-      initAutocomplete();
+    function showMapLoading() {
+      document.getElementById('mapLoading')?.classList.remove('hidden');
+      document.getElementById('mapError')?.classList.add('hidden');
     }
 
-    function initMainMap() {
-      if (typeof google === 'undefined') return;
-      
-      // Try to center map on user's location or default to Narberth center
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userLocation = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
-          
-          // Check if user is within reasonable distance of Narberth
-          const distance = getDistanceFromNarberth(userLocation);
-          const center = distance < 20 ? userLocation : NARBERTH_CENTER;
-          
-          map = new google.maps.Map(mapContainer, {
-            center: center,
-            zoom: DEFAULT_ZOOM,
-            styles: getMapStyle()
-          });
-          
-          geocoder = new google.maps.Geocoder();
-          addExistingMarkers();
-        },
-        () => {
-          // Default to Narberth center if geolocation fails
-          map = new google.maps.Map(mapContainer, {
-            center: NARBERTH_CENTER,
-            zoom: DEFAULT_ZOOM,
-            styles: getMapStyle()
-          });
-          
-          geocoder = new google.maps.Geocoder();
-          addExistingMarkers();
-        },
-        { 
-          timeout: 10000,
-          enableHighAccuracy: true 
-        }
-      );
+    function hideMapLoading() {
+      document.getElementById('mapLoading')?.classList.add('hidden');
+    }
+
+    function showMapError() {
+      document.getElementById('mapError')?.classList.remove('hidden');
+      document.getElementById('mapLoading')?.classList.add('hidden');
+    }
+
+    function showSelectionMapError() {
+      document.getElementById('selectionMapError')?.classList.remove('hidden');
+    }
+
+    function hideSelectionMapError() {
+      document.getElementById('selectionMapError')?.classList.add('hidden');
     }
 
     function getDistanceFromNarberth(location) {
@@ -973,22 +1045,6 @@
         Math.sin(dLon/2) * Math.sin(dLon/2);
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
       return R * c;
-    }
-
-    function initSelectionMap() {
-      if (typeof google === 'undefined') return;
-      
-      selectionMap = new google.maps.Map(mapSelectionContainer, {
-        center: NARBERTH_CENTER,
-        zoom: DEFAULT_ZOOM,
-        styles: getMapStyle()
-      });
-      
-      // Add click listener for marker placement
-      selectionMap.addListener('click', (e) => {
-        placeSelectionMarker(e.latLng);
-        reverseGeocode(e.latLng);
-      });
     }
 
     function initAutocomplete() {
@@ -1055,6 +1111,7 @@
 
     function showMapSelection() {
       mapSelectionContainer.style.display = 'block';
+      mapSelectionContainer.classList.remove('hidden');
       
       // Center map on current location if available and near Narberth
       if (navigator.geolocation) {
@@ -1573,7 +1630,7 @@
     animateOnScroll();
 
     // Expose initMaps to global scope for Google Maps callback
-    window.initMaps = initMaps;
+    window.handleMapsLoaded = handleMapsLoaded;
   </script>
 </body>
 </html>
