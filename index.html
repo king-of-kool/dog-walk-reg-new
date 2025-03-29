@@ -21,13 +21,13 @@
     }
 
     .dark-mode {
-      --primary-color: #26a69a;
-      --primary-dark: #00897b;
-      --primary-light: #b2dfdb;
-      --text-color: #f5f5f5;
-      --text-light: #f5f5f5;
-      --bg-color: #121212;
-      --card-bg: #1e1e1e;
+      --primary-color: #1565c0;
+      --primary-dark: #0d47a1;
+      --primary-light: #bbdefb;
+      --text-color: #e0e0e0;
+      --text-light: #ffffff;
+      --bg-color: #121a24;
+      --card-bg: #1e293b;
       --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
 
@@ -454,6 +454,38 @@
       display: none;
     }
 
+    /* Map selection container */
+    #mapSelectionContainer {
+      height: 300px;
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      display: none;
+      border: 2px solid var(--primary-color);
+    }
+
+    /* Map controls */
+    .map-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .map-btn {
+      padding: 8px 15px;
+      background-color: var(--primary-color);
+      color: var(--text-light);
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .map-btn:hover {
+      background-color: var(--primary-dark);
+    }
+
     /* Filter controls */
     .filter-controls {
       display: flex;
@@ -659,10 +691,15 @@
         </select>
       </label>
 
-      <label>
+      <label class="form-full-width">
         Location (e.g., Park Name or Area):
-        <input type="text" id="location" required maxlength="50" placeholder="Central Park, Dog Run Area" />
+        <div class="map-controls">
+          <input type="text" id="location" required maxlength="50" placeholder="Central Park, Dog Run Area" />
+          <button type="button" id="selectOnMapBtn" class="map-btn"><i class="fas fa-map-marker-alt"></i> Select on Map</button>
+        </div>
       </label>
+
+      <div id="mapSelectionContainer"></div>
 
       <label>
         Walk Time:
@@ -750,15 +787,21 @@
 
     // Initialize variables
     let map;
+    let selectionMap;
     let markers = [];
     let currentFilter = 'all';
     let geocoder;
+    let selectionMarker;
+    let autocomplete;
 
     // DOM elements
     const statusListEl = document.getElementById('statusList');
     const emptyStateEl = document.getElementById('emptyState');
     const filterButtons = document.querySelectorAll('.filter-btn');
     const mapContainer = document.getElementById('mapContainer');
+    const mapSelectionContainer = document.getElementById('mapSelectionContainer');
+    const selectOnMapBtn = document.getElementById('selectOnMapBtn');
+    const locationInput = document.getElementById('location');
     const walkForm = document.getElementById('walkForm');
 
     // Initialize the application
@@ -785,6 +828,9 @@
           filterStatuses();
         });
       });
+      
+      // Map selection button
+      selectOnMapBtn.addEventListener('click', showMapSelection);
       
       // Hash-based navigation
       window.addEventListener('hashchange', handleHashChange);
@@ -829,13 +875,19 @@
 
     function loadMapLibrary() {
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${firebaseConfig.apiKey}&libraries=places&callback=initMap`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${firebaseConfig.apiKey}&libraries=places&callback=initMaps`;
       script.async = true;
       script.defer = true;
       document.head.appendChild(script);
     }
 
-    function initMap() {
+    function initMaps() {
+      initMainMap();
+      initSelectionMap();
+      initAutocomplete();
+    }
+
+    function initMainMap() {
       if (typeof google === 'undefined') return;
       
       // Try to center map on user's location or default to a central point
@@ -869,85 +921,199 @@
       );
     }
 
+    function initSelectionMap() {
+      if (typeof google === 'undefined') return;
+      
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          
+          selectionMap = new google.maps.Map(mapSelectionContainer, {
+            center: userLocation,
+            zoom: 15,
+            styles: getMapStyle()
+          });
+          
+          // Add click listener for marker placement
+          selectionMap.addListener('click', (e) => {
+            placeSelectionMarker(e.latLng);
+            reverseGeocode(e.latLng);
+          });
+        },
+        () => {
+          // Default to New York if geolocation fails
+          selectionMap = new google.maps.Map(mapSelectionContainer, {
+            center: { lat: 40.7128, lng: -74.0060 },
+            zoom: 12,
+            styles: getMapStyle()
+          });
+          
+          // Add click listener for marker placement
+          selectionMap.addListener('click', (e) => {
+            placeSelectionMarker(e.latLng);
+            reverseGeocode(e.latLng);
+          });
+        }
+      );
+    }
+
+    function initAutocomplete() {
+      if (typeof google === 'undefined') return;
+      
+      autocomplete = new google.maps.places.Autocomplete(locationInput, {
+        types: ['establishment', 'geocode'],
+        fields: ['formatted_address', 'geometry']
+      });
+      
+      autocomplete.addListener('place_changed', () => {
+        const place = autocomplete.getPlace();
+        if (!place.geometry) {
+          return;
+        }
+        
+        if (selectionMap) {
+          selectionMap.setCenter(place.geometry.location);
+          selectionMap.setZoom(17);
+          placeSelectionMarker(place.geometry.location);
+        }
+      });
+    }
+
+    function placeSelectionMarker(location) {
+      if (selectionMarker) {
+        selectionMarker.setPosition(location);
+      } else {
+        selectionMarker = new google.maps.Marker({
+          position: location,
+          map: selectionMap,
+          draggable: true,
+          title: "Selected Location"
+        });
+        
+        selectionMarker.addListener('dragend', () => {
+          reverseGeocode(selectionMarker.getPosition());
+        });
+      }
+    }
+
+    function reverseGeocode(latLng) {
+      if (!geocoder) return;
+      
+      geocoder.geocode({ location: latLng }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+          locationInput.value = results[0].formatted_address;
+        }
+      });
+    }
+
+    function showMapSelection() {
+      mapSelectionContainer.style.display = 'block';
+      
+      // Center map on current location if available
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            if (selectionMap) {
+              selectionMap.setCenter({
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+              });
+              selectionMap.setZoom(15);
+            }
+          },
+          () => {
+            // Default to New York if geolocation fails
+            if (selectionMap) {
+              selectionMap.setCenter({ lat: 40.7128, lng: -74.0060 });
+              selectionMap.setZoom(12);
+            }
+          }
+        );
+      }
+    }
+
     function getMapStyle() {
       return document.body.classList.contains('dark-mode') ? [
-        { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-        { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-        { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+        { elementType: "geometry", stylers: [{ color: "#1e293b" }] },
+        { elementType: "labels.text.stroke", stylers: [{ color: "#1e293b" }] },
+        { elementType: "labels.text.fill", stylers: [{ color: "#9ca3af" }] },
         {
           featureType: "administrative.locality",
           elementType: "labels.text.fill",
-          stylers: [{ color: "#d59563" }]
+          stylers: [{ color: "#93c5fd" }]
         },
         {
           featureType: "poi",
           elementType: "labels.text.fill",
-          stylers: [{ color: "#d59563" }]
+          stylers: [{ color: "#93c5fd" }]
         },
         {
           featureType: "poi.park",
           elementType: "geometry",
-          stylers: [{ color: "#263c3f" }]
+          stylers: [{ color: "#1e3a8a" }]
         },
         {
           featureType: "poi.park",
           elementType: "labels.text.fill",
-          stylers: [{ color: "#6b9a76" }]
+          stylers: [{ color: "#86efac" }]
         },
         {
           featureType: "road",
           elementType: "geometry",
-          stylers: [{ color: "#38414e" }]
+          stylers: [{ color: "#1f2937" }]
         },
         {
           featureType: "road",
           elementType: "geometry.stroke",
-          stylers: [{ color: "#212a37" }]
+          stylers: [{ color: "#1e293b" }]
         },
         {
           featureType: "road",
           elementType: "labels.text.fill",
-          stylers: [{ color: "#9ca5b3" }]
+          stylers: [{ color: "#9ca3af" }]
         },
         {
           featureType: "road.highway",
           elementType: "geometry",
-          stylers: [{ color: "#746855" }]
+          stylers: [{ color: "#1e40af" }]
         },
         {
           featureType: "road.highway",
           elementType: "geometry.stroke",
-          stylers: [{ color: "#1f2835" }]
+          stylers: [{ color: "#1e293b" }]
         },
         {
           featureType: "road.highway",
           elementType: "labels.text.fill",
-          stylers: [{ color: "#f3d19c" }]
+          stylers: [{ color: "#bfdbfe" }]
         },
         {
           featureType: "transit",
           elementType: "geometry",
-          stylers: [{ color: "#2f3948" }]
+          stylers: [{ color: "#1e293b" }]
         },
         {
           featureType: "transit.station",
           elementType: "labels.text.fill",
-          stylers: [{ color: "#d59563" }]
+          stylers: [{ color: "#93c5fd" }]
         },
         {
           featureType: "water",
           elementType: "geometry",
-          stylers: [{ color: "#17263c" }]
+          stylers: [{ color: "#1e3a8a" }]
         },
         {
           featureType: "water",
           elementType: "labels.text.fill",
-          stylers: [{ color: "#515c6d" }]
+          stylers: [{ color: "#60a5fa" }]
         },
         {
           featureType: "water",
           elementType: "labels.text.stroke",
-          stylers: [{ color: "#17263c" }]
+          stylers: [{ color: "#1e3a8a" }]
         }
       ] : [];
     }
@@ -1035,7 +1201,6 @@
             { location: { lat: position.coords.latitude, lng: position.coords.longitude } },
             (results, status) => {
               if (status === 'OK' && results[0]) {
-                const locationInput = document.getElementById('location');
                 locationInput.placeholder = `Near ${results[0].formatted_address}`;
               }
             }
@@ -1054,6 +1219,9 @@
       // Update map style if it exists
       if (map) {
         map.setOptions({ styles: getMapStyle() });
+      }
+      if (selectionMap) {
+        selectionMap.setOptions({ styles: getMapStyle() });
       }
     }
 
@@ -1236,6 +1404,7 @@
         
         // Reset form
         walkForm.reset();
+        mapSelectionContainer.style.display = 'none';
       } catch (error) {
         console.error('Error submitting status:', error);
         showNotification(error.message || 'Error submitting status. Please try again.', true);
@@ -1310,8 +1479,8 @@
     // Initial check in case elements are already in view
     animateOnScroll();
 
-    // Expose initMap to global scope for Google Maps callback
-    window.initMap = initMap;
+    // Expose initMaps to global scope for Google Maps callback
+    window.initMaps = initMaps;
   </script>
 </body>
 </html>
