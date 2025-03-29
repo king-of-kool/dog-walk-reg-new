@@ -146,6 +146,7 @@
       
       #hamburgerMenu.open div:nth-child(1) {
         transform: rotate(-45deg) translate(-5px, 6px);
+        background-color: var(--text-light);
       }
       
       #hamburgerMenu.open div:nth-child(2) {
@@ -154,6 +155,7 @@
       
       #hamburgerMenu.open div:nth-child(3) {
         transform: rotate(45deg) translate(-5px, -6px);
+        background-color: var(--text-light);
       }
     }
 
@@ -648,14 +650,14 @@
 <body>
   <div id="sideMenu">
     <h2><i class="fas fa-paw"></i> Dog Walk Status</h2>
-    <a href="#" class="active"><i class="fas fa-home"></i> Home</a>
+    <a href="#" class="active" aria-current="page"><i class="fas fa-home"></i> Home</a>
     <a href="#submit-status"><i class="fas fa-plus-circle"></i> Submit Status</a>
     <a href="#view-status"><i class="fas fa-list"></i> View Statuses</a>
     <a href="#map-view"><i class="fas fa-map-marked-alt"></i> Map View</a>
   </div>
 
   <!-- Hamburger Menu -->
-  <div id="hamburgerMenu" onclick="toggleMenu()">
+  <div id="hamburgerMenu" onclick="toggleMenu()" aria-label="Toggle navigation menu">
     <div></div>
     <div></div>
     <div></div>
@@ -693,7 +695,7 @@
         Location (e.g., Park Name or Area):
         <div class="map-controls">
           <input type="text" id="location" required maxlength="50" placeholder="Central Park, Dog Run Area" />
-          <button type="button" id="selectOnMapBtn" class="map-btn"><i class="fas fa-map-marker-alt"></i> Select on Map</button>
+          <button type="button" id="selectOnMapBtn" class="map-btn" aria-label="Select location on map"><i class="fas fa-map-marker-alt"></i> Select on Map</button>
         </div>
       </label>
 
@@ -737,9 +739,9 @@
     <div id="loadingSpinner" class="spinner"></div>
 
     <!-- Dark Mode Toggle -->
-    <div class="toggle-container">
+    <div class="toggle-container" aria-label="Dark mode toggle">
       <i class="fas fa-sun toggle-icon"></i>
-      <input type="checkbox" id="toggleModeCheckbox">
+      <input type="checkbox" id="toggleModeCheckbox" aria-label="Toggle dark mode">
       <label for="toggleModeCheckbox"></label>
       <i class="fas fa-moon toggle-icon"></i>
     </div>
@@ -757,7 +759,7 @@
   </div>
 
   <!-- Notification -->
-  <div id="notification" class="notification">
+  <div id="notification" class="notification" role="alert" aria-live="assertive">
     <i class="fas fa-check-circle"></i>
     <span>Status submitted successfully!</span>
   </div>
@@ -767,6 +769,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded, onChildRemoved, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+    // Note: In production, these should come from environment variables
     const firebaseConfig = {
       apiKey: "AIzaSyCTLsji9XOlgHK-YUPrQYSfLPB5NoerVWY",
       authDomain: "dog-walk-reg.firebaseapp.com",
@@ -791,6 +794,7 @@
     let geocoder;
     let selectionMarker;
     let autocomplete;
+    let isThrottled = false;
 
     // DOM elements
     const statusListEl = document.getElementById('statusList');
@@ -801,7 +805,6 @@
     const selectOnMapBtn = document.getElementById('selectOnMapBtn');
     const locationInput = document.getElementById('location');
     const walkForm = document.getElementById('walkForm');
-    const toggleModeCheckbox = document.getElementById('toggleModeCheckbox');
 
     // Initialize the application
     document.addEventListener('DOMContentLoaded', () => {
@@ -813,7 +816,7 @@
       // Initialize dark mode from localStorage
       if (localStorage.getItem('darkMode') === 'true') {
         document.body.classList.add('dark-mode');
-        toggleModeCheckbox.checked = true;
+        document.getElementById('toggleModeCheckbox').checked = true;
       }
     });
 
@@ -822,7 +825,7 @@
       walkForm.addEventListener('submit', handleFormSubmit);
       
       // Dark mode toggle
-      toggleModeCheckbox.addEventListener('change', toggleDarkMode);
+      document.getElementById('toggleModeCheckbox').addEventListener('change', toggleDarkMode);
       
       // Filter buttons
       filterButtons.forEach(btn => {
@@ -842,6 +845,416 @@
       handleHashChange();
     }
 
+    function loadInitialData() {
+      // Data will be loaded via the onChildAdded listener
+    }
+
+    function handleHashChange() {
+      const hash = window.location.hash;
+      const sideMenuLinks = document.querySelectorAll('#sideMenu a');
+      
+      sideMenuLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === hash) {
+          link.classList.add('active');
+        }
+      });
+      
+      // Scroll to appropriate section
+      if (hash === '#map-view') {
+        showMapView();
+      } else if (hash === '#submit-status') {
+        document.getElementById('walkForm').scrollIntoView({ behavior: 'smooth' });
+      } else if (hash === '#view-status') {
+        document.querySelector('h2').scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function showMapView() {
+      mapContainer.style.display = 'block';
+      statusListEl.style.display = 'none';
+      if (typeof google !== 'undefined' && !map) {
+        initMainMap();
+      }
+    }
+
+    function showListView() {
+      mapContainer.style.display = 'none';
+      statusListEl.style.display = 'grid';
+    }
+
+    function loadMapLibrary() {
+      // Only load if not already loaded
+      if (typeof google === 'undefined') {
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${firebaseConfig.apiKey}&libraries=places&callback=initMaps`;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+      }
+    }
+
+    function initMaps() {
+      initMainMap();
+      initSelectionMap();
+      initAutocomplete();
+    }
+
+    function initMainMap() {
+      if (typeof google === 'undefined') return;
+      
+      // Try to center map on user's location or default to a central point
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          
+          map = new google.maps.Map(mapContainer, {
+            center: userLocation,
+            zoom: 13,
+            styles: getMapStyle()
+          });
+          
+          geocoder = new google.maps.Geocoder();
+          addExistingMarkers();
+        },
+        () => {
+          // Default to New York if geolocation fails
+          map = new google.maps.Map(mapContainer, {
+            center: { lat: 40.7128, lng: -74.0060 },
+            zoom: 12,
+            styles: getMapStyle()
+          });
+          
+          geocoder = new google.maps.Geocoder();
+          addExistingMarkers();
+        },
+        { 
+          timeout: 10000,
+          enableHighAccuracy: true 
+        }
+      );
+    }
+
+    function initSelectionMap() {
+      if (typeof google === 'undefined') return;
+      
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          
+          selectionMap = new google.maps.Map(mapSelectionContainer, {
+            center: userLocation,
+            zoom: 15,
+            styles: getMapStyle()
+          });
+          
+          // Add click listener for marker placement
+          selectionMap.addListener('click', (e) => {
+            placeSelectionMarker(e.latLng);
+            reverseGeocode(e.latLng);
+          });
+        },
+        () => {
+          // Default to New York if geolocation fails
+          selectionMap = new google.maps.Map(mapSelectionContainer, {
+            center: { lat: 40.7128, lng: -74.0060 },
+            zoom: 12,
+            styles: getMapStyle()
+          });
+          
+          // Add click listener for marker placement
+          selectionMap.addListener('click', (e) => {
+            placeSelectionMarker(e.latLng);
+            reverseGeocode(e.latLng);
+          });
+        },
+        { 
+          timeout: 10000,
+          enableHighAccuracy: true 
+        }
+      );
+    }
+
+    function initAutocomplete() {
+      if (typeof google === 'undefined') return;
+      
+      autocomplete = new google.maps.places.Autocomplete(locationInput, {
+        types: ['establishment', 'geocode'],
+        fields: ['formatted_address', 'geometry']
+      });
+      
+      autocomplete.addListener('place_changed', () => {
+        const place = autocomplete.getPlace();
+        if (!place.geometry) {
+          return;
+        }
+        
+        if (selectionMap) {
+          selectionMap.setCenter(place.geometry.location);
+          selectionMap.setZoom(17);
+          placeSelectionMarker(place.geometry.location);
+        }
+      });
+    }
+
+    function placeSelectionMarker(location) {
+      if (selectionMarker) {
+        selectionMarker.setPosition(location);
+      } else {
+        selectionMarker = new google.maps.Marker({
+          position: location,
+          map: selectionMap,
+          draggable: true,
+          title: "Selected Location"
+        });
+        
+        selectionMarker.addListener('dragend', () => {
+          reverseGeocode(selectionMarker.getPosition());
+        });
+      }
+    }
+
+    function reverseGeocode(latLng) {
+      if (!geocoder) return;
+      
+      geocoder.geocode({ location: latLng }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+          locationInput.value = results[0].formatted_address;
+        }
+      });
+    }
+
+    function showMapSelection() {
+      mapSelectionContainer.style.display = 'block';
+      
+      // Center map on current location if available
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            if (selectionMap) {
+              selectionMap.setCenter({
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+              });
+              selectionMap.setZoom(15);
+            }
+          },
+          () => {
+            // Default to New York if geolocation fails
+            if (selectionMap) {
+              selectionMap.setCenter({ lat: 40.7128, lng: -74.0060 });
+              selectionMap.setZoom(12);
+            }
+          },
+          { 
+            timeout: 10000,
+            enableHighAccuracy: true 
+          }
+        );
+      }
+    }
+
+    function getMapStyle() {
+      return document.body.classList.contains('dark-mode') ? [
+        { elementType: "geometry", stylers: [{ color: "#1e293b" }] },
+        { elementType: "labels.text.stroke", stylers: [{ color: "#1e293b" }] },
+        { elementType: "labels.text.fill", stylers: [{ color: "#9ca3af" }] },
+        {
+          featureType: "administrative.locality",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#93c5fd" }]
+        },
+        {
+          featureType: "poi",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#93c5fd" }]
+        },
+        {
+          featureType: "poi.park",
+          elementType: "geometry",
+          stylers: [{ color: "#1e3a8a" }]
+        },
+        {
+          featureType: "poi.park",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#86efac" }]
+        },
+        {
+          featureType: "road",
+          elementType: "geometry",
+          stylers: [{ color: "#1f2937" }]
+        },
+        {
+          featureType: "road",
+          elementType: "geometry.stroke",
+          stylers: [{ color: "#1e293b" }]
+        },
+        {
+          featureType: "road",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#9ca3af" }]
+        },
+        {
+          featureType: "road.highway",
+          elementType: "geometry",
+          stylers: [{ color: "#1e40af" }]
+        },
+        {
+          featureType: "road.highway",
+          elementType: "geometry.stroke",
+          stylers: [{ color: "#1e293b" }]
+        },
+        {
+          featureType: "road.highway",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#bfdbfe" }]
+        },
+        {
+          featureType: "transit",
+          elementType: "geometry",
+          stylers: [{ color: "#1e293b" }]
+        },
+        {
+          featureType: "transit.station",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#93c5fd" }]
+        },
+        {
+          featureType: "water",
+          elementType: "geometry",
+          stylers: [{ color: "#1e3a8a" }]
+        },
+        {
+          featureType: "water",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#60a5fa" }]
+        },
+        {
+          featureType: "water",
+          elementType: "labels.text.stroke",
+          stylers: [{ color: "#1e3a8a" }]
+        }
+      ] : [];
+    }
+
+    function addMarker(statusData, statusId) {
+      if (!map || !geocoder) return;
+      
+      geocoder.geocode({ address: statusData.location }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+          const marker = new google.maps.Marker({
+            map: map,
+            position: results[0].geometry.location,
+            title: statusData.location,
+            icon: getMarkerIcon(statusData)
+          });
+          
+          const infoWindow = new google.maps.InfoWindow({
+            content: createMarkerContent(statusData)
+          });
+          
+          marker.addListener('click', () => {
+            infoWindow.open(map, marker);
+          });
+          
+          markers.push({ id: statusId, marker: marker });
+        }
+      });
+    }
+
+    function getMarkerIcon(statusData) {
+      const baseIcon = {
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: statusData.status === 'Walking' ? '#4CAF50' : '#F44336',
+        fillOpacity: 0.9,
+        scale: 8,
+        strokeColor: 'white',
+        strokeWeight: 2
+      };
+      
+      return baseIcon;
+    }
+
+    function createMarkerContent(statusData) {
+      return `
+        <div style="padding: 10px; max-width: 200px;">
+          <h3 style="margin: 0 0 5px 0; color: ${statusData.status === 'Walking' ? '#4CAF50' : '#F44336'}">
+            ${statusData.status === 'Walking' ? 'Currently Walking' : 'Not Walking'}
+          </h3>
+          <p style="margin: 0 0 5px 0;"><strong>Location:</strong> ${statusData.location}</p>
+          <p style="margin: 0 0 5px 0;"><strong>Time:</strong> ${statusData.time}</p>
+          <p style="margin: 0 0 5px 0;"><strong>Dog:</strong> ${statusData.dogStatus}</p>
+          <p style="margin: 0;"><strong>Safety:</strong> <span class="${getSafetyClass(statusData.safety)}">${statusData.safety}</span></p>
+        </div>
+      `;
+    }
+
+    function addExistingMarkers() {
+      if (!map) return;
+      
+      // Clear existing markers
+      markers.forEach(m => m.marker.setMap(null));
+      markers = [];
+      
+      // Add markers for each status
+      document.querySelectorAll('.status').forEach(statusEl => {
+        const statusId = statusEl.dataset.id;
+        const statusData = JSON.parse(statusEl.dataset.status);
+        addMarker(statusData, statusId);
+      });
+    }
+
+    function checkGeolocation() {
+      if (navigator.geolocation) {
+        // Geolocation is available
+        document.getElementById('location').addEventListener('focus', suggestCurrentLocation);
+      }
+    }
+
+    function suggestCurrentLocation() {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          if (!geocoder) return;
+          
+          geocoder.geocode(
+            { location: { lat: position.coords.latitude, lng: position.coords.longitude } },
+            (results, status) => {
+              if (status === 'OK' && results[0]) {
+                locationInput.placeholder = `Near ${results[0].formatted_address}`;
+              }
+            }
+          );
+        },
+        (error) => {
+          console.log('Geolocation error:', error);
+        },
+        { 
+          timeout: 10000,
+          enableHighAccuracy: true 
+        }
+      );
+    }
+
+    function toggleDarkMode(e) {
+      document.body.classList.toggle('dark-mode', e.target.checked);
+      localStorage.setItem('darkMode', e.target.checked);
+      
+      // Update map style if it exists
+      if (map) {
+        map.setOptions({ styles: getMapStyle() });
+      }
+      if (selectionMap) {
+        selectionMap.setOptions({ styles: getMapStyle() });
+      }
+    }
+
+    // Mobile Menu Toggle
     function toggleMenu() {
       const sideMenu = document.getElementById('sideMenu');
       const hamburger = document.getElementById('hamburgerMenu');
@@ -861,39 +1274,254 @@
       }
     }
 
-    function toggleDarkMode(e) {
-      const isDarkMode = e.target.checked;
-      document.body.classList.toggle('dark-mode', isDarkMode);
-      localStorage.setItem('darkMode', isDarkMode);
+    // Show notification
+    function showNotification(message, isError = false) {
+      const notification = document.getElementById('notification');
+      const icon = notification.querySelector('i');
+      const text = notification.querySelector('span');
       
-      // Update hamburger menu lines color
-      const hamburger = document.getElementById('hamburgerMenu');
-      const hamburgerLines = hamburger.querySelectorAll('div');
-      if (isDarkMode) {
-        hamburgerLines.forEach(line => {
-          line.style.backgroundColor = '#bbdefb';
-        });
+      text.textContent = message;
+      notification.style.backgroundColor = isError ? '#f44336' : 'var(--primary-color)';
+      
+      if (isError) {
+        icon.className = 'fas fa-exclamation-circle';
       } else {
-        hamburgerLines.forEach(line => {
-          line.style.backgroundColor = '#00796b';
-        });
+        icon.className = 'fas fa-check-circle';
       }
       
-      // Update map style if it exists
-      if (map) {
-        map.setOptions({ styles: getMapStyle() });
-      }
-      if (selectionMap) {
-        selectionMap.setOptions({ styles: getMapStyle() });
+      notification.classList.add('show');
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+
+    function formatTimeAgo(timestamp) {
+      const now = new Date();
+      const seconds = Math.floor((now - timestamp) / 1000);
+      
+      if (seconds < 60) return 'Just now';
+      if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
+      if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+      return `${Math.floor(seconds / 86400)} days ago`;
+    }
+
+    function getSafetyClass(safetyStatus) {
+      switch(safetyStatus.toLowerCase()) {
+        case 'safe': return 'safety-safe';
+        case 'unsafe': return 'safety-unsafe';
+        case 'busy': return 'safety-unknown';
+        default: return 'safety-unknown';
       }
     }
 
-    // Rest of your JavaScript code remains the same...
-    // [Previous JavaScript code continues here...]
+    function getStatusIcon(status) {
+      switch(status.toLowerCase()) {
+        case 'walking': return 'fas fa-walking';
+        case 'not walking': return 'fas fa-home';
+        case 'planning': return 'fas fa-clock';
+        default: return 'fas fa-paw';
+      }
+    }
 
-    // Make sure to include all the other functions from the previous code
-    // (loadInitialData, handleHashChange, showMapView, showListView, etc.)
+    function createStatusElement(statusData, statusId) {
+      const statusDiv = document.createElement('div');
+      statusDiv.className = `status ${statusData.status.toLowerCase().replace(' ', '-')}`;
+      statusDiv.dataset.id = statusId;
+      statusDiv.dataset.status = JSON.stringify(statusData);
+      
+      const timeAgo = statusData.timestamp ? formatTimeAgo(new Date(statusData.timestamp)) : 'Recently';
+      
+      let notesContent = '';
+      if (statusData.notes) {
+        notesContent = `<p><strong><i class="fas fa-sticky-note status-icon"></i>Notes:</strong> ${statusData.notes}</p>`;
+      }
+      
+      statusDiv.innerHTML = ` 
+        <span class="time-ago">${timeAgo}</span>
+        <p><strong><i class="${getStatusIcon(statusData.status)} status-icon"></i>Status:</strong> ${statusData.status}</p>
+        <p><strong><i class="fas fa-map-marker-alt status-icon"></i>Location:</strong> ${statusData.location}</p>
+        <p><strong><i class="far fa-clock status-icon"></i>Time:</strong> ${statusData.time}</p>
+        <p><strong><i class="fas fa-dog status-icon"></i>Dog:</strong> ${statusData.dogStatus}</p>
+        <p><strong><i class="fas fa-shield-alt status-icon"></i>Safety:</strong> <span class="${getSafetyClass(statusData.safety)}">${statusData.safety}</span></p>
+        ${notesContent}
+      `;
+      
+      return statusDiv;
+    }
 
+    function filterStatuses() {
+      const statuses = document.querySelectorAll('.status');
+      let visibleCount = 0;
+      
+      statuses.forEach(status => {
+        const statusData = JSON.parse(status.dataset.status);
+        let shouldShow = false;
+        
+        switch(currentFilter) {
+          case 'all':
+            shouldShow = true;
+            break;
+          case 'walking':
+            shouldShow = statusData.status.toLowerCase().includes('walking');
+            break;
+          case 'not-walking':
+            shouldShow = !statusData.status.toLowerCase().includes('walking');
+            break;
+          case 'friendly':
+            shouldShow = statusData.dogStatus.toLowerCase().includes('friendly');
+            break;
+          case 'service':
+            shouldShow = statusData.dogStatus.toLowerCase().includes('service');
+            break;
+          default:
+            shouldShow = true;
+        }
+        
+        if (shouldShow) {
+          status.style.display = 'block';
+          visibleCount++;
+        } else {
+          status.style.display = 'none';
+        }
+      });
+      
+      // Show empty state if no statuses match the filter
+      if (visibleCount === 0) {
+        emptyStateEl.classList.remove('hidden');
+      } else {
+        emptyStateEl.classList.add('hidden');
+      }
+    }
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      
+      const submitButton = e.target.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+      document.getElementById('loadingSpinner').style.display = 'block';
+      
+      try {
+        // Get form values
+        const walkingStatus = document.getElementById('walkingStatus').value;
+        const location = document.getElementById('location').value.trim();
+        const walkTime = document.getElementById('walkTime').value;
+        const dogStatus = document.getElementById('dogStatus').value;
+        const safetyStatus = document.getElementById('safetyOptions').value;
+        const otherNotes = document.getElementById('otherNotes').value.trim();
+
+        // Validate required fields
+        if (!location || !walkTime || !dogStatus || !safetyStatus) {
+          throw new Error('Please fill in all required fields');
+        }
+
+        // Prepare status data
+        const statusData = {
+          status: walkingStatus === 'yes' ? 'Walking' : 
+                 walkingStatus === 'no' ? 'Not Walking' : 'Planning to walk',
+          location: location,
+          time: walkTime,
+          dogStatus: dogStatus,
+          safety: safetyStatus,
+          timestamp: Date.now()
+        };
+
+        // Add optional notes if provided
+        if (otherNotes) {
+          statusData.notes = otherNotes;
+        }
+
+        // Push data to Firebase
+        await push(statusListRef, statusData);
+        
+        // Show success notification
+        showNotification('Status submitted successfully!');
+        
+        // Reset form
+        walkForm.reset();
+        mapSelectionContainer.style.display = 'none';
+      } catch (error) {
+        console.error('Error submitting status:', error);
+        showNotification(error.message || 'Error submitting status. Please try again.', true);
+      } finally {
+        submitButton.disabled = false;
+        document.getElementById('loadingSpinner').style.display = 'none';
+      }
+    }
+
+    // Listen for new status additions
+    onChildAdded(statusListRef, (snapshot) => {
+      const statusData = snapshot.val();
+      const statusId = snapshot.key;
+      
+      const statusDiv = createStatusElement(statusData, statusId);
+      
+      // Add animation for new status
+      statusDiv.style.animation = 'fadeIn 0.5s ease-out forwards';
+      statusDiv.addEventListener('animationend', () => {
+        statusDiv.style.animation = '';
+      });
+      
+      // Prepend new status to the list
+      statusListEl.insertBefore(statusDiv, statusListEl.firstChild);
+      
+      // Add marker to map if available
+      if (map) {
+        addMarker(statusData, statusId);
+      }
+      
+      // Update filter view
+      filterStatuses();
+    });
+
+    // Listen for status removals
+    onChildRemoved(statusListRef, (snapshot) => {
+      const statusId = snapshot.key;
+      
+      // Remove from DOM
+      const statusEl = document.querySelector(`.status[data-id="${statusId}"]`);
+      if (statusEl) {
+        statusEl.remove();
+      }
+      
+      // Remove from map
+      const markerIndex = markers.findIndex(m => m.id === statusId);
+      if (markerIndex !== -1) {
+        markers[markerIndex].marker.setMap(null);
+        markers.splice(markerIndex, 1);
+      }
+      
+      // Update filter view
+      filterStatuses();
+    });
+
+    // Throttled animate on scroll function
+    function animateOnScroll() {
+      if (isThrottled) return;
+      
+      isThrottled = true;
+      setTimeout(() => {
+        const elements = document.querySelectorAll('.status, form, h1, h2');
+        
+        elements.forEach(element => {
+          const elementPosition = element.getBoundingClientRect().top;
+          const screenPosition = window.innerHeight / 1.2;
+          
+          if (elementPosition < screenPosition) {
+            element.style.animation = 'fadeIn 0.6s ease-out forwards';
+          }
+        });
+        isThrottled = false;
+      }, 200);
+    }
+
+    // Add scroll event listener
+    window.addEventListener('scroll', animateOnScroll);
+    // Initial check in case elements are already in view
+    animateOnScroll();
+
+    // Expose initMaps to global scope for Google Maps callback
+    window.initMaps = initMaps;
   </script>
 </body>
 </html>
