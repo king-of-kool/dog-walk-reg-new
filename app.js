@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initEventListeners();
   checkGeolocation();
   loadInitialData();
-
+  
   // Initialize dark mode from localStorage
   if (localStorage.getItem('darkMode') === 'true') {
     document.body.classList.add('dark-mode');
@@ -79,35 +79,7 @@ function initEventListeners() {
 }
 
 function loadInitialData() {
-  // Listen to new data in Realtime Database
-  firebase.database().ref('narberthDogWalkStatuses').on('child_added', function(snapshot) {
-    const status = snapshot.val();
-    displayStatus(status);
-  });
-}
-
-function handleFormSubmit(event) {
-  event.preventDefault();
-  
-  const formData = new FormData(walkForm);
-  const walkData = {
-    status: formData.get('status'),
-    location: formData.get('location'),
-    timestamp: firebase.database.ServerValue.TIMESTAMP,
-  };
-  
-  // Save data to Realtime Database
-  const statusRef = firebase.database().ref('narberthDogWalkStatuses');
-  statusRef.push(walkData)
-    .then(() => {
-      console.log("Data added to Realtime Database successfully");
-      alert("Status submitted successfully to Realtime Database");
-      walkForm.reset();
-    })
-    .catch(error => {
-      console.error("Error adding to Realtime Database: ", error);
-      alert("Failed to submit to Realtime Database");
-    });
+  // Data will be loaded via the onChildAdded listener
 }
 
 function handleHashChange() {
@@ -155,7 +127,7 @@ function initMaps() {
   mapsApiLoading = true;
 
   const script = document.createElement('script');
-  script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCTLsji9XOlgHK-YUPrQYSfLPB5NoerVWY&libraries=places&callback=handleMapsLoaded`;
+  script.src = https://maps.googleapis.com/maps/api/js?key=AIzaSyCTLsji9XOlgHK-YUPrQYSfLPB5NoerVWY&libraries=places&callback=handleMapsLoaded;
   script.async = true;
   script.defer = true;
   script.onerror = handleMapsError;
@@ -368,7 +340,4 @@ function getMapStyle() {
     {
       featureType: "poi.park",
       elementType: "labels.text.fill",
-      stylers: [{ color: "#93c5fd" }]
-    }
-  ] : [];
-}
+     
