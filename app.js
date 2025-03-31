@@ -15,6 +15,10 @@ const app = firebase.initializeApp(firebaseConfig);
 const database = firebase.getDatabase(app);
 const statusListRef = firebase.query(firebase.ref(database, 'narberthDogWalkStatuses'), firebase.orderByChild('timestamp'));
 
+// Firestore Initialization
+const firestore = firebase.firestore();
+const walkCollection = firestore.collection('dogWalkStatuses');
+
 // Map Variables
 const NARBERTH_CENTER = { lat: 51.7978, lng: -4.7427 };
 const DEFAULT_ZOOM = 15;
@@ -41,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initEventListeners();
   checkGeolocation();
   loadInitialData();
-  
+
   // Initialize dark mode from localStorage
   if (localStorage.getItem('darkMode') === 'true') {
     document.body.classList.add('dark-mode');
@@ -80,6 +84,45 @@ function initEventListeners() {
 
 function loadInitialData() {
   // Data will be loaded via the onChildAdded listener
+  firebase.database().ref('narberthDogWalkStatuses').on('child_added', function(snapshot) {
+    const status = snapshot.val();
+    displayStatus(status);
+  });
+}
+
+function handleFormSubmit(event) {
+  event.preventDefault();
+  
+  const formData = new FormData(walkForm);
+  const walkData = {
+    status: formData.get('status'),
+    location: formData.get('location'),
+    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+  };
+  
+  // Save data to Firestore
+  walkCollection.add(walkData)
+    .then(docRef => {
+      console.log("Document written with ID: ", docRef.id);
+
+      // Save data to Realtime Database as well
+      const statusRef = firebase.database().ref('narberthDogWalkStatuses');
+      statusRef.push({
+        ...walkData,
+        id: docRef.id, // Include Firestore document ID to link them
+      }).then(() => {
+        console.log("Data added to Realtime Database successfully");
+        alert("Status submitted successfully to both Firestore and Realtime Database");
+        walkForm.reset();
+      }).catch(error => {
+        console.error("Error adding to Realtime Database: ", error);
+        alert("Failed to submit to Realtime Database");
+      });
+    })
+    .catch(error => {
+      console.error("Error adding document to Firestore: ", error);
+      alert("Failed to submit status to Firestore");
+    });
 }
 
 function handleHashChange() {
@@ -331,13 +374,3 @@ function getMapStyle() {
       featureType: "poi",
       elementType: "labels.text.fill",
       stylers: [{ color: "#93c5fd" }]
-    },
-    {
-      featureType: "poi.park",
-      elementType: "geometry",
-      stylers: [{ color: "#1e3a8a" }]
-    },
-    {
-      featureType: "poi.park",
-      elementType: "labels.text.fill",
-     
