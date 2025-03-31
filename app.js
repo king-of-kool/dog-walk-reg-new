@@ -15,10 +15,6 @@ const app = firebase.initializeApp(firebaseConfig);
 const database = firebase.getDatabase(app);
 const statusListRef = firebase.query(firebase.ref(database, 'narberthDogWalkStatuses'), firebase.orderByChild('timestamp'));
 
-// Firestore Initialization
-const firestore = firebase.firestore();
-const walkCollection = firestore.collection('dogWalkStatuses');
-
 // Map Variables
 const NARBERTH_CENTER = { lat: 51.7978, lng: -4.7427 };
 const DEFAULT_ZOOM = 15;
@@ -83,7 +79,7 @@ function initEventListeners() {
 }
 
 function loadInitialData() {
-  // Data will be loaded via the onChildAdded listener
+  // Listen to new data in Realtime Database
   firebase.database().ref('narberthDogWalkStatuses').on('child_added', function(snapshot) {
     const status = snapshot.val();
     displayStatus(status);
@@ -97,31 +93,20 @@ function handleFormSubmit(event) {
   const walkData = {
     status: formData.get('status'),
     location: formData.get('location'),
-    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    timestamp: firebase.database.ServerValue.TIMESTAMP,
   };
   
-  // Save data to Firestore
-  walkCollection.add(walkData)
-    .then(docRef => {
-      console.log("Document written with ID: ", docRef.id);
-
-      // Save data to Realtime Database as well
-      const statusRef = firebase.database().ref('narberthDogWalkStatuses');
-      statusRef.push({
-        ...walkData,
-        id: docRef.id, // Include Firestore document ID to link them
-      }).then(() => {
-        console.log("Data added to Realtime Database successfully");
-        alert("Status submitted successfully to both Firestore and Realtime Database");
-        walkForm.reset();
-      }).catch(error => {
-        console.error("Error adding to Realtime Database: ", error);
-        alert("Failed to submit to Realtime Database");
-      });
+  // Save data to Realtime Database
+  const statusRef = firebase.database().ref('narberthDogWalkStatuses');
+  statusRef.push(walkData)
+    .then(() => {
+      console.log("Data added to Realtime Database successfully");
+      alert("Status submitted successfully to Realtime Database");
+      walkForm.reset();
     })
     .catch(error => {
-      console.error("Error adding document to Firestore: ", error);
-      alert("Failed to submit status to Firestore");
+      console.error("Error adding to Realtime Database: ", error);
+      alert("Failed to submit to Realtime Database");
     });
 }
 
