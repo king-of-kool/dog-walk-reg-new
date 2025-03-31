@@ -359,3 +359,16 @@ function getMapStyle() {
       featureType: "poi",
       elementType: "labels.text.fill",
       stylers: [{ color: "#93c5fd" }]
+    },
+    {
+      featureType: "poi.park",
+      elementType: "geometry",
+      stylers: [{ color: "#1e3a8a" }]
+    },
+    {
+      featureType: "poi.park",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#93c5fd" }]
+    }
+  ] : [];
+}
