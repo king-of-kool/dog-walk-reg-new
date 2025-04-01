@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,13 +23,13 @@
     }
 
     .dark-mode {
-      --primary-color: #1e88e5; /* Changed */
-      --primary-dark: #0d47a1; /* Changed */
-      --primary-light: #bbdefb; /* Changed */
-      --text-color: #e0e0e0; /* Changed */
-      --text-light: #ffffff; /* Changed */
-      --bg-color: #121a24; /* Changed */
-      --card-bg: #1e293b; /* Changed */
+      --primary-color: #1565c0;
+      --primary-dark: #0d47a1;
+      --primary-light: #bbdefb;
+      --text-color: #e0e0e0;
+      --text-light: #ffffff;
+      --bg-color: #121a24;
+      --card-bg: #1e293b;
       --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
 
@@ -651,24 +653,15 @@
       color: #5d4037;
       font-weight: bold;
     }
-
-    /* Add styles for sections */
-    .page {
-      display: none; /* Hide all pages by default */
-    }
-
-    .page.active {
-      display: block; /* Show active page */
-    }
   </style>
 </head>
 <body>
   <div id="sideMenu">
     <h2><i class="fas fa-paw"></i> Narberth Dog Walks</h2>
-    <a href="#home" class="active" aria-current="page" onclick="showPage('home')"><i class="fas fa-home"></i> Home</a>
-    <a href="#submit-status" onclick="showPage('submit-status')"><i class="fas fa-plus-circle"></i> Submit Status</a>
-    <a href="#view-status" onclick="showPage('view-status')"><i class="fas fa-list"></i> View Statuses</a>
-    <a href="#map-view" onclick="showPage('map-view')"><i class="fas fa-map-marked-alt"></i> Map View</a>
+    <a href="#" class="active" aria-current="page"><i class="fas fa-home"></i> Home</a>
+    <a href="#submit-status"><i class="fas fa-plus-circle"></i> Submit Status</a>
+    <a href="#view-status"><i class="fas fa-list"></i> View Statuses</a>
+    <a href="#map-view"><i class="fas fa-map-marked-alt"></i> Map View</a>
   </div>
 
   <!-- Hamburger Menu -->
@@ -682,96 +675,82 @@
     <h1><i class="fas fa-paw"></i> Narberth Dog Walk Status</h1>
     <p>Share your dog walking status with other owners in Narberth to help coordinate walks and avoid busy areas.</p>
 
-    <!-- Home Page -->
-    <div id="home" class="page active">
-      <p>Welcome to the Narberth Dog Walk Status application. Use the sidebar to navigate.</p>
+    <!-- Map Container -->
+    <div id="mapContainer">
+      <!-- Map will be rendered here -->
     </div>
 
-    <!-- Submit Status Page -->
-    <div id="submit-status" class="page">
-      <form id="walkForm">
-        <label class="form-full-width">
-          Are you walking your dog?
-          <select id="walkingStatus" required>
-            <option value="yes">Yes, currently walking</option>
-            <option value="no">No, not currently walking</option>
-            <option value="planning">Planning to walk soon</option>
-          </select>
-        </label>
-
-        <label class="form-full-width">
-          Location in Narberth:
-          <div class="map-controls">
-            <input type="text" id="location" required maxlength="50" placeholder="E.g. Narberth Moor, Bloomfield Park" list="narberthLocations" />
-            <datalist id="narberthLocations">
-              <option value="Narberth Moor">
-              <option value="Bloomfield Park">
-              <option value="Narberth High Street">
-              <option value="Narberth Castle">
-              <option value="Narberth Playing Fields">
-              <option value="Narberth Woods">
-              <option value="Narberth Dog Park">
-            </datalist>
-            <button type="button" id="selectOnMapBtn" class="map-btn" aria-label="Select location on map"><i class="fas fa-map-marker-alt"></i> Select on Map</button>
-          </div>
-        </label>
-
-        <div id="mapSelectionContainer"></div>
-
-        <label>
-          Walk Time:
-          <input type="time" id="walkTime" required />
-        </label>
-
-        <label>
-          Dog Status
-          <select id="dogStatus" required>
-            <option value="Friendly">Friendly with dogs/people</option>
-            <option value="Nervous">Nervous/Shy</option>
-            <option value="Not Friendly">Not friendly (please keep distance)</option>
-            <option value="Service Dog">Service Dog (do not disturb)</option>
-            <option value="In Training">In Training</option>
-          </select>
-        </label>
-
-        <label>
-          Safety Status
-          <select id="safetyOptions" required>
-            <option value="safe">Safe area</option>
-            <option value="unsafe">Unsafe (recent incidents)</option>
-            <option value="unknown">Unknown safety</option>
-            <option value="busy">Very busy area</option>
-          </select>
-        </label>
-
-        <label class="form-full-width">
-          Other Notes (optional):
-          <textarea id="otherNotes" maxlength="200" placeholder="E.g., 'We'll be wearing red bandanas', 'Avoid the north side of the Moor'"></textarea>
-        </label>
-
-        <button type="submit"><i class="fas fa-paper-plane"></i> Submit Status</button>
-      </form>
+    <!-- Filter Controls -->
+    <div class="filter-controls">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="walking">Walking</button>
+      <button class="filter-btn" data-filter="not-walking">Not Walking</button>
+      <button class="filter-btn" data-filter="friendly">Friendly Dogs</button>
+      <button class="filter-btn" data-filter="service">Service Dogs</button>
     </div>
 
-    <!-- View Status Page -->
-    <div id="view-status" class="page">
-      <h2><i class="fas fa-list-ul"></i> Current Dog Walk Statuses in Narberth</h2>
-      <div id="statusList">
-        <!-- Status cards will be inserted here -->
-      </div>
-      <div id="emptyState" class="text-center mt-20 hidden">
-        <i class="fas fa-dog" style="font-size: 3rem; color: var(--primary-color);"></i>
-        <h3>No walk statuses found in Narberth</h3>
-        <p>Be the first to submit a dog walk status in our town!</p>
-      </div>
-    </div>
+    <form id="walkForm">
+      <label class="form-full-width">
+        Are you walking your dog?
+        <select id="walkingStatus" required>
+          <option value="yes">Yes, currently walking</option>
+          <option value="no">No, not currently walking</option>
+          <option value="planning">Planning to walk soon</option>
+        </select>
+      </label>
 
-    <!-- Map View Page -->
-    <div id="map-view" class="page">
-      <div id="mapContainer">
-        <!-- Map will be rendered here -->
-      </div>
-    </div>
+      <label class="form-full-width">
+        Location in Narberth:
+        <div class="map-controls">
+          <input type="text" id="location" required maxlength="50" placeholder="E.g. Narberth Moor, Bloomfield Park" list="narberthLocations" />
+          <datalist id="narberthLocations">
+            <option value="Narberth Moor">
+            <option value="Bloomfield Park">
+            <option value="Narberth High Street">
+            <option value="Narberth Castle">
+            <option value="Narberth Playing Fields">
+            <option value="Narberth Woods">
+            <option value="Narberth Dog Park">
+          </datalist>
+          <button type="button" id="selectOnMapBtn" class="map-btn" aria-label="Select location on map"><i class="fas fa-map-marker-alt"></i> Select on Map</button>
+        </div>
+      </label>
+
+      <div id="mapSelectionContainer"></div>
+
+      <label>
+        Walk Time:
+        <input type="time" id="walkTime" required />
+      </label>
+
+      <label>
+        Dog Status
+        <select id="dogStatus" required>
+          <option value="Friendly">Friendly with dogs/people</option>
+          <option value="Nervous">Nervous/Shy</option>
+          <option value="Not Friendly">Not friendly (please keep distance)</option>
+          <option value="Service Dog">Service Dog (do not disturb)</option>
+          <option value="In Training">In Training</option>
+        </select>
+      </label>
+
+      <label>
+        Safety Status
+        <select id="safetyOptions" required>
+          <option value="safe">Safe area</option>
+          <option value="unsafe">Unsafe (recent incidents)</option>
+          <option value="unknown">Unknown safety</option>
+          <option value="busy">Very busy area</option>
+        </select>
+      </label>
+
+      <label class="form-full-width">
+        Other Notes (optional):
+        <textarea id="otherNotes" maxlength="200" placeholder="E.g., 'We'll be wearing red bandanas', 'Avoid the north side of the Moor'"></textarea>
+      </label>
+
+      <button type="submit"><i class="fas fa-paper-plane"></i> Submit Status</button>
+    </form>
 
     <!-- Loading Spinner -->
     <div id="loadingSpinner" class="spinner"></div>
@@ -784,11 +763,22 @@
       <i class="fas fa-moon toggle-icon"></i>
     </div>
 
-    <!-- Notification -->
-    <div id="notification" class="notification" role="alert" aria-live="assertive">
-      <i class="fas fa-check-circle"></i>
-      <span>Status submitted successfully!</span>
+    <h2><i class="fas fa-list-ul"></i> Current Dog Walk Statuses in Narberth</h2>
+    <div id="statusList">
+      <!-- Status cards will be inserted here -->
     </div>
+
+    <div id="emptyState" class="text-center mt-20 hidden">
+      <i class="fas fa-dog" style="font-size: 3rem; color: var(--primary-color);"></i>
+      <h3>No walk statuses found in Narberth</h3>
+      <p>Be the first to submit a dog walk status in our town!</p>
+    </div>
+  </div>
+
+  <!-- Notification -->
+  <div id="notification" class="notification" role="alert" aria-live="assertive">
+    <i class="fas fa-check-circle"></i>
+    <span>Status submitted successfully!</span>
   </div>
 
   <!-- Firebase SDK -->
@@ -836,24 +826,6 @@
     // Narberth coordinates (latitude, longitude)
     const NARBERTH_CENTER = { lat: 51.7978, lng: -4.7427 };
     const DEFAULT_ZOOM = 15;
-
-    // Function to show the selected page
-    function showPage(pageId) {
-      const pages = document.querySelectorAll('.page');
-      pages.forEach(page => {
-        page.classList.remove('active');
-      });
-      document.getElementById(pageId).classList.add('active');
-
-      // Update active link in sidebar
-      const sideMenuLinks = document.querySelectorAll('#sideMenu a');
-      sideMenuLinks.forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href') === `#${pageId}`) {
-          link.classList.add('active');
-        }
-      });
-    }
 
     // Initialize the application
     document.addEventListener('DOMContentLoaded', () => {
@@ -1023,13 +995,14 @@
 
     function initAutocomplete() {
       if (typeof google === 'undefined') return;
-            // Set bounds to Narberth area
-            const defaultBounds = {
-            north: NARBERTH_CENTER.lat + 0.05,
-            south: NARBERTH_CENTER.lat - 0.05,
-            east: NARBERTH_CENTER.lng + 0.05,
-            west: NARBERTH_CENTER.lng - 0.05
-          };
+      
+      // Set bounds to Narberth area
+      const defaultBounds = {
+        north: NARBERTH_CENTER.lat + 0.05,
+        south: NARBERTH_CENTER.lat - 0.05,
+        east: NARBERTH_CENTER.lng + 0.05,
+        west: NARBERTH_CENTER.lng - 0.05
+      };
       
       autocomplete = new google.maps.places.Autocomplete(locationInput, {
         bounds: defaultBounds,
