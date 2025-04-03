@@ -803,6 +803,7 @@
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
     const statusListRef = query(ref(database, 'narberthDogWalkStatuses'), orderByChild('timestamp'));
+    const refreshRef = ref(database, 'force-refresh');
 
     // Initialize variables
     let map;
@@ -841,6 +842,26 @@
         document.getElementById('toggleModeCheckbox').checked = true;
       }
     });
+
+     onValue(refreshRef, (snapshot) => {
+    const shouldRefresh = snapshot.val();
+
+
+
+       
+    if (shouldRefresh) {
+      // Reload the page
+      console.log('Page refresh triggered!');
+      window.location.reload();
+
+      // Reset the 'force-refresh' value to false after refresh
+      set(refreshRef, false).catch((error) => {
+        console.error('Error resetting force-refresh:', error);
+      });
+    }
+
+
+       
 
     function initEventListeners() {
       // Form submission
