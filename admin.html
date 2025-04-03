@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Password Protected Page</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f4f4f4;
+    }
+    .content {
+      text-align: center;
+      display: none;
+    }
+    .login-container {
+      text-align: center;
+    }
+    .password-input {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .login-btn {
+      padding: 10px 20px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .login-btn:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="login-container" class="login-container">
+    <h2>Enter Password to Access</h2>
+    <input type="password" id="password-input" class="password-input" placeholder="Enter password" />
+    <button id="login-btn" class="login-btn">Login</button>
+  </div>
+
+  <div id="content" class="content">
+    <h1>Welcome to the Protected Page</h1>
+    <p>This page will force a refresh of all connected clients.</p>
+  </div>
+
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCTLsji9XOlgHK-YUPrQYSfLPB5NoerVWY",
+      authDomain: "dog-walk-reg.firebaseapp.com",
+      databaseURL: "https://dog-walk-reg-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "dog-walk-reg",
+      storageBucket: "dog-walk-reg.appspot.com",
+      messagingSenderId: "806193788108",
+      appId: "1:806193788108:web:ac6df92dd5800bd74a3e69",
+      measurementId: "G-9Y7PYSP8NP"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database(app);
+
+    // Password for access
+    const correctPassword = "yourpassword";  // Change this to your desired password
+
+    // Handle login logic
+    const loginButton = document.getElementById("login-btn");
+    const passwordInput = document.getElementById("password-input");
+    const contentDiv = document.getElementById("content");
+    const loginContainer = document.getElementById("login-container");
+
+    loginButton.addEventListener("click", function() {
+      const password = passwordInput.value;
+      if (password === correctPassword) {
+        loginContainer.style.display = "none";
+        contentDiv.style.display = "block";
+        triggerForceRefresh(); // Force clients to refresh
+      } else {
+        alert("Incorrect password!");
+      }
+    });
+
+    // Trigger refresh for connected clients
+    function triggerForceRefresh() {
+      const refreshRef = database.ref('force-refresh');
+      refreshRef.set(true)
+        .then(() => {
+          console.log('Force refresh triggered');
+        })
+        .catch((error) => {
+          console.error('Error triggering refresh:', error);
+        });
+    }
+
+    // Listen for refresh trigger from Firebase
+    const refreshRef = database.ref('force-refresh');
+    refreshRef.on('value', (snapshot) => {
+      const shouldRefresh = snapshot.val();
+      if (shouldRefresh) {
+        window.location.reload();
+        refreshRef.set(false); // Reset the refresh trigger
+      }
+    });
+  </script>
+</body>
+</html>
