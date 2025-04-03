@@ -803,8 +803,7 @@
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
     const statusListRef = query(ref(database, 'narberthDogWalkStatuses'), orderByChild('timestamp'));
-    const refreshRef = ref(database, 'force-refresh');
-
+    
     // Initialize variables
     let map;
     let selectionMap;
@@ -829,6 +828,27 @@
     const NARBERTH_CENTER = { lat: 51.7978, lng: -4.7427 };
     const DEFAULT_ZOOM = 15;
 
+
+
+    // Reference to the force-refresh variable in Firebase
+    const refreshRef = ref(database, 'force-refresh');
+
+    // Listen for changes to the force-refresh variable
+    onValue(refreshRef, (snapshot) => {
+      const shouldRefresh = snapshot.val();
+
+      if (shouldRefresh) {
+        // Show a message that the page will refresh
+        document.getElementById("refresh-msg").textContent = "Page is being refreshed due to an update...";
+        
+        // Reload the page
+        window.location.reload();
+      }
+    });
+
+
+    
+
     // Initialize the application
     document.addEventListener('DOMContentLoaded', () => {
       initEventListeners();
@@ -842,26 +862,6 @@
         document.getElementById('toggleModeCheckbox').checked = true;
       }
     });
-
-     onValue(refreshRef, (snapshot) => {
-    const shouldRefresh = snapshot.val();
-
-
-
-       
-    if (shouldRefresh) {
-      // Reload the page
-      console.log('Page refresh triggered!');
-      window.location.reload();
-
-      // Reset the 'force-refresh' value to false after refresh
-      set(refreshRef, false).catch((error) => {
-        console.error('Error resetting force-refresh:', error);
-      });
-    }
-
-
-       
 
     function initEventListeners() {
       // Form submission
