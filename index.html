@@ -801,6 +801,19 @@
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
     const statusListRef = query(ref(database, 'narberthDogWalkStatuses'), orderByChild('timestamp'));
+    const db = firebase.database();
+    const refreshRef = db.ref("force-refresh");
+
+
+    // Listen for changes to the refresh value
+    refreshRef.on('value', function(snapshot) {
+        if (snapshot.val() === true) {
+          // Refresh the page
+          location.reload();
+          refreshRef.set(false);
+          }
+    });
+    
 
     // Initialize variables
     let map;
