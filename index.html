@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -662,7 +660,7 @@
     <a href="#submit-status"><i class="fas fa-plus-circle"></i> Submit Status</a>
     <a href="#view-status"><i class="fas fa-list"></i> View Statuses</a>
     <a href="#map-view"><i class="fas fa-map-marked-alt"></i> Map View</a>
-    <a href="admin.html">Link Text</a>
+    <a href='/admin'> --admin page-- </a>
   </div>
 
   <!-- Hamburger Menu -->
@@ -803,7 +801,7 @@
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
     const statusListRef = query(ref(database, 'narberthDogWalkStatuses'), orderByChild('timestamp'));
-    
+
     // Initialize variables
     let map;
     let selectionMap;
@@ -827,27 +825,6 @@
     // Narberth coordinates (latitude, longitude)
     const NARBERTH_CENTER = { lat: 51.7978, lng: -4.7427 };
     const DEFAULT_ZOOM = 15;
-
-
-
-    // Reference to the force-refresh variable in Firebase
-    const refreshRef = ref(database, 'force-refresh');
-
-    // Listen for changes to the force-refresh variable
-    onValue(refreshRef, (snapshot) => {
-      const shouldRefresh = snapshot.val();
-
-      if (shouldRefresh) {
-        // Show a message that the page will refresh
-        document.getElementById("refresh-msg").textContent = "Page is being refreshed due to an update...";
-        
-        // Reload the page
-        window.location.reload();
-      }
-    });
-
-
-    
 
     // Initialize the application
     document.addEventListener('DOMContentLoaded', () => {
