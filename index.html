@@ -849,6 +849,10 @@
         // Reset form
         walkForm.reset();
         mapSelectionContainer.style.display = 'none';
+
+        window.location.reload(); 
+        
+        
       } catch (error) {
         console.error('Error submitting status:', error);
         showNotification(error.message || 'Error submitting status. Please try again.', true);
