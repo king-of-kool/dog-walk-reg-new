@@ -44,6 +44,10 @@
 </head>
 <body>
 
+
+  <button onclick="requestRefresh()">Notify Other Clients to Refresh</button>
+
+  
   <div id="login-container" class="login-container">
     <h2>Enter Password to Access</h2>
     <input type="password" id="password-input" class="password-input" placeholder="Enter password" />
@@ -72,9 +76,28 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js';
     import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js';
 
+
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
+
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    
+    const db = firebase.database();
+
+     // Reference to 'refresh' value in Firebase Database
+    const refreshRef = db.ref('refresh');  
+
+    
+    // Function to trigger refresh for all clients
+    function requestRefresh() {
+      refreshRef.set(true); // Set the refresh value to true
+      alert("Refresh signal sent to all clients!");
+    }
+
+
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     // Password for access
     const correctPassword = "youwillneverguessthis";  // Change this to your desired password
