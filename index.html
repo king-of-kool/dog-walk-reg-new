@@ -78,7 +78,7 @@
       <label>
         Dog Status
         <select id="dogStatus" required>
-          <option value="Friendly">Friendly wiht dogs and people</option>
+          <option value="Friendly">Friendly with dogs and people</option>
           <option value="Friendly">Friendly with dogs</option>
           <option value="Friendly">Friendly with people</option>
           <option value="Nervous">Nervous/Shy</option>
@@ -935,6 +935,15 @@
       }, 200);
     }
 
+
+    function toggleMenu() {
+      const menu = document.getElementById("navMenu");
+      if (menu) {
+        menu.classList.toggle("open");
+      }
+    }
+
+    
     // Add scroll event listener
     window.addEventListener('scroll', animateOnScroll);
     // Initial check in case elements are already in view
