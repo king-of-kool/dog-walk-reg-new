@@ -140,6 +140,15 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded, onChildRemoved, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+
+    document.getElementById("hamburgerMenu").addEventListener("click", function() {
+    const menu = document.getElementById("navMenu");
+      if (menu) {
+        menu.classList.toggle("open");
+      }
+    });
+
+    
     // Note: In production, these should come from environment variables
     const firebaseConfig = {
       apiKey: "AIzaSyCTLsji9XOlgHK-YUPrQYSfLPB5NoerVWY",
@@ -934,15 +943,6 @@
         isThrottled = false;
       }, 200);
     }
-
-
-    function toggleMenu() {
-      const menu = document.getElementById("navMenu");
-      if (menu) {
-        menu.classList.toggle("open");
-      }
-    }
-
     
     // Add scroll event listener
     window.addEventListener('scroll', animateOnScroll);
