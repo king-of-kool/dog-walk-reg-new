@@ -13,7 +13,7 @@
 <body>
   <div id="sideMenu">
     <h2><i class="fas fa-paw"></i> Narberth Dog Walks</h2>
-    <a href="dog-walk-reg.netlify.app" class="active" aria-current="page"><i class="fas fa-home"></i> Home</a>
+    <a href="https://dog-walk-reg.netlify.app" class="active" aria-current="page"><i class="fas fa-home"></i> Home</a>
     <a href="#submit-status"><i class="fas fa-plus-circle"></i> Submit Status</a>
     <a href="#view-status"><i class="fas fa-list"></i> View Statuses</a>
     <a href="#map-view"><i class="fas fa-map-marked-alt"></i> Map View</a>
@@ -82,7 +82,9 @@
       <label>
         Dog Status
         <select id="dogStatus" required>
-          <option value="Friendly">Friendly with dogs/people</option>
+          <option value="Friendly">Friendly wiht dogs and people</option>
+          <option value="Friendly">Friendly with dogs</option>
+          <option value="Friendly">Friendly with people</option>
           <option value="Nervous">Nervous/Shy</option>
           <option value="Not Friendly">Not friendly (please keep distance)</option>
           <option value="Service Dog">Service Dog (do not disturb)</option>
@@ -183,6 +185,14 @@
     const NARBERTH_CENTER = { lat: 51.7978, lng: -4.7427 };
     const DEFAULT_ZOOM = 15;
 
+    function toggleMenu() {
+      const menu = document.getElementById("navMenu");
+      if (menu) {
+        menu.classList.toggle("open");
+        }
+    }
+
+    
     // Initialize the application
     document.addEventListener('DOMContentLoaded', () => {
       initEventListeners();
