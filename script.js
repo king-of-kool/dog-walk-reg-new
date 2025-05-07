@@ -1,0 +1,794 @@
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCTLsji9XOlgHK-YUPrQYSfLPB5NoerVWY",
+  authDomain: "dog-walk-reg.firebaseapp.com",
+  databaseURL: "https://dog-walk-reg-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "dog-walk-reg",
+  storageBucket: "dog-walk-reg.appspot.com",
+  messagingSenderId: "806193788108",
+  appId: "1:806193788108:web:ac6df92dd5800bd74a3e69",
+  measurementId: "G-9Y7PYSP8NP"
+};
+
+// Initialize Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const statusListRef = firebase.query(firebase.ref(database, 'narberthDogWalkStatuses'), firebase.orderByChild('timestamp'));
+
+// Initialize variables
+let map;
+let selectionMap;
+let markers = [];
+let currentFilter = 'all';
+let geocoder;
+let selectionMarker;
+let autocomplete;
+let isThrottled = false;
+
+// DOM elements
+const statusListEl = document.getElementById('statusList');
+const emptyStateEl = document.getElementById('emptyState');
+const filterButtons = document.querySelectorAll('.filter-btn');
+const mapContainer = document.getElementById('mapContainer');
+const mapSelectionContainer = document.getElementById('mapSelectionContainer');
+const selectOnMapBtn = document.getElementById('selectOnMapBtn');
+const locationInput = document.getElementById('location');
+const walkForm = document.getElementById('walkForm');
+
+// Narberth coordinates (latitude, longitude)
+const NARBERTH_CENTER = { lat: 51.7978, lng: -4.7427 };
+const DEFAULT_ZOOM = 15;
+
+// Initialize the application
+document.addEventListener('DOMContentLoaded', () => {
+  initEventListeners();
+  checkGeolocation();
+  loadMapLibrary();
+  loadInitialData();
+  
+  // Initialize dark mode from localStorage
+  if (localStorage.getItem('darkMode') === 'true') {
+    document.body.classList.add('dark-mode');
+    document.getElementById('toggleModeCheckbox').checked = true;
+  }
+});
+
+function initEventListeners() {
+  // Form submission
+  walkForm.addEventListener('submit', handleFormSubmit);
+  
+  // Dark mode toggle
+  document.getElementById('toggleModeCheckbox').addEventListener('change', toggleDarkMode);
+  
+  // Filter buttons
+  filterButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      filterStatuses();
+    });
+  });
+  
+  // Map selection button
+  selectOnMapBtn.addEventListener('click', showMapSelection);
+  
+  // Hash-based navigation
+  window.addEventListener('hashchange', handleHashChange);
+  handleHashChange();
+}
+
+function loadInitialData() {
+  // Data will be loaded via the onChildAdded listener
+}
+
+function handleHashChange() {
+  const hash = window.location.hash;
+  const sideMenuLinks = document.querySelectorAll('#sideMenu a');
+  
+  sideMenuLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === hash) {
+      link.classList.add('active');
+    }
+  });
+  
+  // Scroll to appropriate section
+  if (hash === '#map-view') {
+    showMapView();
+  } else if (hash === '#submit-status') {
+    document.getElementById('walkForm').scrollIntoView({ behavior: 'smooth' });
+  } else if (hash === '#view-status') {
+    document.querySelector('h2').scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+function showMapView() {
+  mapContainer.style.display = 'block';
+  statusListEl.style.display = 'none';
+  if (typeof google !== 'undefined' && !map) {
+    initMainMap();
+  }
+}
+
+function showListView() {
+  mapContainer.style.display = 'none';
+  statusListEl.style.display = 'grid';
+}
+
+function loadMapLibrary() {
+  // Only load if not already loaded
+  if (typeof google === 'undefined') {
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${firebaseConfig.apiKey}&libraries=places&callback=initMaps`;
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+  }
+}
+
+function initMaps() {
+  initMainMap();
+  initSelectionMap();
+  initAutocomplete();
+}
+
+function initMainMap() {
+  if (typeof google === 'undefined') return;
+  
+  // Try to center map on user's location or default to Narberth center
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const userLocation = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+      
+      // Check if user is within reasonable distance of Narberth
+      const distance = getDistanceFromNarberth(userLocation);
+      const center = distance < 20 ? userLocation : NARBERTH_CENTER;
+      
+      map = new google.maps.Map(mapContainer, {
+        center: center,
+        zoom: DEFAULT_ZOOM,
+        styles: getMapStyle()
+      });
+      
+      geocoder = new google.maps.Geocoder();
+      addExistingMarkers();
+    },
+    () => {
+      // Default to Narberth center if geolocation fails
+      map = new google.maps.Map(mapContainer, {
+        center: NARBERTH_CENTER,
+        zoom: DEFAULT_ZOOM,
+        styles: getMapStyle()
+      });
+      
+      geocoder = new google.maps.Geocoder();
+      addExistingMarkers();
+    },
+    { 
+      timeout: 10000,
+      enableHighAccuracy: true 
+    }
+  );
+}
+
+function getDistanceFromNarberth(location) {
+  // Simple distance calculation (in km) between two coordinates
+  const R = 6371; // Earth's radius in km
+  const dLat = (location.lat - NARBERTH_CENTER.lat) * Math.PI / 180;
+  const dLon = (location.lng - NARBERTH_CENTER.lng) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(NARBERTH_CENTER.lat * Math.PI / 180) * 
+    Math.cos(location.lat * Math.PI / 180) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+
+function initSelectionMap() {
+  if (typeof google === 'undefined') return;
+  
+  selectionMap = new google.maps.Map(mapSelectionContainer, {
+    center: NARBERTH_CENTER,
+    zoom: DEFAULT_ZOOM,
+    styles: getMapStyle()
+  });
+  
+  // Add click listener for marker placement
+  selectionMap.addListener('click', (e) => {
+    placeSelectionMarker(e.latLng);
+    reverseGeocode(e.latLng);
+  });
+}
+
+function initAutocomplete() {
+  if (typeof google === 'undefined') return;
+  
+  // Set bounds to Narberth area
+  const defaultBounds = {
+    north: NARBERTH_CENTER.lat + 0.05,
+    south: NARBERTH_CENTER.lat - 0.05,
+    east: NARBERTH_CENTER.lng + 0.05,
+    west: NARBERTH_CENTER.lng - 0.05
+  };
+  
+  autocomplete = new google.maps.places.Autocomplete(locationInput, {
+    bounds: defaultBounds,
+    types: ['establishment', 'geocode'],
+    fields: ['formatted_address', 'geometry']
+  });
+  
+  autocomplete.addListener('place_changed', () => {
+    const place = autocomplete.getPlace();
+    if (!place.geometry) {
+      return;
+    }
+    
+    if (selectionMap) {
+      selectionMap.setCenter(place.geometry.location);
+      selectionMap.setZoom(17);
+      placeSelectionMarker(place.geometry.location);
+    }
+  });
+}
+
+function placeSelectionMarker(location) {
+  if (selectionMarker) {
+    selectionMarker.setPosition(location);
+  } else {
+    selectionMarker = new google.maps.Marker({
+      position: location,
+      map: selectionMap,
+      draggable: true,
+      title: "Selected Location in Narberth"
+    });
+    
+    selectionMarker.addListener('dragend', () => {
+      reverseGeocode(selectionMarker.getPosition());
+    });
+  }
+}
+
+function reverseGeocode(latLng) {
+  if (!geocoder) return;
+  
+  geocoder.geocode({ location: latLng }, (results, status) => {
+    if (status === 'OK' && results[0]) {
+      // Simplify the address for Narberth locations
+      const address = results[0].formatted_address;
+      const simplifiedAddress = address.replace(/, UK$/, '')
+                                     .replace(/Narberth, Pembrokeshire/i, 'Narberth');
+      locationInput.value = simplifiedAddress;
+    }
+  });
+}
+
+function showMapSelection() {
+  mapSelectionContainer.style.display = 'block';
+  
+  // Center map on current location if available and near Narberth
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        
+        if (selectionMap) {
+          // Only use if within 20km of Narberth
+          if (getDistanceFromNarberth(userLocation) < 20) {
+            selectionMap.setCenter(userLocation);
+          } else {
+            selectionMap.setCenter(NARBERTH_CENTER);
+          }
+          selectionMap.setZoom(DEFAULT_ZOOM);
+        }
+      },
+      () => {
+        // Default to Narberth center if geolocation fails
+        if (selectionMap) {
+          selectionMap.setCenter(NARBERTH_CENTER);
+          selectionMap.setZoom(DEFAULT_ZOOM);
+        }
+      },
+      { 
+        timeout: 10000,
+        enableHighAccuracy: true 
+      }
+    );
+  }
+}
+
+function getMapStyle() {
+  return document.body.classList.contains('dark-mode') ? [
+    { elementType: "geometry", stylers: [{ color: "#1e293b" }] },
+    { elementType: "labels.text.stroke", stylers: [{ color: "#1e293b" }] },
+    { elementType: "labels.text.fill", stylers: [{ color: "#9ca3af" }] },
+    {
+      featureType: "administrative.locality",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#93c5fd" }]
+    },
+    {
+      featureType: "poi",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#93c5fd" }]
+    },
+    {
+      featureType: "poi.park",
+      elementType: "geometry",
+      stylers: [{ color: "#1e3a8a" }]
+    },
+    {
+      featureType: "poi.park",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#86efac" }]
+    },
+    {
+      featureType: "road",
+      elementType: "geometry",
+      stylers: [{ color: "#1f2937" }]
+    },
+    {
+      featureType: "road",
+      elementType: "geometry.stroke",
+      stylers: [{ color: "#1e293b" }]
+    },
+    {
+      featureType: "road",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#9ca3af" }]
+    },
+    {
+      featureType: "road.highway",
+      elementType: "geometry",
+      stylers: [{ color: "#1e40af" }]
+    },
+    {
+      featureType: "road.highway",
+      elementType: "geometry.stroke",
+      stylers: [{ color: "#1e293b" }]
+    },
+    {
+      featureType: "road.highway",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#bfdbfe" }]
+    },
+    {
+      featureType: "transit",
+      elementType: "geometry",
+      stylers: [{ color: "#1e293b" }]
+    },
+    {
+      featureType: "transit.station",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#93c5fd" }]
+    },
+    {
+      featureType: "water",
+      elementType: "geometry",
+      stylers: [{ color: "#1e3a8a" }]
+    },
+    {
+      featureType: "water",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#60a5fa" }]
+    },
+    {
+      featureType: "water",
+      elementType: "labels.text.stroke",
+      stylers: [{ color: "#1e3a8a" }]
+    }
+  ] : [];
+}
+
+function addMarker(statusData, statusId) {
+  if (!map || !geocoder) return;
+  
+  geocoder.geocode({ address: statusData.location + ', Narberth' }, (results, status) => {
+    if (status === 'OK' && results[0]) {
+      const marker = new google.maps.Marker({
+        map: map,
+        position: results[0].geometry.location,
+        title: statusData.location,
+        icon: getMarkerIcon(statusData)
+      });
+      
+      const infoWindow = new google.maps.InfoWindow({
+        content: createMarkerContent(statusData)
+      });
+      
+      marker.addListener('click', () => {
+        infoWindow.open(map, marker);
+      });
+      
+      markers.push({ id: statusId, marker: marker });
+    } else {
+      // Fallback to Narberth center if location not found
+      const marker = new google.maps.Marker({
+        map: map,
+        position: NARBERTH_CENTER,
+        title: statusData.location,
+        icon: getMarkerIcon(statusData)
+      });
+      
+      markers.push({ id: statusId, marker: marker });
+    }
+  });
+}
+
+function getMarkerIcon(statusData) {
+  const baseIcon = {
+    path: google.maps.SymbolPath.CIRCLE,
+    fillColor: statusData.status === 'Walking' ? '#4CAF50' : '#F44336',
+    fillOpacity: 0.9,
+    scale: 8,
+    strokeColor: 'white',
+    strokeWeight: 2
+  };
+  
+  return baseIcon;
+}
+
+function createMarkerContent(statusData) {
+  return `
+    <div style="padding: 10px; max-width: 200px;">
+      <h3 style="margin: 0 0 5px 0; color: ${statusData.status === 'Walking' ? '#4CAF50' : '#F44336'}">
+        ${statusData.status === 'Walking' ? 'Currently Walking' : 'Not Walking'}
+      </h3>
+      <p style="margin: 0 0 5px 0;"><strong>Location:</strong> ${statusData.location}</p>
+      <p style="margin: 0 0 5px 0;"><strong>Time:</strong> ${statusData.time}</p>
+      <p style="margin: 0 0 5px 0;"><strong>Dog:</strong> ${statusData.dogStatus}</p>
+      <p style="margin: 0;"><strong>Safety:</strong> <span class="${getSafetyClass(statusData.safety)}">${statusData.safety}</span></p>
+    </div>
+  `;
+}
+
+function addExistingMarkers() {
+  if (!map) return;
+  
+  // Clear existing markers
+  markers.forEach(m => m.marker.setMap(null));
+  markers = [];
+  
+  // Add markers for each status
+  document.querySelectorAll('.status').forEach(statusEl => {
+    const statusId = statusEl.dataset.id;
+    const statusData = JSON.parse(statusEl.dataset.status);
+    addMarker(statusData, statusId);
+  });
+}
+
+function checkGeolocation() {
+  if (navigator.geolocation) {
+    // Geolocation is available
+    document.getElementById('location').addEventListener('focus', suggestCurrentLocation);
+  }
+}
+
+function suggestCurrentLocation() {
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      if (!geocoder) return;
+      
+      const userLocation = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+      
+      // Only suggest if within 20km of Narberth
+      if (getDistanceFromNarberth(userLocation) < 20) {
+        geocoder.geocode(
+          { location: userLocation },
+          (results, status) => {
+            if (status === 'OK' && results[0]) {
+              const address = results[0].formatted_address;
+              // Simplify Narberth addresses
+              const simplifiedAddress = address.replace(/, UK$/, '')
+                                             .replace(/Narberth, Pembrokeshire/i, 'Narberth');
+              locationInput.placeholder = `Near ${simplifiedAddress}`;
+            }
+          }
+        );
+      }
+    },
+    (error) => {
+      console.log('Geolocation error:', error);
+    },
+    { 
+      timeout: 10000,
+      enableHighAccuracy: true 
+    }
+  );
+}
+
+function toggleDarkMode(e) {
+  document.body.classList.toggle('dark-mode', e.target.checked);
+  localStorage.setItem('darkMode', e.target.checked);
+  
+  // Update map style if it exists
+  if (map) {
+    map.setOptions({ styles: getMapStyle() });
+  }
+  if (selectionMap) {
+    selectionMap.setOptions({ styles: getMapStyle() });
+  }
+}
+
+// Mobile Menu Toggle
+function toggleMenu() {
+  const sideMenu = document.getElementById('sideMenu');
+  const hamburger = document.getElementById('hamburgerMenu');
+  sideMenu.classList.toggle('open');
+  hamburger.classList.toggle('open');
+  
+  // Update hamburger lines color based on dark mode
+  const hamburgerLines = hamburger.querySelectorAll('div');
+  if (document.body.classList.contains('dark-mode')) {
+    hamburgerLines.forEach(line => {
+      line.style.backgroundColor = '#bbdefb';
+    });
+  } else {
+    hamburgerLines.forEach(line => {
+      line.style.backgroundColor = '#00796b';
+    });
+  }
+}
+
+// Show notification
+function showNotification(message, isError = false) {
+  const notification = document.getElementById('notification');
+  const icon = notification.querySelector('i');
+  const text = notification.querySelector('span');
+  
+  text.textContent = message;
+  notification.style.backgroundColor = isError ? '#f44336' : 'var(--primary-color)';
+  
+  if (isError) {
+    icon.className = 'fas fa-exclamation-circle';
+  } else {
+    icon.className = 'fas fa-check-circle';
+  }
+  
+  notification.classList.add('show');
+  
+  setTimeout(() => {
+    notification.classList.remove('show');
+  }, 3000);
+}
+
+function formatTimeAgo(timestamp) {
+  const now = new Date();
+  const seconds = Math.floor((now - timestamp) / 1000);
+  
+  if (seconds < 60) return 'Just now';
+  if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+  return `${Math.floor(seconds / 86400)} days ago`;
+}
+
+function getSafetyClass(safetyStatus) {
+  switch(safetyStatus.toLowerCase()) {
+    case 'safe': return 'safety-safe';
+    case 'unsafe': return 'safety-unsafe';
+    case 'busy': return 'safety-unknown';
+    default: return 'safety-unknown';
+  }
+}
+
+function getStatusIcon(status) {
+  switch(status.toLowerCase()) {
+    case 'walking': return 'fas fa-walking';
+    case 'not walking': return 'fas fa-home';
+    case 'planning': return 'fas fa-clock';
+    default: return 'fas fa-paw';
+  }
+}
+
+function createStatusElement(statusData, statusId) {
+  const statusDiv = document.createElement('div');
+  statusDiv.className = `status ${statusData.status.toLowerCase().replace(' ', '-')}`;
+  statusDiv.dataset.id = statusId;
+  statusDiv.dataset.status = JSON.stringify(statusData);
+  
+  const timeAgo = statusData.timestamp ? formatTimeAgo(new Date(statusData.timestamp)) : 'Recently';
+  
+  let notesContent = '';
+  if (statusData.notes) {
+    notesContent = `<p><strong><i class="fas fa-sticky-note status-icon"></i>Notes:</strong> ${statusData.notes}</p>`;
+  }
+  
+  statusDiv.innerHTML = ` 
+    <span class="time-ago">${timeAgo}</span>
+    <p><strong><i class="${getStatusIcon(statusData.status)} status-icon"></i>Status:</strong> ${statusData.status}</p>
+    <p><strong><i class="fas fa-map-marker-alt status-icon"></i>Location:</strong> ${statusData.location}</p>
+    <p><strong><i class="far fa-clock status-icon"></i>Time:</strong> ${statusData.time}</p>
+    <p><strong><i class="fas fa-dog status-icon"></i>Dog:</strong> ${statusData.dogStatus}</p>
+    <p><strong><i class="fas fa-shield-alt status-icon"></i>Safety:</strong> <span class="${getSafetyClass(statusData.safety)}">${statusData.safety}</span></p>
+    ${notesContent}
+  `;
+  
+  return statusDiv;
+}
+
+function filterStatuses() {
+  const statuses = document.querySelectorAll('.status');
+  let visibleCount = 0;
+  
+  statuses.forEach(status => {
+    const statusData = JSON.parse(status.dataset.status);
+    let shouldShow = false;
+    
+    switch(currentFilter) {
+      case 'all':
+        shouldShow = true;
+        break;
+      case 'walking':
+        shouldShow = statusData.status.toLowerCase().includes('walking');
+        break;
+      case 'not-walking':
+        shouldShow = !statusData.status.toLowerCase().includes('walking');
+        break;
+      case 'friendly':
+        shouldShow = statusData.dogStatus.toLowerCase().includes('friendly');
+        break;
+      case 'service':
+        shouldShow = statusData.dogStatus.toLowerCase().includes('service');
+        break;
+      default:
+        shouldShow = true;
+    }
+    
+    if (shouldShow) {
+      status.style.display = 'block';
+      visibleCount++;
+    } else {
+      status.style.display = 'none';
+    }
+  });
+  
+  // Show empty state if no statuses match the filter
+  if (visibleCount === 0) {
+    emptyStateEl.classList.remove('hidden');
+  } else {
+    emptyStateEl.classList.add('hidden');
+  }
+}
+
+async function handleFormSubmit(e) {
+  e.preventDefault();
+  
+  const submitButton = e.target.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+  document.getElementById('loadingSpinner').style.display = 'block';
+  
+  try {
+    // Get form values
+    const walkingStatus = document.getElementById('walkingStatus').value;
+    const location = document.getElementById('location').value.trim();
+    const walkTime = document.getElementById('walkTime').value;
+    const dogStatus = document.getElementById('dogStatus').value;
+    const safetyStatus = document.getElementById('safetyOptions').value;
+    const otherNotes = document.getElementById('otherNotes').value.trim();
+
+    // Validate required fields
+    if (!location || !walkTime || !dogStatus || !safetyStatus) {
+      throw new Error('Please fill in all required fields');
+    }
+
+    // Prepare status data
+    const statusData = {
+      status: walkingStatus === 'yes' ? 'Walking' : 
+             walkingStatus === 'no' ? 'Not Walking' : 'Planning to walk',
+      location: location,
+      time: walkTime,
+      dogStatus: dogStatus,
+      safety: safetyStatus,
+      timestamp: Date.now()
+    };
+
+    // Add optional notes if provided
+    if (otherNotes) {
+      statusData.notes = otherNotes;
+    }
+
+    // Push data to Firebase
+    await firebase.push(statusListRef, statusData);
+    
+    // Show success notification
+    showNotification('Status submitted successfully!');
+    
+    // Reset form
+    walkForm.reset();
+    mapSelectionContainer.style.display = 'none';
+
+    window.location.reload(); 
+    
+    
+  } catch (error) {
+    console.error('Error submitting status:', error);
+    showNotification(error.message || 'Error submitting status. Please try again.', true);
+  } finally {
+    submitButton.disabled = false;
+    document.getElementById('loadingSpinner').style.display = 'none';
+  }
+}
+
+// Listen for new status additions
+firebase.onChildAdded(statusListRef, (snapshot) => {
+  const statusData = snapshot.val();
+  const statusId = snapshot.key;
+  
+  const statusDiv = createStatusElement(statusData, statusId);
+  
+  // Add animation for new status
+  statusDiv.style.animation = 'fadeIn 0.5s ease-out forwards';
+  statusDiv.addEventListener('animationend', () => {
+    statusDiv.style.animation = '';
+  });
+  
+  // Prepend new status to the list
+  statusListEl.insertBefore(statusDiv, statusListEl.firstChild);
+  
+  // Add marker to map if available
+  if (map) {
+    addMarker(statusData, statusId);
+  }
+  
+  // Update filter view
+  filterStatuses();
+});
+
+// Listen for status removals
+firebase.onChildRemoved(statusListRef, (snapshot) => {
+  const statusId = snapshot.key;
+  
+  // Remove from DOM
+  const statusEl = document.querySelector(`.status[data-id="${statusId}"]`);
+  if (statusEl) {
+    statusEl.remove();
+  }
+  
+  // Remove from map
+  const markerIndex = markers.findIndex(m => m.id === statusId);
+  if (markerIndex !== -1) {
+    markers[markerIndex].marker.setMap(null);
+    markers.splice(markerIndex, 1);
+  }
+  
+  // Update filter view
+  filterStatuses();
+});
+
+// Throttled animate on scroll function
+function animateOnScroll() {
+  if (isThrottled) return;
+  
+  isThrottled = true;
+  setTimeout(() => {
+    const elements = document.querySelectorAll('.status, form, h1, h2');
+    
+    elements.forEach(element => {
+      const elementPosition = element.getBoundingClientRect().top;
+      const screenPosition = window.innerHeight / 1.2;
+      
+      if (elementPosition < screenPosition) {
+        element.style.animation = 'fadeIn 0.6s ease-out forwards';
+      }
+    });
+    isThrottled = false;
+  }, 200);
+}
+
+// Add scroll event listener
+window.addEventListener('scroll', animateOnScroll);
+// Initial check in case elements are already in view
+animateOnScroll();
+
+// Expose initMaps to global scope for Google Maps callback
+window.initMaps = initMaps;
