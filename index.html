@@ -17,13 +17,6 @@
     <a href="#map-view"><i class="fas fa-map-marked-alt"></i> Map View</a>
   </div>
 
-  <!-- Hamburger Menu -->
-  <div id="hamburgerMenu" onclick="toggleMenu()" aria-label="Toggle navigation menu">
-    <div></div>
-    <div></div>
-    <div></div>
-  </div>
-
   <div class="main-content">
     <h1><i class="fas fa-paw"></i> Narberth Dog Walk Status</h1>
     <p>Share your dog walking status with other owners in Narberth to help coordinate walks and avoid busy areas.</p>
@@ -43,6 +36,7 @@
     </div>
 
     <form id="walkForm">
+      <!-- Walk Form -->
       <label class="form-full-width">
         Are you walking your dog?
         <select id="walkingStatus" required>
@@ -136,6 +130,12 @@
     <span>Status submitted successfully!</span>
   </div>
 
-  <script src="script.js"></script>
+  <!-- Load Firebase and Google Maps JS APIs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js" defer></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initMaps" async defer></script>
+
+  <!-- Your script file -->
+  <script src="script.js" defer></script>
 </body>
 </html>
