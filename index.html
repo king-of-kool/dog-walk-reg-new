@@ -464,94 +464,88 @@
       }
     }
 
-   function getMapStyle() {
-  return document.body.classList.contains('dark-mode') ? [
-    { elementType: "geometry", stylers: [{ color: "#1e293b" }] },
-    { elementType: "labels.text.stroke", stylers: [{ color: "#1e293b" }] },
-    { elementType: "labels.text.fill", stylers: [{ color: "#9ca3af" }] },
-    {
-      featureType: "administrative.locality",
-      elementType: "labels.text.fill",
-      stylers: [{ color: "#93c5fd" }]
-    },
-    {
-      featureType: "poi",
-      elementType: "labels.text.fill",
-      stylers: [{ color: "#93c5fd" }]
-    },
-    {
-      featureType: "poi.park",
-      elementType: "geometry",
-      stylers: [{ color: "#1e3a8a" }]
-    },
-    {
-      featureType: "poi.park",
-      elementType: "labels.text.fill",
-      stylers: [{ color: "#86efac" }]
-    },
-    {
-      featureType: "road",
-      elementType: "geometry",
-      stylers: [{ color: "#1f2937" }]
-    },
-    {
-      featureType: "road",
-      elementType: "geometry.stroke",
-      stylers: [{ color: "#1e293b" }]
-    },
-    {
-      featureType: "road",
-      elementType: "labels.text.fill",
-      stylers: [{ color: "#9ca3af" }]
-    },
-    {
-      featureType: "road.highway",
-      elementType: "geometry",
-      stylers: [{ color: "#1e40af" }]
-    },
-    {
-      featureType: "road.highway",
-      elementType: "geometry.stroke",
-      stylers: [{ color: "#1e293b" }]
-    },
-    {
-      featureType: "road.highway",
-      elementType: "labels.text.fill",
-      stylers: [{ color: "#bfdbfe" }]
-    },
-    {
-      featureType: "transit",
-      elementType: "geometry",
-      stylers: [{ color: "#1e293b" }]
-    },
-    {
-      featureType: "transit.station",
-      elementType: "labels.text.fill",
-      stylers: [{ color: "#93c5fd" }]
-    },
-    {
-      featureType: "water",
-      elementType: "geometry",
-      stylers: [{ color: "#1e3a8a" }]
-    },
-    {
-      featureType: "water",
-      elementType: "labels.text.fill",
-      stylers: [{ color: "#60a5fa" }]
-    },
-    {
-      featureType: "water",
-      elementType: "labels.text.stroke",
-      stylers: [{ color: "#1e3a8a" }]
-    },
-    // Hide business names under 'poi' category
-    {
-      featureType: "poi.business",
-      elementType: "labels",
-      stylers: [{ visibility: "off" }]
+  function getMapStyle() {
+    return document.body.classList.contains('dark-mode') ? [
+      { elementType: "geometry", stylers: [{ color: "#1e293b" }] },
+      { elementType: "labels.text.stroke", stylers: [{ color: "#1e293b" }] },
+      { elementType: "labels.text.fill", stylers: [{ color: "#9ca3af" }] },
+      {
+        featureType: "administrative.locality",  // Town names
+        elementType: "labels.text.fill",
+        stylers: [{ color: "#93c5fd" }]
+      },
+      {
+        featureType: "road",  // Road names
+        elementType: "labels.text.fill",
+        stylers: [{ color: "#9ca3af" }]
+      },
+      {
+        featureType: "administrative.province",  // County names
+        elementType: "labels.text.fill",
+        stylers: [{ color: "#93c5fd" }]
+      },
+      {
+        featureType: "administrative.country",  // Country names
+        elementType: "labels.text.fill",
+        stylers: [{ color: "#93c5fd" }]
+      },
+      {
+        featureType: "poi",  // Hide all POI labels
+        elementType: "labels",
+        stylers: [{ visibility: "off" }]
+      },
+      {
+        featureType: "poi.business",  // Hide business names
+        elementType: "labels",
+        stylers: [{ visibility: "off" }]
+      },
+      {
+        featureType: "poi.place_of_worship",  // Hide places of worship names
+        elementType: "labels",
+        stylers: [{ visibility: "off" }]
+      },
+      {
+        featureType: "poi.school",  // Hide school names
+        elementType: "labels",
+        stylers: [{ visibility: "off" }]
+      },
+      {
+        featureType: "poi.medical",  // Hide medical-related names
+        elementType: "labels",
+        stylers: [{ visibility: "off" }]
+      },
+      {
+        featureType: "poi.government",  // Hide government-related names
+        elementType: "labels",
+        stylers: [{ visibility: "off" }]
+      },
+      {
+        featureType: "poi.park",  // Hide park names
+        elementType: "labels",
+        stylers: [{ visibility: "off" }]
+      },
+      {
+        featureType: "transit",  // Hide transit labels
+        elementType: "labels",
+        stylers: [{ visibility: "off" }]
+      },
+      {
+        featureType: "water",  // Hide water-related labels
+        elementType: "labels",
+        stylers: [{ visibility: "off" }]
+      },
+      {
+        featureType: "road.highway",  // Hide highway names
+        elementType: "labels.text.fill",
+        stylers: [{ color: "#bfdbfe" }]
+      },
+      {
+        featureType: "road.highway",  // Hide highway labels
+        elementType: "labels",
+        stylers: [{ visibility: "on" }]
+      },
+    ] : [];
     }
-  ] : [];
-}
 
 
     function addMarker(statusData, statusId) {
