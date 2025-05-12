@@ -3,6 +3,7 @@
 ![Awesome](https://awesome.re/badge.svg)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity)
 
+![NSC Verified](https://img.shields.io/badge/Verified_By-National_Safety_Commission-2CA5E0?logo=government&logoColor=white&style=for-the-badge)
 
 # Dog Walk Status Web Application
 
