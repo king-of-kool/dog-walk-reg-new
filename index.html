@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+
+
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -9,19 +10,19 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <!-- Hamburger Menu -->
-  <div id="hamburgerMenu" onclick="toggleMenu()" aria-label="Toggle navigation menu" tabindex="0" role="button">
-    <div></div>
-    <div></div>
-    <div></div>
-  </div>
-
-  <div id="sideMenu" class="hidden" tabindex="-1">
+  <div id="sideMenu">
     <h2><i class="fas fa-paw"></i> Narberth Dog Walks</h2>
     <a href="https://dog-walk-reg.netlify.app" class="active" aria-current="page"><i class="fas fa-home"></i> Home</a>
     <a href="#submit-status"><i class="fas fa-plus-circle"></i> Submit Status</a>
     <a href="#view-status"><i class="fas fa-list"></i> View Statuses</a>
     <a href="#map-view"><i class="fas fa-map-marked-alt"></i> Map View</a>
+  </div>
+
+  <!-- Hamburger Menu -->
+  <div id="hamburgerMenu" onclick="toggleMenu()" aria-label="Toggle navigation menu">
+    <div></div>
+    <div></div>
+    <div></div>
   </div>
 
   <div class="main-content">
@@ -136,22 +137,19 @@
     <span>Status submitted successfully!</span>
   </div>
 
-  <!-- Firebase SDK and Application Script -->
+  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded, onChildRemoved, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+
     document.getElementById("hamburgerMenu").addEventListener("click", function() {
-      const menu = document.getElementById("sideMenu");
-      const hamburger = document.getElementById("hamburgerMenu");
-      menu.classList.toggle("open");
-      hamburger.classList.toggle("open");
-      // Focus menu when opened for accessibility
-      if (menu.classList.contains("open")) {
-        menu.focus();
+    const menu = document.getElementById("navMenu");
+      if (menu) {
+        menu.classList.toggle("open");
       }
-      // No special body styling needed, but can add if desired
     });
+
     
     // Note: In production, these should come from environment variables
     const firebaseConfig = {
@@ -194,6 +192,14 @@
     const NARBERTH_CENTER = { lat: 51.7978, lng: -4.7427 };
     const DEFAULT_ZOOM = 15;
 
+    //function toggleMenu() {
+      //const menu = document.getElementById("navMenu");
+      //if (menu) {
+        //menu.classList.toggle("open");
+        //}
+    //}
+
+    
     // Initialize the application
     document.addEventListener('DOMContentLoaded', () => {
       initEventListeners();
@@ -676,6 +682,26 @@
       }
     }
 
+    // Mobile Menu Toggle
+    function toggleMenu() {
+      const sideMenu = document.getElementById('sideMenu');
+      const hamburger = document.getElementById('hamburgerMenu');
+      sideMenu.classList.toggle('open');
+      hamburger.classList.toggle('open');
+      
+      // Update hamburger lines color based on dark mode
+      const hamburgerLines = hamburger.querySelectorAll('div');
+      if (document.body.classList.contains('dark-mode')) {
+        hamburgerLines.forEach(line => {
+          line.style.backgroundColor = '#bbdefb';
+        });
+      } else {
+        hamburgerLines.forEach(line => {
+          line.style.backgroundColor = '#00796b';
+        });
+      }
+    }
+
     // Show notification
     function showNotification(message, isError = false) {
       const notification = document.getElementById('notification');
@@ -703,9 +729,9 @@
       const seconds = Math.floor((now - timestamp) / 1000);
       
       if (seconds < 60) return 'Just now';
-      if (seconds < 3600) return \`\${Math.floor(seconds / 60)} minutes ago\`;
-      if (seconds < 86400) return \`\${Math.floor(seconds / 3600)} hours ago\`;
-      return \`\${Math.floor(seconds / 86400)} days ago\`;
+      if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
+      if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+      return `${Math.floor(seconds / 86400)} days ago`;
     }
 
     function getSafetyClass(safetyStatus) {
@@ -728,7 +754,7 @@
 
     function createStatusElement(statusData, statusId) {
       const statusDiv = document.createElement('div');
-      statusDiv.className = \`status \${statusData.status.toLowerCase().replace(' ', '-')}\`;
+      statusDiv.className = `status ${statusData.status.toLowerCase().replace(' ', '-')}`;
       statusDiv.dataset.id = statusId;
       statusDiv.dataset.status = JSON.stringify(statusData);
       
@@ -736,18 +762,18 @@
       
       let notesContent = '';
       if (statusData.notes) {
-        notesContent = \`<p><strong><i class="fas fa-sticky-note status-icon"></i>Notes:</strong> \${statusData.notes}</p>\`;
+        notesContent = `<p><strong><i class="fas fa-sticky-note status-icon"></i>Notes:</strong> ${statusData.notes}</p>`;
       }
       
-      statusDiv.innerHTML = \` 
-        <span class="time-ago">\${timeAgo}</span>
-        <p><strong><i class="\${getStatusIcon(statusData.status)} status-icon"></i>Status:</strong> \${statusData.status}</p>
-        <p><strong><i class="fas fa-map-marker-alt status-icon"></i>Location:</strong> \${statusData.location}</p>
-        <p><strong><i class="far fa-clock status-icon"></i>Time:</strong> \${statusData.time}</p>
-        <p><strong><i class="fas fa-dog status-icon"></i>Dog:</strong> \${statusData.dogStatus}</p>
-        <p><strong><i class="fas fa-shield-alt status-icon"></i>Safety:</strong> <span class="\${getSafetyClass(statusData.safety)}">\${statusData.safety}</span></p>
-        \${notesContent}
-      \`;
+      statusDiv.innerHTML = ` 
+        <span class="time-ago">${timeAgo}</span>
+        <p><strong><i class="${getStatusIcon(statusData.status)} status-icon"></i>Status:</strong> ${statusData.status}</p>
+        <p><strong><i class="fas fa-map-marker-alt status-icon"></i>Location:</strong> ${statusData.location}</p>
+        <p><strong><i class="far fa-clock status-icon"></i>Time:</strong> ${statusData.time}</p>
+        <p><strong><i class="fas fa-dog status-icon"></i>Dog:</strong> ${statusData.dogStatus}</p>
+        <p><strong><i class="fas fa-shield-alt status-icon"></i>Safety:</strong> <span class="${getSafetyClass(statusData.safety)}">${statusData.safety}</span></p>
+        ${notesContent}
+      `;
       
       return statusDiv;
     }
@@ -885,7 +911,7 @@
       const statusId = snapshot.key;
       
       // Remove from DOM
-      const statusEl = document.querySelector(\`.status[data-id="\${statusId}"]\`);
+      const statusEl = document.querySelector(`.status[data-id="${statusId}"]`);
       if (statusEl) {
         statusEl.remove();
       }
