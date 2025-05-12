@@ -1,5 +1,5 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/23c92f94-3abd-4adb-b3dd-b61f7b43186d/deploy-status)](https://app.netlify.com/sites/dog-walk-reg/deploys)
-![Static Badge](https://img.shields.io/badge/:badgeContent)
+![Static Badge](https://img.shields.io/badge/badgeContent-grey)
 ![Awesome](https://awesome.re/badge.svg)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity)
 
