@@ -1,3 +1,9 @@
+[![Netlify Status](https://api.netlify.com/api/v1/badges/23c92f94-3abd-4adb-b3dd-b61f7b43186d/deploy-status)](https://app.netlify.com/sites/dog-walk-reg/deploys)
+![Static Badge](https://img.shields.io/badge/:badgeContent)
+![Awesome](https://awesome.re/badge.svg)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity)
+
+
 # Dog Walk Status Web Application
 
 This web application allows users to mark and share their dog walking status to help others avoid potential accidents. It includes features such as location and dog status, safety information, and real-time updates. It also supports a dark mode toggle and tracks character count for location input.
