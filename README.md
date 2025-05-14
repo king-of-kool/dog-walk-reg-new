@@ -11,7 +11,7 @@
 
 ### 🔒 Your Safety, Our Priority
 
-![Safety Certified](https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/US-CPSC-logo.svg/640px-US-CPSC-logo.svg.png)
+![Safety Certified](https://www.amentum.com/wp-content/uploads/national_safety_council_logo_square.png)
 
 *Certified with integrity — ensuring the highest safety benchmarks for consumers and industry professionals alike.*
 
