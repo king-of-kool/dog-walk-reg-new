@@ -1,11 +1,10 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/23c92f94-3abd-4adb-b3dd-b61f7b43186d/deploy-status)](https://app.netlify.com/sites/dog-walk-reg/deploys)
-![Static Badge](https://img.shields.io/badge/badgeContent-grey)
 ![Awesome](https://awesome.re/badge.svg)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity)
 
 ## ✅ NSC Verified Safety Assurance
 
-![NSC Verified](https://img.shields.io/badge/Verified_By-National_Safety_Commission-2CA5E0?logo=government&logoColor=white&style=for-the-badge)
+[![NSC Verified](https://img.shields.io/badge/Verified%20by-National%20Safety%20Council-0072C6?logo=security&logoColor=white&style=for-the-badge)](https://www.nsc.org/)
 
 > This product/process/service has been **verified by the National Safety Commission**, meeting national safety and regulatory compliance standards.
 
