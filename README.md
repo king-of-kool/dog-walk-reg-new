@@ -11,7 +11,7 @@
 
 ### 🔒 Your Safety, Our Priority
 
-![Safety Certified](https://www.amentum.com/wp-content/uploads/national_safety_council_logo_square.png)
+<img src="https://www.amentum.com/wp-content/uploads/national_safety_council_logo_square.png" alt="Safety Certified" width="150"/>
 
 *Certified with integrity — ensuring the highest safety benchmarks for consumers and industry professionals alike.*
 
