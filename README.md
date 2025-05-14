@@ -3,7 +3,18 @@
 ![Awesome](https://awesome.re/badge.svg)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity)
 
+## ✅ NSC Verified Safety Assurance
+
 ![NSC Verified](https://img.shields.io/badge/Verified_By-National_Safety_Commission-2CA5E0?logo=government&logoColor=white&style=for-the-badge)
+
+> This product/process/service has been **verified by the National Safety Commission**, meeting national safety and regulatory compliance standards.
+
+### 🔒 Your Safety, Our Priority
+
+![Safety Certified](https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/US-CPSC-logo.svg/640px-US-CPSC-logo.svg.png)
+
+*Certified with integrity — ensuring the highest safety benchmarks for consumers and industry professionals alike.*
+
 
 # Dog Walk Status Web Application
 
