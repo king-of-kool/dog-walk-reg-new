@@ -1,5 +1,3 @@
-
-
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -167,6 +165,7 @@
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
     const statusListRef = query(ref(database, 'narberthDogWalkStatuses'), orderByChild('timestamp'));
+    const refreshRef = ref(database, 'refresh');
 
     // Initialize variables
     let map;
@@ -200,6 +199,13 @@
     //}
 
     
+    // Check the refresh value on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      checkForRefresh();
+    });
+
+
+
     // Initialize the application
     document.addEventListener('DOMContentLoaded', () => {
       initEventListeners();
@@ -214,6 +220,23 @@
       }
     });
 
+
+    function checkForRefresh() {
+    // Get the value of refresh from the database
+    refreshRef.get().then((snapshot) => {
+    if (snapshot.exists()) {
+      const refreshValue = snapshot.val();
+      if (refreshValue === true) {
+        // Refresh the page if refresh is true
+        window.location.reload();
+      }
+    }
+    }).catch((error) => {
+      console.error("Error fetching refresh value:", error);
+    });
+    }
+
+    
     function initEventListeners() {
       // Form submission
       walkForm.addEventListener('submit', handleFormSubmit);
