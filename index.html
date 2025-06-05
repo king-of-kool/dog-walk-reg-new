@@ -806,28 +806,36 @@
       const statuses = document.querySelectorAll('.status');
       let visibleCount = 0;
       
+      // Get the current time
+      const now = Date.now();
+      const oneDayInMillis = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+      const cutoffTime = now - oneDayInMillis; // Time 24 hours ago
+      
       statuses.forEach(status => {
         const statusData = JSON.parse(status.dataset.status);
         let shouldShow = false;
         
-        switch(currentFilter) {
-          case 'all':
-            shouldShow = true;
-            break;
-          case 'walking':
-            shouldShow = statusData.status.toLowerCase().includes('walking');
-            break;
-          case 'not-walking':
-            shouldShow = !statusData.status.toLowerCase().includes('walking');
-            break;
-          case 'friendly':
-            shouldShow = statusData.dogStatus.toLowerCase().includes('friendly');
-            break;
-          case 'service':
-            shouldShow = statusData.dogStatus.toLowerCase().includes('service');
-            break;
-          default:
-            shouldShow = true;
+        // Check if the status is within the last 24 hours
+        if (statusData.timestamp >= cutoffTime) {
+          switch(currentFilter) {
+            case 'all':
+              shouldShow = true;
+              break;
+            case 'walking':
+              shouldShow = statusData.status.toLowerCase().includes('walking');
+              break;
+            case 'not-walking':
+              shouldShow = !statusData.status.toLowerCase().includes('walking');
+              break;
+            case 'friendly':
+              shouldShow = statusData.dogStatus.toLowerCase().includes('friendly');
+              break;
+            case 'service':
+              shouldShow = statusData.dogStatus.toLowerCase().includes('service');
+              break;
+            default:
+              shouldShow = true;
+          }
         }
         
         if (shouldShow) {
@@ -845,6 +853,14 @@
         emptyStateEl.classList.add('hidden');
       }
     }
+
+      
+      // Show empty state if no statuses match the filter
+      if (visibleCount === 0) {
+        emptyStateEl.classList.remove('hidden');
+      } else {
+        emptyStateEl.classList.add('hidden');
+      }
 
     async function handleFormSubmit(e) {
       e.preventDefault();
