@@ -14,7 +14,7 @@
     <a href="#submit-status"><i class="fas fa-plus-circle"></i> Submit Status</a>
     <a href="#view-status"><i class="fas fa-list"></i> View Statuses</a>
     <a href="#map-view"><i class="fas fa-map-marked-alt"></i> Map View</a>
-    <a href="admin.html">admin page</a>
+    <a href="feedback.html">Give Feedback!</a>
   </div>
 
   <!-- Hamburger Menu -->
@@ -134,6 +134,29 @@
   <div id="notification" class="notification" role="alert" aria-live="assertive">
     <i class="fas fa-check-circle"></i>
     <span>Status submitted successfully!</span>
+  </div>
+
+  <!-- Flash Message Modal -->
+  <div id="flashModal" class="flash-modal" style="display:none;">
+    <div class="flash-modal-content" id="flashModalContent">
+      <!-- You can add your message here later -->
+       
+      <div style="height:400px;overflow-y:auto;" id="flashModalScroll">
+        <!-- Placeholder for long content to enable scrolling -->
+        <center>
+          <h1 style="margin:0;">Welcome</h1>
+          <h3 style="color: dimgrey;">Hi, I am Oliver, the lead developer for this site.</h3>
+          <p></p>
+          <h3 style="color: dimgray;">
+            Me and my very small team have worked extremely hard to bring you this site to keep you and your dogs safe.<br>
+            We are a team of three students in secondary school, building this project in our spare time.
+          </h3>
+          <h3 style="color: dimgray;">Please use the site responsibly and report any issues to us.</h3>
+        </center>
+        <div style="height:300px;"></div>
+      </div>
+      <button id="flashModalOk" disabled>OK</button>
+    </div>
   </div>
 
   <!-- Firebase SDK -->
@@ -748,6 +771,31 @@
       }, 3000);
     }
 
+    // Show flash message
+    function showFlashMessage(message) {
+      const flashModal = document.getElementById('flashModal');
+      const flashModalContent = document.getElementById('flashModalContent');
+      const flashModalScroll = document.getElementById('flashModalScroll');
+      const flashModalOk = document.getElementById('flashModalOk');
+      
+      // Set message and enable OK button
+      flashModalContent.innerHTML = message;
+      flashModalOk.disabled = false;
+      
+      // Show modal
+      flashModal.style.display = 'block';
+      
+      // Auto-close after 5 seconds
+      setTimeout(() => {
+        flashModal.style.display = 'none';
+      }, 5000);
+    }
+
+    // Close flash message modal
+    document.getElementById('flashModalOk').addEventListener('click', () => {
+      document.getElementById('flashModal').style.display = 'none';
+    });
+
     function formatTimeAgo(timestamp) {
       const now = new Date();
       const seconds = Math.floor((now - timestamp) / 1000);
@@ -994,6 +1042,30 @@
 
     // Expose initMaps to global scope for Google Maps callback
     window.initMaps = initMaps;
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const flashModal = document.getElementById('flashModal');
+      const flashModalOk = document.getElementById('flashModalOk');
+      const flashModalScroll = document.getElementById('flashModalScroll');
+
+      // Show modal on page load
+      flashModal.style.display = 'flex';
+
+      // Enable OK button only after user scrolls to bottom
+      flashModalScroll.addEventListener('scroll', function () {
+        const { scrollTop, scrollHeight, clientHeight } = flashModalScroll;
+        if (scrollTop + clientHeight >= scrollHeight - 2) {
+          flashModalOk.disabled = false;
+        }
+      });
+
+      // Hide modal on OK
+      flashModalOk.addEventListener('click', function () {
+        flashModal.style.display = 'none';
+      });
+    });
   </script>
 </body>
 </html>
