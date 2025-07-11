@@ -1,34 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Feedback</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .container { max-width: 400px; margin: auto; text-align: center; }
-        button, a.button {
-            display: block;
-            width: 100%;
-            margin: 15px 0;
-            padding: 15px;
-            font-size: 1.1em;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            text-decoration: none;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        button:hover, a.button:hover { background: #388e3c; }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Feedback</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    .container { max-width: 400px; margin: auto; text-align: center; }
+    button, a.button {
+      display: block;
+      width: 100%;
+      margin: 15px 0;
+      padding: 15px;
+      font-size: 1.1em;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover, a.button:hover { background: #388e3c; }
+    textarea {
+      width: 100%;
+      height: 100px;
+      margin-top: 10px;
+      font-size: 1em;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .message {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    .error { color: red; }
+    .success { color: green; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Feedback</h1>
-        <p>We'd love to hear from you! Please contact us using one of the options below:</p>
-        <a href="mailto:oliverwhite2711@gmail.com?subject=Feedback" class="button">Email Oliver</a>
-        <a href="sms:+1234567890?body=Hi%20Oliver%2C%20I%20have%20some%20feedback..." class="button">ive feedback through sms.</a>
-    </div>
+  <div class="container">
+    <h1>Feedback</h1>
+    <p>We'd love to hear from you! Please contact us using one of the options below:</p>
+
+    <a href="mailto:oliverwhite2711@gmail.com?subject=Feedback" class="button">Email Oliver</a>
+
+    <form id="feedback-form">
+      <label for="message">Or give feedback through SMS:</label>
+      <textarea id="message" name="message" required placeholder="Type your feedback here..."></textarea>
+      <button type="submit">Send SMS Feedback</button>
+    </form>
+
+    <div id="response-message" class="message"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('feedback-form');
+    const responseMessage = document.getElementById('response-message');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      responseMessage.textContent = '';
+      responseMessage.className = 'message';
+
+      const message = form.message.value.trim();
+      if (!message) {
+        responseMessage.textContent = 'Please enter a message.';
+        responseMessage.classList.add('error');
+        return;
+      }
+
+      try {
+        const res = await fetch('/.netlify/functions/send-sms', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message }),
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(errorText);
+        }
+
+        const data = await res.json();
+        responseMessage.textContent = 'Message sent! SID: ' + data.sid;
+        responseMessage.classList.add('success');
+        form.reset();
+      } catch (err) {
+        responseMessage.textContent = 'Error: ' + err.message;
+        responseMessage.classList.add('error');
+      }
+    });
+  </script>
 </body>
 </html>
