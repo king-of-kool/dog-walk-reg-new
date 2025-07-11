@@ -1,7 +1,7 @@
 const twilio = require('twilio');
 
 const accountSid = 'AC047f83d312efa8af9cba87f7b5961513';
-const authToken = 'dac81b272be9c7b75999d9888106199e';
+const authToken = '3bcf09ea98c1b6d6b3d81437e9c42d7a';
 const client = twilio(accountSid, authToken);
 
 exports.handler = async function(event, context) {
