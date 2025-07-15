@@ -16,6 +16,19 @@
     <a href="#view-status"><i class="fas fa-list"></i> View Statuses</a>
     <a href="#map-view"><i class="fas fa-map-marked-alt"></i> Map View</a>
     <a href="https://docs.google.com/forms/d/e/1FAIpQLSdu2G3Sy30ToJL2rWNHo_mKKItRnvlRmcFv78pM2Y-q0e1jYQ/viewform?usp=header">Give Feedback!</a>
+    <div class="sidebar-theme-switcher">
+      <button id="themeSwitcherBtn" class="theme-switcher-btn" aria-haspopup="true" aria-expanded="false">
+        <i class="fas fa-universal-access"></i> Accessibility & Themes
+        <i class="fas fa-chevron-down"></i>
+      </button>
+      <div id="themePopup" class="theme-popup" role="menu" aria-label="Theme selection">
+        <button class="theme-option" data-theme="default"><i class="fas fa-circle" style="color:#3a6ea5"></i> Default</button>
+        <button class="theme-option" data-theme="dark"><i class="fas fa-moon"></i> Dark Mode</button>
+        <button class="theme-option" data-theme="high-contrast"><i class="fas fa-adjust"></i> High Contrast</button>
+        <button class="theme-option" data-theme="green"><i class="fas fa-leaf" style="color:#388e3c"></i> Green</button>
+        <button class="theme-option" data-theme="rose"><i class="fas fa-heart" style="color:#c2185b"></i> Rose</button>
+      </div>
+    </div>
   </div>
 
   <!-- Hamburger Menu -->
@@ -101,7 +114,7 @@
 
       <label class="form-full-width">
         Other Notes (optional):
-        <textarea id="otherNotes" maxlength="200" placeholder="E.g., 'We'll be wearing red bandanas', 'Avoid the north side of the Moor'"></textarea>
+        <textarea id="otherNotes" maxlength="200" placeholder="E.g., 'We'll be wearing red bandana'"></textarea>
       </label>
 
       <button type="submit"><i class="fas fa-paper-plane"></i> Submit Status</button>
@@ -160,18 +173,18 @@
   <!-- Firebase SDK and App Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded, onChildRemoved, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, push, onChildAdded, onChildRemoved, query, orderByChild, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // Firebase config
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
     const firebaseConfig = {
-      apiKey: "AIzaSyBJCH6BWXLubF_QXXuF23tP9RUUPqml3KU",
-      authDomain: "walker-book.firebaseapp.com",
-      databaseURL: "https://walker-book-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "walker-book",
-      storageBucket: "walker-book.firebasestorage.app",
-      messagingSenderId: "316163790375",
-      appId: "1:316163790375:web:3e9fe6d56de5eb8486a002",
-      measurementId: "G-E2B6F1Y2XS"
+      apiKey: "AIzaSyCtpIJvKHY3x_8x7_m-0QtUMIQ0Gj2blRQ",
+      authDomain: "dog-walk-reg.firebaseapp.com",
+      databaseURL: "https://dog-walk-reg-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "dog-walk-reg",
+      storageBucket: "dog-walk-reg.firebasestorage.app",
+      messagingSenderId: "806193788108",
+      appId: "1:806193788108:web:ac6df92dd5800bd74a3e69",
+      measurementId: "G-9Y7PYSP8NP"
     };
 
     // Initialize Firebase
@@ -214,25 +227,60 @@
       loadMapLibrary();
     });
 
-    // Move dark mode logic to the top for consistency
-    function applyDarkMode(isDark) {
+    // --- DARK MODE SWITCHER ---
+
+    function setDarkMode(isDark) {
       document.body.classList.toggle('dark-mode', isDark);
-      localStorage.setItem('darkMode', isDark);
+      localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+      // Update toggle UI
+      const toggle = document.getElementById('toggleModeCheckbox');
+      if (toggle) toggle.checked = isDark;
       // Update map styles if maps are loaded
       if (window.map) map.setOptions({ styles: getMapStyle() });
       if (window.selectionMap) selectionMap.setOptions({ styles: getMapStyle() });
-      // Update toggle switch state
-      document.getElementById('toggleModeCheckbox').checked = isDark;
     }
 
-    // On load, apply dark mode from localStorage
+    // Initialize dark mode on page load
     document.addEventListener('DOMContentLoaded', () => {
-      const isDark = localStorage.getItem('darkMode') === 'true';
-      applyDarkMode(isDark);
+      const saved = localStorage.getItem('darkMode');
+      const isDark = saved === 'true';
+      setDarkMode(isDark);
+
+      // Listen for toggle changes
+      const toggle = document.getElementById('toggleModeCheckbox');
+      if (toggle) {
+        toggle.addEventListener('change', (e) => {
+          setDarkMode(e.target.checked);
+        });
+      }
+
       checkForRefresh();
       initEventListeners();
       checkGeolocation();
       loadMapLibrary();
+      document.getElementById('flashModal').style.display = 'flex';
+    });
+
+    // --- Accessibility Theme Switcher ---
+    function setHighContrast(isHighContrast) {
+      document.body.classList.toggle('high-contrast', isHighContrast);
+      localStorage.setItem('highContrast', isHighContrast ? 'true' : 'false');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize high contrast mode
+      const highContrastSaved = localStorage.getItem('highContrast');
+      const isHighContrast = highContrastSaved === 'true';
+      setHighContrast(isHighContrast);
+
+      // Accessibility button logic
+      const accessibilityBtn = document.getElementById('accessibilityBtn');
+      if (accessibilityBtn) {
+        accessibilityBtn.addEventListener('click', () => {
+          const currentlyHighContrast = document.body.classList.contains('high-contrast');
+          setHighContrast(!currentlyHighContrast);
+        });
+      }
     });
 
     function checkForRefresh() {
@@ -261,6 +309,20 @@
       selectOnMapBtn.addEventListener('click', showMapSelection);
       window.addEventListener('hashchange', handleHashChange);
       handleHashChange();
+    }
+
+    // After DOM elements and before listeners:
+    async function loadInitialStatuses() {
+      const snapshot = await get(statusListRef);
+      if (snapshot.exists()) {
+        const statuses = snapshot.val();
+        Object.entries(statuses).forEach(([statusId, statusData]) => {
+          const statusDiv = createStatusElement(statusData, statusId);
+          statusListEl.insertBefore(statusDiv, statusListEl.firstChild);
+          if (map) addMarker(statusData, statusId);
+        });
+        filterStatuses();
+      }
     }
 
     function handleHashChange() {
@@ -598,29 +660,27 @@
       statuses.forEach(status => {
         const statusData = JSON.parse(status.dataset.status);
         let shouldShow = false;
-        if (statusData.timestamp >= cutoffTime) {
-          switch(currentFilter) {
-            case 'all':
-              shouldShow = true;
-              break;
-            case 'walking':
-              shouldShow = statusData.status === 'Walking';
-              break;
-            case 'not-walking':
-              shouldShow = statusData.status === 'Not Walking';
-              break;
-            case 'planning':
-              shouldShow = statusData.status === 'Planning to walk';
-              break;
-            case 'friendly':
-              shouldShow = statusData.dogStatus.toLowerCase().includes('friendly');
-              break;
-            case 'service':
-              shouldShow = statusData.dogStatus.toLowerCase().includes('service');
-              break;
-            default:
-              shouldShow = true;
-          }
+        switch(currentFilter) {
+          case 'all':
+            shouldShow = true;
+            break;
+          case 'walking':
+            shouldShow = statusData.status === 'Walking';
+            break;
+          case 'not-walking':
+            shouldShow = statusData.status === 'Not Walking';
+            break;
+          case 'planning':
+            shouldShow = statusData.status === 'Planning to walk';
+            break;
+          case 'friendly':
+            shouldShow = statusData.dogStatus.toLowerCase().includes('friendly');
+            break;
+          case 'service':
+            shouldShow = statusData.dogStatus.toLowerCase().includes('service');
+            break;
+          default:
+            shouldShow = true;
         }
         if (shouldShow) {
           status.style.display = 'block';
@@ -731,6 +791,106 @@
     });
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('flashModal').style.display = 'flex';
+    });
+
+    function applyTheme(theme) {
+      document.body.classList.remove('dark-mode', 'high-contrast', 'theme-green', 'theme-rose');
+      switch (theme) {
+        case 'dark':
+          document.body.classList.add('dark-mode');
+          break;
+        case 'high-contrast':
+          document.body.classList.add('high-contrast');
+          break;
+        case 'green':
+          document.body.classList.add('theme-green');
+          break;
+        case 'rose':
+          document.body.classList.add('theme-rose');
+          break;
+        default:
+          // Default theme, no extra class
+          break;
+      }
+      localStorage.setItem('siteTheme', theme);
+    }
+
+    // Add theme variables for green and rose themes
+    const themeVars = {
+      green: {
+        '--primary-color': '#388e3c',
+        '--primary-dark': '#1b5e20',
+        '--primary-light': '#c8e6c9',
+        '--text-color': '#222b36',
+        '--text-light': '#fff',
+        '--bg-color': '#f4f7fb',
+        '--card-bg': '#ffffff',
+        '--shadow': '0 4px 20px rgba(56, 142, 60, 0.08)'
+      },
+      rose: {
+        '--primary-color': '#c2185b',
+        '--primary-dark': '#880e4f',
+        '--primary-light': '#f8bbd0',
+        '--text-color': '#222b36',
+        '--text-light': '#fff',
+        '--bg-color': '#f4f7fb',
+        '--card-bg': '#ffffff',
+        '--shadow': '0 4px 20px rgba(194, 24, 91, 0.08)'
+      }
+    };
+
+    // Apply custom theme variables
+    function setCustomThemeVars(theme) {
+      if (themeVars[theme]) {
+        Object.entries(themeVars[theme]).forEach(([key, value]) => {
+          document.documentElement.style.setProperty(key, value);
+        });
+      } else {
+        // Reset to default
+        document.documentElement.removeAttribute('style');
+      }
+    }
+
+    // On DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', () => {
+      // ...other initialization...
+
+      // Theme popup logic
+      const themeBtn = document.getElementById('themeSwitcherBtn');
+      const themePopup = document.getElementById('themePopup');
+      let popupOpen = false;
+
+      if (themeBtn && themePopup) {
+        themeBtn.addEventListener('click', () => {
+          popupOpen = !popupOpen;
+          themePopup.classList.toggle('show', popupOpen);
+          themeBtn.setAttribute('aria-expanded', popupOpen ? 'true' : 'false');
+        });
+
+        document.addEventListener('click', (e) => {
+          if (!themeBtn.contains(e.target) && !themePopup.contains(e.target)) {
+            popupOpen = false;
+            themePopup.classList.remove('show');
+            themeBtn.setAttribute('aria-expanded', 'false');
+          }
+        });
+
+        themePopup.querySelectorAll('.theme-option').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const theme = btn.getAttribute('data-theme');
+            applyTheme(theme);
+            setCustomThemeVars(theme);
+            popupOpen = false;
+            themePopup.classList.remove('show');
+            themeBtn.setAttribute('aria-expanded', 'false');
+          });
+        });
+      }
+
+      // Load saved theme
+      const savedTheme = localStorage.getItem('siteTheme') || 'default';
+      applyTheme(savedTheme);
+      setCustomThemeVars(savedTheme);
     });
   </script>
 </body>
