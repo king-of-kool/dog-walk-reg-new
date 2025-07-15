@@ -15,7 +15,7 @@
     <a href="#submit-status"><i class="fas fa-plus-circle"></i> Submit Status</a>
     <a href="#view-status"><i class="fas fa-list"></i> View Statuses</a>
     <a href="#map-view"><i class="fas fa-map-marked-alt"></i> Map View</a>
-    <a href="feedback.html">Give Feedback!</a>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSdu2G3Sy30ToJL2rWNHo_mKKItRnvlRmcFv78pM2Y-q0e1jYQ/viewform?usp=header">Give Feedback!</a>
   </div>
 
   <!-- Hamburger Menu -->
@@ -143,8 +143,11 @@
           <h3 style="color: dimgrey;">Hi, I am Oliver, the lead developer for this site.</h3>
           <p></p>
           <h3 style="color: dimgray;">
-            Me and my very small team have worked extremely hard to bring you this site to keep you and your dogs safe.<br>
-            We are a team of three students in secondary school, building this project in our spare time.
+            Welcome to our website! We are a dedicated team of three secondary school students who have worked tirelessly to create a platform that prioritizes the safety of you and your beloved dogs.<br>Our mission is to provide valuable resources and information to ensure a safer environment for all dog owners.<br>
+
+          In our spare time, we have poured our hearts into this project, driven by our passion for animal welfare and community service. We believe that every dog deserves a safe and loving home, and we are committed to making a positive impact in the lives of dogs and their owners.
+
+          Thank you for visiting our site, and we hope you find it helpful!
           </h3>
           <h3 style="color: dimgray;">Please use the site responsibly and report any issues to us.</h3>
         </center>
@@ -209,11 +212,27 @@
       initEventListeners();
       checkGeolocation();
       loadMapLibrary();
+    });
 
-      if (localStorage.getItem('darkMode') === 'true') {
-        document.body.classList.add('dark-mode');
-        document.getElementById('toggleModeCheckbox').checked = true;
-      }
+    // Move dark mode logic to the top for consistency
+    function applyDarkMode(isDark) {
+      document.body.classList.toggle('dark-mode', isDark);
+      localStorage.setItem('darkMode', isDark);
+      // Update map styles if maps are loaded
+      if (window.map) map.setOptions({ styles: getMapStyle() });
+      if (window.selectionMap) selectionMap.setOptions({ styles: getMapStyle() });
+      // Update toggle switch state
+      document.getElementById('toggleModeCheckbox').checked = isDark;
+    }
+
+    // On load, apply dark mode from localStorage
+    document.addEventListener('DOMContentLoaded', () => {
+      const isDark = localStorage.getItem('darkMode') === 'true';
+      applyDarkMode(isDark);
+      checkForRefresh();
+      initEventListeners();
+      checkGeolocation();
+      loadMapLibrary();
     });
 
     function checkForRefresh() {
@@ -228,7 +247,9 @@
 
     function initEventListeners() {
       walkForm.addEventListener('submit', handleFormSubmit);
-      document.getElementById('toggleModeCheckbox').addEventListener('change', toggleDarkMode);
+      document.getElementById('toggleModeCheckbox').addEventListener('change', (e) => {
+        applyDarkMode(e.target.checked);
+      });
       filterButtons.forEach(btn => {
         btn.addEventListener('click', () => {
           filterButtons.forEach(b => b.classList.remove('active'));
@@ -519,35 +540,6 @@
       );
     }
 
-    function toggleDarkMode(e) {
-      document.body.classList.toggle('dark-mode', e.target.checked);
-      localStorage.setItem('darkMode', e.target.checked);
-      if (map) map.setOptions({ styles: getMapStyle() });
-      if (selectionMap) selectionMap.setOptions({ styles: getMapStyle() });
-    }
-
-    function showNotification(message, isError = false) {
-      const notification = document.getElementById('notification');
-      const icon = notification.querySelector('i');
-      const text = notification.querySelector('span');
-      text.textContent = message;
-      notification.style.backgroundColor = isError ? '#f44336' : 'var(--primary-color)';
-      icon.className = isError ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
-      notification.classList.add('show');
-      setTimeout(() => {
-        notification.classList.remove('show');
-      }, 3000);
-    }
-
-    function formatTimeAgo(timestamp) {
-      const now = new Date();
-      const seconds = Math.floor((now - timestamp) / 1000);
-      if (seconds < 60) return 'Just now';
-      if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
-      if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
-      return `${Math.floor(seconds / 86400)} days ago`;
-    }
-
     function getSafetyClass(safetyStatus) {
       switch(safetyStatus.toLowerCase()) {
         case 'safe': return 'safety-safe';
@@ -564,6 +556,15 @@
         case 'planning to walk': return 'fas fa-clock';
         default: return 'fas fa-paw';
       }
+    }
+
+    function formatTimeAgo(timestamp) {
+      const now = new Date();
+      const seconds = Math.floor((now - timestamp) / 1000);
+      if (seconds < 60) return 'Just now';
+      if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
+      if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+      return `${Math.floor(seconds / 86400)} days ago`;
     }
 
     function createStatusElement(statusData, statusId) {
