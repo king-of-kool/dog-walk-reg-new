@@ -11,7 +11,7 @@ body {
   --background-color: #f5f8fa;
   --text-color: #333;
   --card-background: #fff;
-  --accent-color: #e65100;
+  --accent-color: #0066ff;
 
   background-color: var(--background-color);
   color: var(--text-color);
