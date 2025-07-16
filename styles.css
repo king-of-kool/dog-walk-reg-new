@@ -10,15 +10,16 @@
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Dark Mode (Midnight) */
 body.dark-mode {
-  --primary-color: #6b8bbd;      /* Muted blue accent */
-  --primary-dark: #1b263b;       /* Deep navy */
-  --primary-light: #273a4d;      /* Slate blue */
-  --text-color: #e0e6ed;         /* Light slate */
-  --text-light: #f4f7fb;
-  --bg-color: #202a36;           /* Modern dark background */
-  --card-bg: #232f3e;
-  --shadow: 0 4px 20px rgba(58, 110, 165, 0.18);
+  --primary-color: #1a237e;       /* Deep indigo */
+  --primary-dark: #0d1131;        /* Almost black, midnight base */
+  --primary-light: #3f51b5;       /* Lighter night-sky blue */
+  --text-color: #cfd8dc;          /* Soft silver-gray */
+  --text-light: #e0f7fa;          /* Light teal/blue for contrast */
+  --bg-color: #0b0c10;            /* Very dark blue/gray */
+  --card-bg: #1c1f26;             /* Dark but distinguishable from bg */
+  --shadow: 0 4px 20px rgba(26, 35, 126, 0.2); /* Deep blue shadows */
 }
 
 /* High Contrast Theme */
@@ -33,24 +34,82 @@ body.high-contrast {
   --shadow: none;
 }
 
-body.high-contrast #sideMenu,
-body.high-contrast .theme-switcher-btn {
-  background: #000 !important;
-  color: #fff !important;
+/* Forest Green Theme */
+body.forest {
+  --primary-color: #2e7d32;
+  --primary-dark: #1b5e20;
+  --primary-light: #e8f5e9;
+  --text-color: #263238;
+  --text-light: #ffffff;
+  --bg-color: #f1f8e9;
+  --card-bg: #ffffff;
 }
 
-body.high-contrast .theme-popup {
-  background: #fff !important;
-  color: #000 !important;
+/* Sunset Orange Theme */
+body.sunset {
+  --primary-color: #e65100;
+  --primary-dark: #bf360c;
+  --primary-light: #fff3e0;
+  --text-color: #3e2723;
+  --text-light: #ffffff;
+  --bg-color: #fbe9e7;
+  --card-bg: #ffffff;
 }
 
-body.high-contrast .theme-option {
-  color: #000 !important;
+/* Lavender Theme */
+body.lavender {
+  --primary-color: #7e57c2;
+  --primary-dark: #5e35b1;
+  --primary-light: #ede7f6;
+  --text-color: #311b92;
+  --text-light: #ffffff;
+  --bg-color: #f3e5f5;
+  --card-bg: #ffffff;
 }
 
-body.high-contrast .theme-option:hover {
-  background: #fff200 !important;
-  color: #000 !important;
+/* Rose Pink Theme */
+body.rose {
+  --primary-color: #c2185b;
+  --primary-dark: #880e4f;
+  --primary-light: #fce4ec;
+  --text-color: #4a148c;
+  --text-light: #ffffff;
+  --bg-color: #f8bbd0;
+  --card-bg: #ffffff;
+}
+
+/* Cool Slate Theme */
+body.slate {
+  --primary-color: #455a64;
+  --primary-dark: #263238;
+  --primary-light: #cfd8dc;
+  --text-color: #212121;
+  --text-light: #ffffff;
+  --bg-color: #eceff1;
+  --card-bg: #ffffff;
+}
+
+/* Coffee Theme */
+body.coffee {
+  --primary-color: #5d4037;
+  --primary-dark: #3e2723;
+  --primary-light: #d7ccc8;
+  --text-color: #3e2723;
+  --text-light: #ffffff;
+  --bg-color: #efebe9;
+  --card-bg: #ffffff;
+}
+
+/* Terminal Theme */
+body.terminal {
+  --primary-color: #00e676;
+  --primary-dark: #00c853;
+  --primary-light: #1b5e20;
+  --text-color: #00e676;
+  --text-light: #00e676;
+  --bg-color: #000000;
+  --card-bg: #121212;
+  --shadow: none;
 }
 
 body {
@@ -90,6 +149,11 @@ body {
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
 }
+
+#sideMenu.hidden {
+  transform: translateX(-100%);
+}
+
 
 #sideMenu h2 {
   color: var(--text-light);
@@ -156,7 +220,7 @@ body {
 
   #sideMenu {
     transform: translateX(-250px);
-    transition: transform 0.3s ease;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   #sideMenu.open {
@@ -558,8 +622,6 @@ button:active {
   color: #ff9800;
 }
 
-
-
 @media (max-width: 480px) {
   .main-content {
     padding: 15px;
@@ -648,7 +710,7 @@ button:active {
   font-size: 1rem;
 }
 
-/* Add at the end or in a modal section */
+/* Flash Modal */
 .flash-modal {
   position: fixed;
   z-index: 9999;
@@ -660,8 +722,8 @@ button:active {
 }
 
 .flash-modal-content {
-  background: #fff;
-  color: #222;
+  background: var(--card-bg);
+  color: var(--text-color);
   border-radius: 16px;
   padding: 32px 32px 24px 32px;
   max-width: 600px;
@@ -681,40 +743,33 @@ button:active {
   overflow-y: auto;
   margin-bottom: 24px;
   border-radius: 8px;
-  border: 1px solid #e0e0e0;
-  background: #fafafa;
+  border: 1px solid var(--primary-light);
+  background: var(--bg-color);
   padding: 18px 0 18px 18px;
   box-sizing: border-box;
-  /* Make sure the scrollbar is inside the modal, not on the edge */
 }
 
 .flash-modal-content button[disabled] {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
 .flash-modal-content button {
   margin-top: 0;
   padding: 12px 32px;
   border: none;
   border-radius: 6px;
-  background: var(--primary-color, #00796b);
-  color: #fff;
+  background: var(--primary-color);
+  color: var(--text-light);
   font-size: 1.1rem;
   font-weight: 500;
   cursor: pointer;
   align-self: flex-end;
   transition: background 0.2s;
 }
+
 .flash-modal-content button:hover:enabled {
-  background: var(--primary-dark, #004d40);
-}
-body.dark-mode .flash-modal-content {
-  background: #222;
-  color: #eee;
-}
-body.dark-mode #flashModalScroll {
-  background: #181d23;
-  border-color: #333;
+  background: var(--primary-dark);
 }
 
 /* Sidebar Theme Switcher */
@@ -737,6 +792,26 @@ body.dark-mode #flashModalScroll {
   justify-content: space-between;
   gap: 10px;
   transition: background 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-switcher-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%);
+  transform-origin: 50% 50%;
+}
+
+.theme-switcher-btn:focus:not(:active)::after {
+  animation: ripple 1s ease-out;
 }
 
 .theme-switcher-btn:hover,
@@ -757,10 +832,22 @@ body.dark-mode #flashModalScroll {
   z-index: 3000;
   flex-direction: column;
   animation: fadeIn 0.3s;
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .theme-popup.show {
   display: flex;
+}
+
+.theme-popup::-webkit-scrollbar {
+  width: 6px;
+}
+
+.theme-popup::-webkit-scrollbar-thumb {
+  background-color: var(--primary-color);
+  border-radius: 3px;
 }
 
 .theme-option {
@@ -781,4 +868,53 @@ body.dark-mode #flashModalScroll {
 .theme-option:hover {
   background: var(--primary-light);
   color: var(--primary-color);
+}
+
+.theme-option.active {
+  background: var(--primary-light);
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+/* Terminal theme specific overrides */
+body.terminal #sideMenu,
+body.terminal .theme-switcher-btn {
+  background: #000 !important;
+  color: #00e676 !important;
+  border: 1px solid #00e676;
+}
+
+body.terminal .theme-popup {
+  background: #121212 !important;
+  color: #00e676 !important;
+  border: 1px solid #00e676;
+}
+
+body.terminal .theme-option {
+  color: #00e676 !important;
+}
+
+body.terminal .theme-option:hover {
+  background: #1b5e20 !important;
+}
+
+/* High contrast theme overrides */
+body.high-contrast #sideMenu,
+body.high-contrast .theme-switcher-btn {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+body.high-contrast .theme-popup {
+  background: #fff !important;
+  color: #000 !important;
+}
+
+body.high-contrast .theme-option {
+  color: #000 !important;
+}
+
+body.high-contrast .theme-option:hover {
+  background: #fff200 !important;
+  color: #000 !important;
 }

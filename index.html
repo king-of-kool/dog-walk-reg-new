@@ -8,6 +8,17 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link rel="stylesheet" href="styles.css">
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTLsji9XOlgHK-YUPrQYSfLPB5NoerVWY"></script>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <style>
+    .theme-color-preview {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 8px;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+  </style>
 </head>
 <body>
   <div id="sideMenu">
@@ -19,15 +30,37 @@
     <a href="https://docs.google.com/forms/d/e/1FAIpQLSdu2G3Sy30ToJL2rWNHo_mKKItRnvlRmcFv78pM2Y-q0e1jYQ/viewform?usp=header">Give Feedback!</a>
     <div class="sidebar-theme-switcher">
       <button id="themeSwitcherBtn" class="theme-switcher-btn" aria-haspopup="true" aria-expanded="false">
-        <i class="fas fa-universal-access"></i> Accessibility & Themes
+        <i class="fas fa-palette"></i> Theme Options
         <i class="fas fa-chevron-down"></i>
       </button>
       <div id="themePopup" class="theme-popup" role="menu" aria-label="Theme selection">
-        <button class="theme-option" data-theme="default"><i class="fas fa-circle" style="color:#3a6ea5"></i> Default</button>
-        <button class="theme-option" data-theme="dark"><i class="fas fa-moon"></i> Dark Mode</button>
-        <button class="theme-option" data-theme="high-contrast"><i class="fas fa-adjust"></i> High Contrast</button>
-        <button class="theme-option" data-theme="green"><i class="fas fa-leaf" style="color:#388e3c"></i> Green</button>
-        <button class="theme-option" data-theme="rose"><i class="fas fa-heart" style="color:#c2185b"></i> Rose</button>
+        <button class="theme-option" data-theme="default">
+          <span class="theme-color-preview" style="background: #3a6ea5"></span> Ocean Blue
+        </button>
+        <button class="theme-option" data-theme="high-contrast">
+          <span class="theme-color-preview" style="background: #000; border: 1px solid #fff;"></span> High Contrast
+        </button>
+        <button class="theme-option" data-theme="forest">
+          <span class="theme-color-preview" style="background: #2e7d32"></span> Forest Green
+        </button>
+        <button class="theme-option" data-theme="sunset">
+          <span class="theme-color-preview" style="background: #e65100"></span> Sunset Orange
+        </button>
+        <button class="theme-option" data-theme="lavender">
+          <span class="theme-color-preview" style="background: #7e57c2"></span> Lavender
+        </button>
+        <button class="theme-option" data-theme="rose">
+          <span class="theme-color-preview" style="background: #c2185b"></span> Rose Pink
+        </button>
+        <button class="theme-option" data-theme="slate">
+          <span class="theme-color-preview" style="background: #455a64"></span> Cool Slate
+        </button>
+        <button class="theme-option" data-theme="coffee">
+          <span class="theme-color-preview" style="background: #5d4037"></span> Coffee
+        </button>
+        <button class="theme-option" data-theme="terminal">
+          <span class="theme-color-preview" style="background: #00e676"></span> Terminal
+        </button>
       </div>
     </div>
   </div>
@@ -124,14 +157,6 @@
     <!-- Loading Spinner -->
     <div id="loadingSpinner" class="spinner"></div>
 
-    <!-- Dark Mode Toggle -->
-    <div class="toggle-container" aria-label="Dark mode toggle">
-      <i class="fas fa-sun toggle-icon"></i>
-      <input type="checkbox" id="toggleModeCheckbox" aria-label="Toggle dark mode">
-      <label for="toggleModeCheckbox"></label>
-      <i class="fas fa-moon toggle-icon"></i>
-    </div>
-
     <h2><i class="fas fa-list-ul"></i> Current Dog Walk Statuses in Narberth</h2>
     <div id="statusList"></div>
 
@@ -154,279 +179,376 @@
       <div style="height:400px;overflow-y:auto;" id="flashModalScroll">
         <center>
           <h1 style="margin:0;">Welcome</h1>
-          <h3 style="color: dimgrey;">Hi, I am Oliver, the lead developer for this site.</h3>
+          <h3 style="color: dimgrey;">Hey! I’m Oliver, the lead developer for this site.</h3>
           <p></p>
           <h3 style="color: dimgray;">
-            Welcome to our website! We are a dedicated team of three secondary school students who have worked tirelessly to create a platform that prioritizes the safety of you and your beloved dogs.<br>Our mission is to provide valuable resources and information to ensure a safer environment for all dog owners.<br>
-
-          In our spare time, we have poured our hearts into this project, driven by our passion for animal welfare and community service. We believe that every dog deserves a safe and loving home, and we are committed to making a positive impact in the lives of dogs and their owners.
-
-          Thank you for visiting our site, and we hope you find it helpful!
+            Before you continue to the site, i just want to say that this message will be able to be closed in 10 seconds.<br>
+            We’re a small team of three secondary school students who have spent months working hard on this project.<br>
+            Our goal has been to create a safe and helpful website for dog owners like you.<br><br>
+            
+            Between school, homework, and everything else, we’ve dedicated lots of evenings and weekends to building this platform — all because we care about dogs and want to make a difference.<br><br>
+            
+            We hope you find the site useful and enjoy using it as much as we enjoyed making it.<br>
+            Thanks for stopping by and supporting our work!
           </h3>
-          <h3 style="color: dimgray;">Please use the site responsibly and report any issues to us.</h3>
+          <h3 style="color: dimgray;">Please use the site responsibly and let us know if you spot any issues.</h3>
         </center>
-        <div style="height:300px;"></div>
       </div>
+      <p id="countdownText" style="text-align:center; font-weight:bold; color: dimgray; margin: 10px 0;">Time left: 10 seconds</p>
+
       <button id="flashModalOk" disabled>OK</button>
     </div>
   </div>
 
+
   <!-- Firebase SDK and App Logic -->
   <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded, onChildRemoved, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, push, onChildAdded, onChildRemoved, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyCtpIJvKHY3x_8x7_m-0QtUMIQ0Gj2blRQ",
-  authDomain: "dog-walk-reg.firebaseapp.com",
-  databaseURL: "https://dog-walk-reg-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "dog-walk-reg",
-  storageBucket: "dog-walk-reg.firebasestorage.app",
-  messagingSenderId: "806193788108",
-  appId: "1:806193788108:web:ac6df92dd5800bd74a3e69",
-  measurementId: "G-9Y7PYSP8NP"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
-const statusListRef = ref(database, 'narberthDogWalkStatuses');
-
-// DOM elements
-const statusListEl = document.getElementById('statusList');
-const emptyStateEl = document.getElementById('emptyState');
-const filterButtons = document.querySelectorAll('.filter-btn');
-const walkForm = document.getElementById('walkForm');
-const mapContainer = document.getElementById('mapContainer');
-const selectOnMapBtn = document.getElementById('selectOnMapBtn');
-const mapSelectionContainer = document.getElementById('mapSelectionContainer');
-
-let currentFilter = 'all';
-let selectedLatLng = null;
-let map, marker;
-let statusMarkers = [];
-
-// --- Map Selection for Form ---
-selectOnMapBtn.addEventListener('click', () => {
-  mapSelectionContainer.innerHTML = `
-    <div id="selectMap" style="height:300px;width:100%;margin:10px 0;"></div>
-    <div id="selectedCoords" style="margin-bottom:10px;color:#333;"></div>
-  `;
-  const selectMap = new google.maps.Map(document.getElementById('selectMap'), {
-    center: { lat: 51.797, lng: -4.742 }, // Narberth
-    zoom: 15
-  });
-  let tempMarker = null;
-  selectMap.addListener('click', (e) => {
-    if (tempMarker) tempMarker.setMap(null);
-    tempMarker = new google.maps.Marker({
-      position: e.latLng,
-      map: selectMap
-    });
-    selectedLatLng = { lat: e.latLng.lat(), lng: e.latLng.lng() };
-    document.getElementById('selectedCoords').textContent =
-      `Selected: ${selectedLatLng.lat.toFixed(5)}, ${selectedLatLng.lng.toFixed(5)}`;
-  });
-});
-
-// --- Status Form Submission ---
-async function handleFormSubmit(e) {
-  e.preventDefault();
-  const submitButton = e.target.querySelector('button[type="submit"]');
-  submitButton.disabled = true;
-  document.getElementById('loadingSpinner').style.display = 'block';
-  try {
-    const walkingStatus = document.getElementById('walkingStatus').value;
-    const location = document.getElementById('location').value.trim();
-    const walkTime = document.getElementById('walkTime').value;
-    const dogStatus = document.getElementById('dogStatus').value;
-    const safetyStatus = document.getElementById('safetyOptions').value;
-    const otherNotes = document.getElementById('otherNotes').value.trim();
-    if (!location || !walkTime || !dogStatus || !safetyStatus) {
-      throw new Error('Please fill in all required fields');
-    }
-    const statusData = {
-      status: walkingStatus === 'yes' ? 'Walking' : walkingStatus === 'no' ? 'Not Walking' : 'Planning to walk',
-      location: location,
-      time: walkTime,
-      dogStatus: dogStatus,
-      safety: safetyStatus
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCtpIJvKHY3x_8x7_m-0QtUMIQ0Gj2blRQ",
+      authDomain: "dog-walk-reg.firebaseapp.com",
+      databaseURL: "https://dog-walk-reg-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "dog-walk-reg",
+      storageBucket: "dog-walk-reg.appspot.com",
+      messagingSenderId: "806193788108",
+      appId: "1:806193788108:web:ac6df92dd5800bd74a3e69",
+      measurementId: "G-9Y7PYSP8NP"
     };
-    if (otherNotes) statusData.notes = otherNotes;
-    if (selectedLatLng) statusData.latlng = selectedLatLng;
-    await push(statusListRef, statusData);
-    showNotification('Status submitted successfully!');
-    walkForm.reset();
-    mapSelectionContainer.innerHTML = '';
-    selectedLatLng = null;
-  } catch (error) {
-    console.error('Error submitting status:', error);
-    showNotification(error.message || 'Error submitting status. Please try again.', true);
-  } finally {
-    submitButton.disabled = false;
-    document.getElementById('loadingSpinner').style.display = 'none';
-  }
-}
 
-// --- Status List Rendering ---
-function createStatusElement(statusData, statusId) {
-  const statusDiv = document.createElement('div');
-  statusDiv.className = `status ${statusData.status.toLowerCase().replace(/ /g, '-')}`;
-  statusDiv.dataset.id = statusId;
-  statusDiv.dataset.status = JSON.stringify(statusData);
-  let notesContent = '';
-  if (statusData.notes) {
-    notesContent = `<p><strong><i class="fas fa-sticky-note status-icon"></i>Notes:</strong> ${statusData.notes}</p>`;
-  }
-  statusDiv.innerHTML = ` 
-    <p><strong><i class="${getStatusIcon(statusData.status)} status-icon"></i>Status:</strong> ${statusData.status}</p>
-    <p><strong><i class="fas fa-map-marker-alt status-icon"></i>Location:</strong> ${statusData.location}</p>
-    <p><strong><i class="far fa-clock status-icon"></i>Time:</strong> ${statusData.time}</p>
-    <p><strong><i class="fas fa-dog status-icon"></i>Dog:</strong> ${statusData.dogStatus}</p>
-    <p><strong><i class="fas fa-shield-alt status-icon"></i>Safety:</strong> <span class="${getSafetyClass(statusData.safety)}">${statusData.safety}</span></p>
-    ${notesContent}
-  `;
-  return statusDiv;
-}
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    const statusListRef = ref(database, 'narberthDogWalkStatuses');
 
-// --- Map Display for Statuses ---
-function renderStatusMarkers(statuses) {
-  if (!map) {
-    map = new google.maps.Map(mapContainer, {
-      center: { lat: 51.797, lng: -4.742 },
-      zoom: 14
+    // DOM elements
+    const statusListEl = document.getElementById('statusList');
+    const emptyStateEl = document.getElementById('emptyState');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const walkForm = document.getElementById('walkForm');
+    const mapContainer = document.getElementById('mapContainer');
+    const selectOnMapBtn = document.getElementById('selectOnMapBtn');
+    const mapSelectionContainer = document.getElementById('mapSelectionContainer');
+    const hamburger = document.getElementById('hamburgerMenu');
+    const sideMenu = document.getElementById('sideMenu');
+
+    let currentFilter = 'all';
+    let selectedLatLng = null;
+    let map, marker;
+    let statusMarkers = [];
+
+    // Theme Switching Functionality
+    function applyTheme(themeName) {
+      document.body.className = themeName;
+      localStorage.setItem('selectedTheme', themeName);
+      updateThemeSwitcherUI(themeName);
+    }
+
+    function updateThemeSwitcherUI(themeName) {
+      const themeOptions = document.querySelectorAll('.theme-option');
+      themeOptions.forEach(option => {
+        option.classList.toggle('active', option.dataset.theme === themeName);
+      });
+    }
+
+    // Initialize theme from localStorage or default
+    function initializeTheme() {
+      const savedTheme = localStorage.getItem('selectedTheme') || 'default';
+      applyTheme(savedTheme);
+    }
+
+    // Flash Modal Functionality
+    document.addEventListener('DOMContentLoaded', () => {
+      const hasSeenModal = localStorage.getItem('hasSeenModal');
+      if (!hasSeenModal) {
+        setTimeout(() => {
+          const modal = document.getElementById('flashModal');
+          const okBtn = document.getElementById('flashModalOk');
+          const countdownText = document.getElementById('countdownText');
+
+          modal.style.display = 'flex';
+
+          let timeLeft = 10;
+          countdownText.textContent = `Time left: ${timeLeft} seconds`;
+
+          const countdownInterval = setInterval(() => {
+            timeLeft--;
+            countdownText.textContent = `Time left: ${timeLeft} seconds`;
+
+            if (timeLeft <= 0) {
+              clearInterval(countdownInterval);
+              countdownText.textContent = '';  // Remove countdown text or say "You can now click OK"
+              okBtn.disabled = false;
+            }
+          }, 1000);
+
+          okBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+            localStorage.setItem('hasSeenModal', 'true');
+          });
+        }, 1000);
+      }
     });
-  }
-  // Remove old markers
-  statusMarkers.forEach(m => m.setMap(null));
-  statusMarkers = [];
-  Object.entries(statuses).forEach(([statusId, statusData]) => {
-    if (statusData.latlng) {
-      const marker = new google.maps.Marker({
-        position: statusData.latlng,
-        map: map,
-        title: statusData.location
-      });
-      const info = new google.maps.InfoWindow({
-        content: `<strong>${statusData.status}</strong><br>${statusData.location}<br>${statusData.time}`
-      });
-      marker.addListener('click', () => info.open(map, marker));
-      statusMarkers.push(marker);
-    }
-  });
-}
 
-// --- Filtering, Notification, Event Listeners (unchanged) ---
-function getSafetyClass(safetyStatus) {
-  switch(safetyStatus.toLowerCase()) {
-    case 'safe': return 'safety-safe';
-    case 'unsafe': return 'safety-unsafe';
-    case 'busy': return 'safety-unknown';
-    default: return 'safety-unknown';
-  }
-}
-function getStatusIcon(status) {
-  switch(status.toLowerCase()) {
-    case 'walking': return 'fas fa-walking';
-    case 'not walking': return 'fas fa-home';
-    case 'planning to walk': return 'fas fa-clock';
-    default: return 'fas fa-paw';
-  }
-}
-function filterStatuses() {
-  const statuses = document.querySelectorAll('.status');
-  let visibleCount = 0;
-  statuses.forEach(status => {
-    const statusData = JSON.parse(status.dataset.status);
-    let shouldShow = false;
-    switch(currentFilter) {
-      case 'all': shouldShow = true; break;
-      case 'walking': shouldShow = statusData.status === 'Walking'; break;
-      case 'not-walking': shouldShow = statusData.status === 'Not Walking'; break;
-      case 'planning': shouldShow = statusData.status === 'Planning to walk'; break;
-      case 'friendly': shouldShow = statusData.dogStatus.toLowerCase().includes('friendly'); break;
-      case 'service': shouldShow = statusData.dogStatus.toLowerCase().includes('service'); break;
-      default: shouldShow = true;
+
+    // Theme switcher event listeners
+    document.querySelectorAll('.theme-option').forEach(option => {
+      option.addEventListener('click', () => {
+        const theme = option.dataset.theme;
+        applyTheme(theme);
+      });
+    });
+
+    // Toggle theme popup
+    document.getElementById('themeSwitcherBtn').addEventListener('click', function() {
+      const popup = document.getElementById('themePopup');
+      const isExpanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !isExpanded);
+      popup.classList.toggle('show', !isExpanded);
+    });
+
+    // Close theme popup when clicking outside
+    document.addEventListener('click', function(e) {
+      const themeBtn = document.getElementById('themeSwitcherBtn');
+      const themePopup = document.getElementById('themePopup');
+      if (!themeBtn.contains(e.target) && !themePopup.contains(e.target)) {
+        themeBtn.setAttribute('aria-expanded', 'false');
+        themePopup.classList.remove('show');
+      }
+    });
+
+    // --- Map Selection for Form ---
+    selectOnMapBtn.addEventListener('click', () => {
+      mapSelectionContainer.innerHTML = `
+        <div id="selectMap" style="height:300px;width:100%;margin:10px 0;"></div>
+        <div id="selectedCoords" style="margin-bottom:10px;color:#333;"></div>
+      `;
+      const selectMap = new google.maps.Map(document.getElementById('selectMap'), {
+        center: { lat: 51.797, lng: -4.742 }, // Narberth
+        zoom: 15
+      });
+      let tempMarker = null;
+      selectMap.addListener('click', (e) => {
+        if (tempMarker) tempMarker.setMap(null);
+        tempMarker = new google.maps.Marker({
+          position: e.latLng,
+          map: selectMap
+        });
+        selectedLatLng = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+        document.getElementById('selectedCoords').textContent =
+          `Selected: ${selectedLatLng.lat.toFixed(5)}, ${selectedLatLng.lng.toFixed(5)}`;
+      });
+    });
+
+    // --- Status Form Submission ---
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      const submitButton = e.target.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+      document.getElementById('loadingSpinner').style.display = 'block';
+      try {
+        const walkingStatus = document.getElementById('walkingStatus').value;
+        const location = document.getElementById('location').value.trim();
+        const walkTime = document.getElementById('walkTime').value;
+        const dogStatus = document.getElementById('dogStatus').value;
+        const safetyStatus = document.getElementById('safetyOptions').value;
+        const otherNotes = document.getElementById('otherNotes').value.trim();
+        if (!location || !walkTime || !dogStatus || !safetyStatus) {
+          throw new Error('Please fill in all required fields');
+        }
+        const statusData = {
+          status: walkingStatus === 'yes' ? 'Walking' : walkingStatus === 'no' ? 'Not Walking' : 'Planning to walk',
+          location: location,
+          time: walkTime,
+          dogStatus: dogStatus,
+          safety: safetyStatus
+        };
+        if (otherNotes) statusData.notes = otherNotes;
+        if (selectedLatLng) statusData.latlng = selectedLatLng;
+        await push(statusListRef, statusData);
+        showNotification('Status submitted successfully!');
+        walkForm.reset();
+        mapSelectionContainer.innerHTML = '';
+        selectedLatLng = null;
+      } catch (error) {
+        console.error('Error submitting status:', error);
+        showNotification(error.message || 'Error submitting status. Please try again.', true);
+      } finally {
+        submitButton.disabled = false;
+        document.getElementById('loadingSpinner').style.display = 'none';
+      }
     }
-    if (shouldShow) {
-      status.style.display = 'block';
-      visibleCount++;
-    } else {
-      status.style.display = 'none';
+
+    // --- Status List Rendering ---
+    function createStatusElement(statusData, statusId) {
+      const statusDiv = document.createElement('div');
+      statusDiv.className = `status ${statusData.status.toLowerCase().replace(/ /g, '-')}`;
+      statusDiv.dataset.id = statusId;
+      statusDiv.dataset.status = JSON.stringify(statusData);
+      let notesContent = '';
+      if (statusData.notes) {
+        notesContent = `<p><strong><i class="fas fa-sticky-note status-icon"></i>Notes:</strong> ${statusData.notes}</p>`;
+      }
+      statusDiv.innerHTML = ` 
+        <p><strong><i class="${getStatusIcon(statusData.status)} status-icon"></i>Status:</strong> ${statusData.status}</p>
+        <p><strong><i class="fas fa-map-marker-alt status-icon"></i>Location:</strong> ${statusData.location}</p>
+        <p><strong><i class="far fa-clock status-icon"></i>Time:</strong> ${statusData.time}</p>
+        <p><strong><i class="fas fa-dog status-icon"></i>Dog:</strong> ${statusData.dogStatus}</p>
+        <p><strong><i class="fas fa-shield-alt status-icon"></i>Safety:</strong> <span class="${getSafetyClass(statusData.safety)}">${statusData.safety}</span></p>
+        ${notesContent}
+      `;
+      return statusDiv;
     }
-  });
-  if (visibleCount === 0) {
-    emptyStateEl.classList.remove('hidden');
-  } else {
-    emptyStateEl.classList.add('hidden');
-  }
-}
-function showNotification(message, isError = false) {
-  const notification = document.getElementById('notification');
-  notification.querySelector('span').textContent = message;
-  notification.classList.toggle('error', isError);
-  notification.style.display = 'block';
-  setTimeout(() => {
-    notification.style.display = 'none';
-  }, 2500);
-}
-function initEventListeners() {
-  walkForm.addEventListener('submit', handleFormSubmit);
-  filterButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      filterButtons.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentFilter = btn.dataset.filter;
+
+    // --- Map Display for Statuses ---
+    function renderStatusMarkers(statuses) {
+      if (!map) {
+        map = new google.maps.Map(mapContainer, {
+          center: { lat: 51.797, lng: -4.742 },
+          zoom: 14
+        });
+      }
+      // Remove old markers
+      statusMarkers.forEach(m => m.setMap(null));
+      statusMarkers = [];
+      Object.entries(statuses).forEach(([statusId, statusData]) => {
+        if (statusData.latlng) {
+          const marker = new google.maps.Marker({
+            position: statusData.latlng,
+            map: map,
+            title: statusData.location
+          });
+          const info = new google.maps.InfoWindow({
+            content: `<strong>${statusData.status}</strong><br>${statusData.location}<br>${statusData.time}`
+          });
+          marker.addListener('click', () => info.open(map, marker));
+          statusMarkers.push(marker);
+        }
+      });
+    }
+
+    // --- Helper Functions ---
+    function getSafetyClass(safetyStatus) {
+      switch(safetyStatus.toLowerCase()) {
+        case 'safe': return 'safety-safe';
+        case 'unsafe': return 'safety-unsafe';
+        case 'busy': return 'safety-unknown';
+        default: return 'safety-unknown';
+      }
+    }
+
+    function getStatusIcon(status) {
+      switch(status.toLowerCase()) {
+        case 'walking': return 'fas fa-walking';
+        case 'not walking': return 'fas fa-home';
+        case 'planning to walk': return 'fas fa-clock';
+        default: return 'fas fa-paw';
+      }
+    }
+
+    function filterStatuses() {
+      const statuses = document.querySelectorAll('.status');
+      let visibleCount = 0;
+      statuses.forEach(status => {
+        const statusData = JSON.parse(status.dataset.status);
+        let shouldShow = false;
+        switch(currentFilter) {
+          case 'all': shouldShow = true; break;
+          case 'walking': shouldShow = statusData.status === 'Walking'; break;
+          case 'not-walking': shouldShow = statusData.status === 'Not Walking'; break;
+          case 'planning': shouldShow = statusData.status === 'Planning to walk'; break;
+          case 'friendly': shouldShow = statusData.dogStatus.toLowerCase().includes('friendly'); break;
+          case 'service': shouldShow = statusData.dogStatus.toLowerCase().includes('service'); break;
+          default: shouldShow = true;
+        }
+        if (shouldShow) {
+          status.style.display = 'block';
+          visibleCount++;
+        } else {
+          status.style.display = 'none';
+        }
+      });
+      if (visibleCount === 0) {
+        emptyStateEl.classList.remove('hidden');
+      } else {
+        emptyStateEl.classList.add('hidden');
+      }
+    }
+
+    function showNotification(message, isError = false) {
+      const notification = document.getElementById('notification');
+      notification.querySelector('span').textContent = message;
+      notification.classList.toggle('error', isError);
+      notification.style.display = 'block';
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 2500);
+    }
+
+    function initEventListeners() {
+      walkForm.addEventListener('submit', handleFormSubmit);
+      filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentFilter = btn.dataset.filter;
+          filterStatuses();
+        });
+      });
+    }
+
+    document.getElementById('hamburgerMenu').addEventListener('click', function() {
+      this.classList.toggle('open');
+      document.getElementById('sideMenu').classList.toggle('open');
+    });
+
+    // --- Load Initial Statuses ---
+    async function loadInitialStatuses() {
+      const snapshot = await get(statusListRef);
+      statusListEl.innerHTML = ''; // Clear previous statuses to avoid duplicates
+      if (snapshot.exists()) {
+        const statuses = snapshot.val();
+        Object.entries(statuses).forEach(([statusId, statusData]) => {
+          const statusDiv = createStatusElement(statusData, statusId);
+          statusListEl.insertBefore(statusDiv, statusListEl.firstChild);
+        });
+        renderStatusMarkers(statuses);
+        filterStatuses();
+      }
+    }
+
+    // --- Listen for new status additions ---
+    onChildAdded(statusListRef, (snapshot) => {
+      const statusData = snapshot.val();
+      const statusId = snapshot.key;
+      const statusDiv = createStatusElement(statusData, statusId);
+      statusDiv.style.animation = 'fadeIn 0.5s ease-out forwards';
+      statusDiv.addEventListener('animationend', () => {
+        statusDiv.style.animation = '';
+      });
+      statusListEl.insertBefore(statusDiv, statusListEl.firstChild);
+      // Re-render all markers
+      loadInitialStatuses();
       filterStatuses();
     });
-  });
-}
 
-// --- Load Initial Statuses ---
-async function loadInitialStatuses() {
-  const snapshot = await get(statusListRef);
-  statusListEl.innerHTML = ''; // Clear previous statuses to avoid duplicates
-  if (snapshot.exists()) {
-    const statuses = snapshot.val();
-    Object.entries(statuses).forEach(([statusId, statusData]) => {
-      const statusDiv = createStatusElement(statusData, statusId);
-      statusListEl.insertBefore(statusDiv, statusListEl.firstChild);
+    // --- Listen for status removals ---
+    onChildRemoved(statusListRef, (snapshot) => {
+      const statusId = snapshot.key;
+      const statusEl = document.querySelector(`.status[data-id="${statusId}"]`);
+      if (statusEl) statusEl.remove();
+      loadInitialStatuses();
+      filterStatuses();
     });
-    renderStatusMarkers(statuses);
-    filterStatuses();
-  }
-}
 
-// --- Listen for new status additions ---
-onChildAdded(statusListRef, (snapshot) => {
-  const statusData = snapshot.val();
-  const statusId = snapshot.key;
-  const statusDiv = createStatusElement(statusData, statusId);
-  statusDiv.style.animation = 'fadeIn 0.5s ease-out forwards';
-  statusDiv.addEventListener('animationend', () => {
-    statusDiv.style.animation = '';
-  });
-  statusListEl.insertBefore(statusDiv, statusListEl.firstChild);
-  // Re-render all markers
-  loadInitialStatuses();
-  filterStatuses();
-});
-
-// --- Listen for status removals ---
-onChildRemoved(statusListRef, (snapshot) => {
-  const statusId = snapshot.key;
-  const statusEl = document.querySelector(`.status[data-id="${statusId}"]`);
-  if (statusEl) statusEl.remove();
-  loadInitialStatuses();
-  filterStatuses();
-});
-
-// --- Init ---
-document.addEventListener('DOMContentLoaded', () => {
-  initEventListeners();
-  loadInitialStatuses();
-});
-</script>
+    // --- Init ---
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeTheme();
+      initEventListeners();
+      loadInitialStatuses();
+    });
+  </script>
 </body>
 </html>
