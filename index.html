@@ -26,7 +26,9 @@
     <a href="#view-status"><i class="fas fa-list"></i> View Statuses</a>
     <a href="https://docs.google.com/forms/d/e/1FAIpQLSdu2G3Sy30ToJL2rWNHo_mKKItRnvlRmcFv78pM2Y-q0e1jYQ/viewform?usp=header">Give Feedback!</a>
     <div class="sidebar-theme-switcher">
-      <button id="themeSwitcherBtn" class="theme-switcher-btn"><i class="fas fa-palette"></i> Theme Options <i class="fas fa-chevron-down"></i></button>
+      <button id="themeSwitcherBtn" class="theme-switcher-btn">
+        <i class="fas fa-palette"></i> Theme Options <i class="fas fa-chevron-down"></i>
+      </button>
       <div id="themePopup" class="theme-popup">
         <button class="theme-option" data-theme="default"><span class="theme-color-preview" style="background:#3a6ea5"></span> Ocean Blue</button>
         <button class="theme-option" data-theme="high-contrast"><span class="theme-color-preview" style="background:#000; border:1px solid #fff;"></span> High Contrast</button>
@@ -41,6 +43,13 @@
     </div>
   </div>
 
+  <!-- Hamburger Menu -->
+  <div id="hamburgerMenu" aria-label="Toggle navigation menu">
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+
   <div class="main-content">
     <h1><i class="fas fa-paw"></i> Narberth Dog Walk Status</h1>
     <p>Share your dog walking status with other owners in Narberth to help coordinate walks and avoid busy areas.</p>
@@ -48,19 +57,19 @@
     <div class="filter-controls">
       <button class="filter-btn active" data-filter="all">All</button>
       <button class="filter-btn" data-filter="walking">Walking</button>
-      <button class="filter-btn" data-filter="not-walking">Not Walking</button>
-      <button class="filter-btn" data-filter="planning">Planning to walk</button>
+      <button class="filter-btn" data-filter="not walking">Not Walking</button>
+      <button class="filter-btn" data-filter="planning to walk">Planning to walk</button>
       <button class="filter-btn" data-filter="friendly">Friendly Dogs</button>
-      <button class="filter-btn" data-filter="service">Service Dogs</button>
+      <button class="filter-btn" data-filter="service dog">Service Dogs</button>
     </div>
 
     <form id="walkForm">
       <label class="form-full-width">
         Are you walking your dog?
         <select id="walkingStatus" required>
-          <option value="yes">Yes, currently walking</option>
-          <option value="no">No, not currently walking</option>
-          <option value="planning">Planning to walk soon</option>
+          <option value="walking">Yes, currently walking</option>
+          <option value="not walking">No, not currently walking</option>
+          <option value="planning to walk">Planning to walk soon</option>
         </select>
       </label>
 
@@ -68,13 +77,13 @@
         Location in Narberth:
         <input type="text" id="location" required maxlength="50" placeholder="E.g. Narberth Moor, Bloomfield Park" list="narberthLocations" />
         <datalist id="narberthLocations">
-          <option value="Narberth Moor">
-          <option value="Bloomfield Park">
-          <option value="Narberth High Street">
-          <option value="Narberth Castle">
-          <option value="Narberth Playing Fields">
-          <option value="Narberth Woods">
-          <option value="Narberth Dog Park">
+          <option value="Narberth Moor"></option>
+          <option value="Bloomfield Park"></option>
+          <option value="Narberth High Street"></option>
+          <option value="Narberth Castle"></option>
+          <option value="Narberth Playing Fields"></option>
+          <option value="Narberth Woods"></option>
+          <option value="Narberth Dog Park"></option>
         </datalist>
       </label>
 
@@ -115,7 +124,11 @@
     <div id="loadingSpinner" class="spinner" style="display:none;"></div>
 
     <h2><i class="fas fa-list-ul"></i> Current Dog Walk Statuses</h2>
-    <div id="statusList"></div>
+
+    <!-- Wrap status list in container with background box -->
+    <div class="status-cards-box">
+      <div id="statusList" class="status-cards"></div>
+    </div>
 
     <div id="emptyState" class="text-center mt-20 hidden">
       <i class="fas fa-dog" style="font-size: 3rem; color: var(--primary-color);"></i>
@@ -132,7 +145,7 @@
   <!-- Firebase and App Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCtpIJvKHY3x_8x7_m-0QtUMIQ0Gj2blRQ",
@@ -154,7 +167,14 @@
     const emptyStateEl = document.getElementById('emptyState');
     const loadingSpinner = document.getElementById('loadingSpinner');
     const filterButtons = document.querySelectorAll('.filter-btn');
+    const hamburger = document.getElementById('hamburgerMenu');
+    const sideMenu = document.getElementById('sideMenu');
     let currentFilter = 'all';
+
+    document.getElementById('hamburgerMenu').addEventListener('click', function() {
+      this.classList.toggle('open');
+      document.getElementById('sideMenu').classList.toggle('open');
+    });
 
     walkForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -184,11 +204,11 @@
     function createStatusElement(data) {
       const el = document.createElement('div');
       el.className = 'status-entry';
-      el.dataset.status = data.status;
-      el.dataset.dogStatus = data.dogStatus;
+      el.dataset.status = data.status.toLowerCase();
+      el.dataset.dogStatus = data.dogStatus.toLowerCase();
 
       el.innerHTML = `
-      <div class="card">
+      <div style="background-color: #e0e0de; border-radius: 15px; padding: 10px; margin-bottom: 10px; border: 4px solid #bfbfbd;">
         <p><strong><i class="${getStatusIcon(data.status)} status-icon"></i> Status:</strong> ${data.status}</p>
         <p><strong><i class="fas fa-map-marker-alt status-icon"></i> Location:</strong> ${data.location}</p>
         <p><strong><i class="far fa-clock status-icon"></i> Time:</strong> ${data.time}</p>
@@ -219,7 +239,7 @@
         const match =
           currentFilter === 'all' ||
           el.dataset.status === currentFilter ||
-          el.dataset.dogStatus.toLowerCase().includes(currentFilter);
+          el.dataset.dogStatus.includes(currentFilter);
         el.style.display = match ? 'block' : 'none';
       });
       updateEmptyState();
@@ -229,7 +249,7 @@
       btn.addEventListener('click', () => {
         filterButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        currentFilter = btn.dataset.filter;
+        currentFilter = btn.dataset.filter.toLowerCase();
         applyFilter();
       });
     });
@@ -252,21 +272,34 @@
     const themePopup = document.getElementById('themePopup');
     const themeOptions = document.querySelectorAll('.theme-option');
 
-    themeBtn.addEventListener('click', () => {
-      themePopup.classList.toggle('active');
+    themeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      themePopup.classList.toggle('show');
+    });
+
+    document.body.addEventListener('click', () => {
+      themePopup.classList.remove('show');
+    });
+
+    themePopup.addEventListener('click', (e) => {
+      e.stopPropagation();
     });
 
     themeOptions.forEach(btn => {
       btn.addEventListener('click', () => {
-        document.body.className = btn.dataset.theme;
-        localStorage.setItem('selectedTheme', btn.dataset.theme);
-        themePopup.classList.remove('active');
+        const theme = btn.dataset.theme;
+        document.body.className = ''; // clear all themes
+        if (theme !== 'default') document.body.classList.add(theme);
+        localStorage.setItem('dogWalkTheme', theme);
+        themePopup.classList.remove('show');
       });
     });
 
-    // Restore saved theme
-    const savedTheme = localStorage.getItem('selectedTheme');
-    if (savedTheme) document.body.className = savedTheme;
+    // Load theme from storage on start
+    const savedTheme = localStorage.getItem('dogWalkTheme');
+    if (savedTheme && savedTheme !== 'default') {
+      document.body.classList.add(savedTheme);
+    }
   </script>
 </body>
 </html>
