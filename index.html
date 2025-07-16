@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Narberth Dog Walk Status</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTLsji9XOlgHK-YUPrQYSfLPB5NoerVWY"></script>
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link rel="stylesheet" href="styles.css"/>
   <style>
     .theme-color-preview {
       width: 16px;
@@ -23,62 +21,30 @@
 <body>
   <div id="sideMenu">
     <h2><i class="fas fa-paw"></i> Narberth Dog Walks</h2>
-    <a href="https://dog-walk-reg.netlify.app" class="active" aria-current="page"><i class="fas fa-home"></i> Home</a>
+    <a href="#" class="active"><i class="fas fa-home"></i> Home</a>
     <a href="#submit-status"><i class="fas fa-plus-circle"></i> Submit Status</a>
     <a href="#view-status"><i class="fas fa-list"></i> View Statuses</a>
-    <a href="https://docs.google.com/forms/d/e/1FAIpQLSdu2G3Sy30ToJL2rWNHo_mKKItRnvlRmcFv78pM2Y-q0e1jYQ/viewform?usp=header"><i class="fa-solid fa-comments"></i>Give Feedback!</a>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSdu2G3Sy30ToJL2rWNHo_mKKItRnvlRmcFv78pM2Y-q0e1jYQ/viewform?usp=header">Give Feedback!</a>
     <div class="sidebar-theme-switcher">
-      <button id="themeSwitcherBtn" class="theme-switcher-btn" aria-haspopup="true" aria-expanded="false">
-        <i class="fas fa-palette"></i> Theme Options
-        <i class="fas fa-chevron-down"></i>
-      </button>
-      <div id="themePopup" class="theme-popup" role="menu" aria-label="Theme selection">
-        <button class="theme-option" data-theme="default">
-          <span class="theme-color-preview" style="background: #3a6ea5"></span> Ocean Blue
-        </button>
-        <button class="theme-option" data-theme="high-contrast">
-          <span class="theme-color-preview" style="background: #000; border: 1px solid #fff;"></span> High Contrast
-        </button>
-        <button class="theme-option" data-theme="forest">
-          <span class="theme-color-preview" style="background: #2e7d32"></span> Forest Green
-        </button>
-        <button class="theme-option" data-theme="sunset">
-          <span class="theme-color-preview" style="background: #e65100"></span> Sunset Orange
-        </button>
-        <button class="theme-option" data-theme="lavender">
-          <span class="theme-color-preview" style="background: #7e57c2"></span> Lavender
-        </button>
-        <button class="theme-option" data-theme="rose">
-          <span class="theme-color-preview" style="background: #c2185b"></span> Rose Pink
-        </button>
-        <button class="theme-option" data-theme="slate">
-          <span class="theme-color-preview" style="background: #455a64"></span> Cool Slate
-        </button>
-        <button class="theme-option" data-theme="coffee">
-          <span class="theme-color-preview" style="background: #5d4037"></span> Coffee
-        </button>
-        <button class="theme-option" data-theme="terminal">
-          <span class="theme-color-preview" style="background: #00e676"></span> Terminal
-        </button>
+      <button id="themeSwitcherBtn" class="theme-switcher-btn"><i class="fas fa-palette"></i> Theme Options <i class="fas fa-chevron-down"></i></button>
+      <div id="themePopup" class="theme-popup">
+        <button class="theme-option" data-theme="default"><span class="theme-color-preview" style="background:#3a6ea5"></span> Ocean Blue</button>
+        <button class="theme-option" data-theme="high-contrast"><span class="theme-color-preview" style="background:#000; border:1px solid #fff;"></span> High Contrast</button>
+        <button class="theme-option" data-theme="forest"><span class="theme-color-preview" style="background:#2e7d32"></span> Forest Green</button>
+        <button class="theme-option" data-theme="sunset"><span class="theme-color-preview" style="background:#e65100"></span> Sunset Orange</button>
+        <button class="theme-option" data-theme="lavender"><span class="theme-color-preview" style="background:#7e57c2"></span> Lavender</button>
+        <button class="theme-option" data-theme="rose"><span class="theme-color-preview" style="background:#c2185b"></span> Rose Pink</button>
+        <button class="theme-option" data-theme="slate"><span class="theme-color-preview" style="background:#455a64"></span> Cool Slate</button>
+        <button class="theme-option" data-theme="coffee"><span class="theme-color-preview" style="background:#5d4037"></span> Coffee</button>
+        <button class="theme-option" data-theme="terminal"><span class="theme-color-preview" style="background:#00e676"></span> Terminal</button>
       </div>
     </div>
-  </div>
-
-  <!-- Hamburger Menu -->
-  <div id="hamburgerMenu" aria-label="Toggle navigation menu">
-    <div></div>
-    <div></div>
-    <div></div>
   </div>
 
   <div class="main-content">
     <h1><i class="fas fa-paw"></i> Narberth Dog Walk Status</h1>
     <p>Share your dog walking status with other owners in Narberth to help coordinate walks and avoid busy areas.</p>
 
-    <!-- Map Container -->
-    <div id="mapContainer"></div>
-
-    <!-- Filter Controls -->
     <div class="filter-controls">
       <button class="filter-btn active" data-filter="all">All</button>
       <button class="filter-btn" data-filter="walking">Walking</button>
@@ -100,21 +66,17 @@
 
       <label class="form-full-width">
         Location in Narberth:
-        <div class="map-controls">
-          <input type="text" id="location" required maxlength="50" placeholder="E.g. Narberth Moor, Bloomfield Park" list="narberthLocations" />
-          <datalist id="narberthLocations">
-            <option value="Narberth Moor">
-            <option value="Bloomfield Park">
-            <option value="Narberth High Street">
-            <option value="Narberth Castle">
-            <option value="Narberth Playing Fields">
-            <option value="Narberth Woods">
-            <option value="Narberth Dog Park">
-          </datalist>
-        </div>
+        <input type="text" id="location" required maxlength="50" placeholder="E.g. Narberth Moor, Bloomfield Park" list="narberthLocations" />
+        <datalist id="narberthLocations">
+          <option value="Narberth Moor">
+          <option value="Bloomfield Park">
+          <option value="Narberth High Street">
+          <option value="Narberth Castle">
+          <option value="Narberth Playing Fields">
+          <option value="Narberth Woods">
+          <option value="Narberth Dog Park">
+        </datalist>
       </label>
-
-      <div id="mapSelectionContainer"></div>
 
       <label>
         Walk Time:
@@ -125,11 +87,9 @@
         Dog Status
         <select id="dogStatus" required>
           <option value="Friendly">Friendly with dogs and people</option>
-          <option value="Friendly">Friendly with dogs</option>
-          <option value="Friendly">Friendly with people</option>
           <option value="Nervous">Nervous/Shy</option>
-          <option value="Not Friendly">Not friendly (please keep distance)</option>
-          <option value="Service Dog">Service Dog (do not disturb)</option>
+          <option value="Not Friendly">Not friendly</option>
+          <option value="Service Dog">Service Dog</option>
           <option value="In Training">In Training</option>
         </select>
       </label>
@@ -138,9 +98,9 @@
         Safety Status
         <select id="safetyOptions" required>
           <option value="safe">Safe area</option>
-          <option value="unsafe">Unsafe (recent incidents)</option>
-          <option value="unknown">Unknown safety</option>
-          <option value="busy">Very busy area</option>
+          <option value="unsafe">Unsafe</option>
+          <option value="unknown">Unknown</option>
+          <option value="busy">Very busy</option>
         </select>
       </label>
 
@@ -152,292 +112,96 @@
       <button type="submit"><i class="fas fa-paper-plane"></i> Submit Status</button>
     </form>
 
-    <!-- Loading Spinner -->
-    <div id="loadingSpinner" class="spinner"></div>
+    <div id="loadingSpinner" class="spinner" style="display:none;"></div>
 
-    <h2><i class="fas fa-list-ul"></i> Current Dog Walk Statuses in Narberth</h2>
+    <h2><i class="fas fa-list-ul"></i> Current Dog Walk Statuses</h2>
     <div id="statusList"></div>
 
     <div id="emptyState" class="text-center mt-20 hidden">
       <i class="fas fa-dog" style="font-size: 3rem; color: var(--primary-color);"></i>
       <h3>No walk statuses found in Narberth</h3>
-      <p>Be the first to submit a dog walk status in our town!</p>
+      <p>Be the first to submit one!</p>
     </div>
   </div>
 
-  <!-- Notification -->
-  <div id="notification" class="notification" role="alert" aria-live="assertive">
+  <div id="notification" class="notification" role="alert">
     <i class="fas fa-check-circle"></i>
     <span>Status submitted successfully!</span>
   </div>
 
-  <!-- Flash Message Modal -->
-  <div id="flashModal" class="flash-modal" style="display:none;">
-    <div class="flash-modal-content" id="flashModalContent">
-      <div style="height:400px;overflow-y:auto;" id="flashModalScroll">
-        <center>
-          <h1 style="margin:0;">Welcome</h1>
-          <h3 style="color: dimgrey;">Hey! I’m Oliver, the lead developer for this site.</h3>
-          <p></p>
-          <h3 style="color: dimgray;">
-            We’re a small team of three secondary school students who have spent months working hard on this project.<br>
-            Our goal has been to create a safe and helpful website for dog owners like you.<br><br>
-            
-            Between school, homework, and everything else, we’ve dedicated lots of evenings and weekends to building this platform — all because we care about dogs and want to make a difference.<br><br>
-            
-            We hope you find the site useful and enjoy using it as much as we enjoyed making it.<br>
-            Thanks for stopping by and supporting our work!
-          </h3>
-          <h3 style="color: dimgray;">Please use the site responsibly and let us know if you spot any issues.</h3>
-        </center>
-      </div>
-      <p id="countdownText" style="text-align:center; font-weight:bold; color: dimgray; margin: 10px 0;">Time left until clickable: 10 seconds</p>
-
-      <button id="flashModalOk" disabled>OK</button>
-    </div>
-  </div>
-
-
-  <!-- Firebase SDK and App Logic -->
+  <!-- Firebase and App Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded, onChildRemoved, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, push, onChildAdded, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCtpIJvKHY3x_8x7_m-0QtUMIQ0Gj2blRQ",
       authDomain: "dog-walk-reg.firebaseapp.com",
       databaseURL: "https://dog-walk-reg-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "dog-walk-reg",
-      storageBucket: "dog-walk-reg.appspot.com",
+      storageBucket: "dog-walk-reg.firebasestorage.app",
       messagingSenderId: "806193788108",
       appId: "1:806193788108:web:ac6df92dd5800bd74a3e69",
       measurementId: "G-9Y7PYSP8NP"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
-    const statusListRef = ref(database, 'narberthDogWalkStatuses');
+    const db = getDatabase(app);
+    const statusRef = ref(db, 'narberthDogWalkStatuses');
 
-    // DOM elements
+    const walkForm = document.getElementById('walkForm');
     const statusListEl = document.getElementById('statusList');
     const emptyStateEl = document.getElementById('emptyState');
+    const loadingSpinner = document.getElementById('loadingSpinner');
     const filterButtons = document.querySelectorAll('.filter-btn');
-    const walkForm = document.getElementById('walkForm');
-    const mapContainer = document.getElementById('mapContainer');
-    const selectOnMapBtn = document.getElementById('selectOnMapBtn');
-    const mapSelectionContainer = document.getElementById('mapSelectionContainer');
-    const hamburger = document.getElementById('hamburgerMenu');
-    const sideMenu = document.getElementById('sideMenu');
-
     let currentFilter = 'all';
-    let selectedLatLng = null;
-    let map, marker;
-    let statusMarkers = [];
 
-    // Theme Switching Functionality
-    function applyTheme(themeName) {
-      document.body.className = themeName;
-      localStorage.setItem('selectedTheme', themeName);
-      updateThemeSwitcherUI(themeName);
-    }
-
-    function updateThemeSwitcherUI(themeName) {
-      const themeOptions = document.querySelectorAll('.theme-option');
-      themeOptions.forEach(option => {
-        option.classList.toggle('active', option.dataset.theme === themeName);
-      });
-    }
-
-    // Initialize theme from localStorage or default
-    function initializeTheme() {
-      const savedTheme = localStorage.getItem('selectedTheme') || 'default';
-      applyTheme(savedTheme);
-    }
-
-    // Flash Modal Functionality
-    document.addEventListener('DOMContentLoaded', () => {
-      const hasSeenModal = localStorage.getItem('hasSeenModal');
-      if (!hasSeenModal) {
-        setTimeout(() => {
-          const modal = document.getElementById('flashModal');
-          const okBtn = document.getElementById('flashModalOk');
-          const countdownText = document.getElementById('countdownText');
-
-          modal.style.display = 'flex';
-
-          let timeLeft = 10;
-          countdownText.textContent = `Time left: ${timeLeft} seconds`;
-
-          const countdownInterval = setInterval(() => {
-            timeLeft--;
-            countdownText.textContent = `Time left: ${timeLeft} seconds`;
-
-            if (timeLeft <= 0) {
-              clearInterval(countdownInterval);
-              countdownText.textContent = '';  // Remove countdown text or say "You can now click OK"
-              okBtn.disabled = false;
-            }
-          }, 1000);
-
-          okBtn.addEventListener('click', () => {
-            modal.style.display = 'none';
-            localStorage.setItem('hasSeenModal', 'true');
-          });
-        }, 1000);
-      }
-    });
-
-
-    // Theme switcher event listeners
-    document.querySelectorAll('.theme-option').forEach(option => {
-      option.addEventListener('click', () => {
-        const theme = option.dataset.theme;
-        applyTheme(theme);
-      });
-    });
-
-    // Toggle theme popup
-    document.getElementById('themeSwitcherBtn').addEventListener('click', function() {
-      const popup = document.getElementById('themePopup');
-      const isExpanded = this.getAttribute('aria-expanded') === 'true';
-      this.setAttribute('aria-expanded', !isExpanded);
-      popup.classList.toggle('show', !isExpanded);
-    });
-
-    // Close theme popup when clicking outside
-    document.addEventListener('click', function(e) {
-      const themeBtn = document.getElementById('themeSwitcherBtn');
-      const themePopup = document.getElementById('themePopup');
-      if (!themeBtn.contains(e.target) && !themePopup.contains(e.target)) {
-        themeBtn.setAttribute('aria-expanded', 'false');
-        themePopup.classList.remove('show');
-      }
-    });
-
-    // --- Map Selection for Form ---
-    selectOnMapBtn.addEventListener('click', () => {
-      mapSelectionContainer.innerHTML = `
-        <div id="selectMap" style="height:300px;width:100%;margin:10px 0;"></div>
-        <div id="selectedCoords" style="margin-bottom:10px;color:#333;"></div>
-      `;
-      const selectMap = new google.maps.Map(document.getElementById('selectMap'), {
-        center: { lat: 51.797, lng: -4.742 }, // Narberth
-        zoom: 15
-      });
-      let tempMarker = null;
-      selectMap.addListener('click', (e) => {
-        if (tempMarker) tempMarker.setMap(null);
-        tempMarker = new google.maps.Marker({
-          position: e.latLng,
-          map: selectMap
-        });
-        selectedLatLng = { lat: e.latLng.lat(), lng: e.latLng.lng() };
-        document.getElementById('selectedCoords').textContent =
-          `Selected: ${selectedLatLng.lat.toFixed(5)}, ${selectedLatLng.lng.toFixed(5)}`;
-      });
-    });
-
-    // --- Status Form Submission ---
-    async function handleFormSubmit(e) {
+    walkForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const submitButton = e.target.querySelector('button[type="submit"]');
-      submitButton.disabled = true;
-      document.getElementById('loadingSpinner').style.display = 'block';
+      loadingSpinner.style.display = 'block';
+
+      const data = {
+        status: document.getElementById('walkingStatus').value,
+        location: document.getElementById('location').value.trim(),
+        time: document.getElementById('walkTime').value,
+        dogStatus: document.getElementById('dogStatus').value,
+        safety: document.getElementById('safetyOptions').value,
+        notes: document.getElementById('otherNotes').value.trim(),
+        timestamp: Date.now()
+      };
+
       try {
-        const walkingStatus = document.getElementById('walkingStatus').value;
-        const location = document.getElementById('location').value.trim();
-        const walkTime = document.getElementById('walkTime').value;
-        const dogStatus = document.getElementById('dogStatus').value;
-        const safetyStatus = document.getElementById('safetyOptions').value;
-        const otherNotes = document.getElementById('otherNotes').value.trim();
-        if (!location || !walkTime || !dogStatus || !safetyStatus) {
-          throw new Error('Please fill in all required fields');
-        }
-        const statusData = {
-          status: walkingStatus === 'yes' ? 'Walking' : walkingStatus === 'no' ? 'Not Walking' : 'Planning to walk',
-          location: location,
-          time: walkTime,
-          dogStatus: dogStatus,
-          safety: safetyStatus
-        };
-        if (otherNotes) statusData.notes = otherNotes;
-        if (selectedLatLng) statusData.latlng = selectedLatLng;
-        await push(statusListRef, statusData);
-        showNotification('Status submitted successfully!');
+        await push(statusRef, data);
         walkForm.reset();
-        mapSelectionContainer.innerHTML = '';
-        selectedLatLng = null;
+        showNotification();
       } catch (error) {
         console.error('Error submitting status:', error);
-        showNotification(error.message || 'Error submitting status. Please try again.', true);
       } finally {
-        submitButton.disabled = false;
-        document.getElementById('loadingSpinner').style.display = 'none';
+        loadingSpinner.style.display = 'none';
       }
-    }
+    });
 
-    // --- Status List Rendering ---
-    function createStatusElement(statusData, statusId) {
-      const statusDiv = document.createElement('div');
-      statusDiv.className = `status ${statusData.status.toLowerCase().replace(/ /g, '-')}`;
-      statusDiv.dataset.id = statusId;
-      statusDiv.dataset.status = JSON.stringify(statusData);
-      let notesContent = '';
-      if (statusData.notes) {
-        notesContent = `<p><strong><i class="fas fa-sticky-note status-icon"></i>Notes:</strong> ${statusData.notes}</p>`;
-      }
-      statusDiv.innerHTML = ` 
-        <p><strong><i class="${getStatusIcon(statusData.status)} status-icon"></i>Status:</strong> ${statusData.status}</p>
-        <p><strong><i class="fas fa-map-marker-alt status-icon"></i>Location:</strong> ${statusData.location}</p>
-        <p><strong><i class="far fa-clock status-icon"></i>Time:</strong> ${statusData.time}</p>
-        <p><strong><i class="fas fa-dog status-icon"></i>Dog:</strong> ${statusData.dogStatus}</p>
-        <p><strong><i class="fas fa-shield-alt status-icon"></i>Safety:</strong> <span class="${getSafetyClass(statusData.safety)}">${statusData.safety}</span></p>
-        ${notesContent}
+    function createStatusElement(data) {
+      const el = document.createElement('div');
+      el.className = 'status-entry';
+      el.dataset.status = data.status;
+      el.dataset.dogStatus = data.dogStatus;
+
+      el.innerHTML = `
+      <div class="card">
+        <p><strong><i class="${getStatusIcon(data.status)} status-icon"></i> Status:</strong> ${data.status}</p>
+        <p><strong><i class="fas fa-map-marker-alt status-icon"></i> Location:</strong> ${data.location}</p>
+        <p><strong><i class="far fa-clock status-icon"></i> Time:</strong> ${data.time}</p>
+        <p><strong><i class="fas fa-dog status-icon"></i> Dog:</strong> ${data.dogStatus}</p>
+        <p><strong><i class="fas fa-shield-alt status-icon"></i> Safety:</strong> ${data.safety}</p>
+        ${data.notes ? `<p><strong><i class="fas fa-sticky-note status-icon"></i> Notes:</strong> ${data.notes}</p>` : ''}
+      </div>
       `;
-      return statusDiv;
-    }
-
-    // --- Map Display for Statuses ---
-    function renderStatusMarkers(statuses) {
-      if (!map) {
-        map = new google.maps.Map(mapContainer, {
-          center: { lat: 51.797, lng: -4.742 },
-          zoom: 14
-        });
-      }
-      // Remove old markers
-      statusMarkers.forEach(m => m.setMap(null));
-      statusMarkers = [];
-      Object.entries(statuses).forEach(([statusId, statusData]) => {
-        if (statusData.latlng) {
-          const marker = new google.maps.Marker({
-            position: statusData.latlng,
-            map: map,
-            title: statusData.location
-          });
-          const info = new google.maps.InfoWindow({
-            content: `<strong>${statusData.status}</strong><br>${statusData.location}<br>${statusData.time}`
-          });
-          marker.addListener('click', () => info.open(map, marker));
-          statusMarkers.push(marker);
-        }
-      });
-    }
-
-    // --- Helper Functions ---
-    function getSafetyClass(safetyStatus) {
-      switch(safetyStatus.toLowerCase()) {
-        case 'safe': return 'safety-safe';
-        case 'unsafe': return 'safety-unsafe';
-        case 'busy': return 'safety-unknown';
-        default: return 'safety-unknown';
-      }
+      return el;
     }
 
     function getStatusIcon(status) {
-      switch(status.toLowerCase()) {
+      switch (status.toLowerCase()) {
         case 'walking': return 'fas fa-walking';
         case 'not walking': return 'fas fa-home';
         case 'planning to walk': return 'fas fa-clock';
@@ -445,107 +209,64 @@
       }
     }
 
-    function filterStatuses() {
-      const statuses = document.querySelectorAll('.status');
-      let visibleCount = 0;
-      statuses.forEach(status => {
-        const statusData = JSON.parse(status.dataset.status);
-        let shouldShow = false;
-        switch(currentFilter) {
-          case 'all': shouldShow = true; break;
-          case 'walking': shouldShow = statusData.status === 'Walking'; break;
-          case 'not-walking': shouldShow = statusData.status === 'Not Walking'; break;
-          case 'planning': shouldShow = statusData.status === 'Planning to walk'; break;
-          case 'friendly': shouldShow = statusData.dogStatus.toLowerCase().includes('friendly'); break;
-          case 'service': shouldShow = statusData.dogStatus.toLowerCase().includes('service'); break;
-          default: shouldShow = true;
-        }
-        if (shouldShow) {
-          status.style.display = 'block';
-          visibleCount++;
-        } else {
-          status.style.display = 'none';
-        }
+    function updateEmptyState() {
+      const visible = [...statusListEl.children].some((el) => el.style.display !== 'none');
+      emptyStateEl.classList.toggle('hidden', visible);
+    }
+
+    function applyFilter() {
+      [...statusListEl.children].forEach(el => {
+        const match =
+          currentFilter === 'all' ||
+          el.dataset.status === currentFilter ||
+          el.dataset.dogStatus.toLowerCase().includes(currentFilter);
+        el.style.display = match ? 'block' : 'none';
       });
-      if (visibleCount === 0) {
-        emptyStateEl.classList.remove('hidden');
-      } else {
-        emptyStateEl.classList.add('hidden');
-      }
+      updateEmptyState();
     }
 
-    function showNotification(message, isError = false) {
-      const notification = document.getElementById('notification');
-      notification.querySelector('span').textContent = message;
-      notification.classList.toggle('error', isError);
-      notification.style.display = 'block';
-      setTimeout(() => {
-        notification.style.display = 'none';
-      }, 2500);
-    }
-
-    function initEventListeners() {
-      walkForm.addEventListener('submit', handleFormSubmit);
-      filterButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          filterButtons.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          currentFilter = btn.dataset.filter;
-          filterStatuses();
-        });
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        applyFilter();
       });
-    }
-
-    document.getElementById('hamburgerMenu').addEventListener('click', function() {
-      this.classList.toggle('open');
-      document.getElementById('sideMenu').classList.toggle('open');
     });
 
-    // --- Load Initial Statuses ---
-    async function loadInitialStatuses() {
-      const snapshot = await get(statusListRef);
-      statusListEl.innerHTML = ''; // Clear previous statuses to avoid duplicates
-      if (snapshot.exists()) {
-        const statuses = snapshot.val();
-        Object.entries(statuses).forEach(([statusId, statusData]) => {
-          const statusDiv = createStatusElement(statusData, statusId);
-          statusListEl.insertBefore(statusDiv, statusListEl.firstChild);
-        });
-        renderStatusMarkers(statuses);
-        filterStatuses();
-      }
+    function showNotification() {
+      const notif = document.getElementById('notification');
+      notif.classList.add('show');
+      setTimeout(() => notif.classList.remove('show'), 3000);
     }
 
-    // --- Listen for new status additions ---
-    onChildAdded(statusListRef, (snapshot) => {
-      const statusData = snapshot.val();
-      const statusId = snapshot.key;
-      const statusDiv = createStatusElement(statusData, statusId);
-      statusDiv.style.animation = 'fadeIn 0.5s ease-out forwards';
-      statusDiv.addEventListener('animationend', () => {
-        statusDiv.style.animation = '';
+    onChildAdded(statusRef, (snapshot) => {
+      const data = snapshot.val();
+      const el = createStatusElement(data);
+      statusListEl.prepend(el);
+      applyFilter();
+    });
+
+    // Theme switching logic
+    const themeBtn = document.getElementById('themeSwitcherBtn');
+    const themePopup = document.getElementById('themePopup');
+    const themeOptions = document.querySelectorAll('.theme-option');
+
+    themeBtn.addEventListener('click', () => {
+      themePopup.classList.toggle('active');
+    });
+
+    themeOptions.forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.body.className = btn.dataset.theme;
+        localStorage.setItem('selectedTheme', btn.dataset.theme);
+        themePopup.classList.remove('active');
       });
-      statusListEl.insertBefore(statusDiv, statusListEl.firstChild);
-      // Re-render all markers
-      loadInitialStatuses();
-      filterStatuses();
     });
 
-    // --- Listen for status removals ---
-    onChildRemoved(statusListRef, (snapshot) => {
-      const statusId = snapshot.key;
-      const statusEl = document.querySelector(`.status[data-id="${statusId}"]`);
-      if (statusEl) statusEl.remove();
-      loadInitialStatuses();
-      filterStatuses();
-    });
-
-    // --- Init ---
-    document.addEventListener('DOMContentLoaded', () => {
-      initializeTheme();
-      initEventListeners();
-      loadInitialStatuses();
-    });
+    // Restore saved theme
+    const savedTheme = localStorage.getItem('selectedTheme');
+    if (savedTheme) document.body.className = savedTheme;
   </script>
 </body>
 </html>
