@@ -173,6 +173,7 @@
 
   <!-- Firebase SDK and App Logic -->
   <script type="module">
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, push, onChildAdded, onChildRemoved, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
@@ -209,10 +210,7 @@ let statusMarkers = [];
 
 // --- Map Selection for Form ---
 selectOnMapBtn.addEventListener('click', () => {
-  mapSelectionContainer.innerHTML = `
-    <div id="selectMap" style="height:300px;width:100%;margin:10px 0;"></div>
-    <div id="selectedCoords" style="margin-bottom:10px;color:#333;"></div>
-  `;
+  mapSelectionContainer.innerHTML = '<div id="selectMap" style="height:300px;width:100%;margin:10px 0;"></div>';
   const selectMap = new google.maps.Map(document.getElementById('selectMap'), {
     center: { lat: 51.797, lng: -4.742 }, // Narberth
     zoom: 15
@@ -225,8 +223,6 @@ selectOnMapBtn.addEventListener('click', () => {
       map: selectMap
     });
     selectedLatLng = { lat: e.latLng.lat(), lng: e.latLng.lng() };
-    document.getElementById('selectedCoords').textContent =
-      `Selected: ${selectedLatLng.lat.toFixed(5)}, ${selectedLatLng.lng.toFixed(5)}`;
   });
 });
 
@@ -386,7 +382,6 @@ function initEventListeners() {
 // --- Load Initial Statuses ---
 async function loadInitialStatuses() {
   const snapshot = await get(statusListRef);
-  statusListEl.innerHTML = ''; // Clear previous statuses to avoid duplicates
   if (snapshot.exists()) {
     const statuses = snapshot.val();
     Object.entries(statuses).forEach(([statusId, statusData]) => {
