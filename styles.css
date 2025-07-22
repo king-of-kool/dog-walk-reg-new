@@ -129,8 +129,6 @@ footer {
   }
 }
 
-
-
 /* General Reset */
 body, h1, h2, h3, p, ul, li, form, label, input, select, textarea, button {
   margin: 0; padding: 0; box-sizing: border-box;
@@ -487,6 +485,147 @@ button[type="submit"]:hover {
 .notification.show {
   opacity: 1;
   pointer-events: auto;
+}
+
+/* Empty state */
+.text-center {
+  text-align: center;
+  color: var(--primary-color);
+  margin-top: 3rem;
+}
+
+.mt-20 {
+  margin-top: 20px;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Themes */
+body.high-contrast {
+  --primary-color: #000;
+  --background-color: #fff;
+  --text-color: #000;
+  --card-background: #fff;
+  --accent-color: #ff0000;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+body.forest {
+  --primary-color: #2e7d32;
+  --accent-color: #1b5e20;
+}
+
+body.sunset {
+  --primary-color: #e65100;
+  --accent-color: #bf360c;
+}
+
+body.lavender {
+  --primary-color: #7e57c2;
+  --accent-color: #512da8;
+}
+
+body.rose {
+  --primary-color: #c2185b;
+  --accent-color: #880e4f;
+}
+
+body.slate {
+  --primary-color: #455a64;
+  --accent-color: #263238;
+}
+
+body.coffee {
+  --primary-color: #5d4037;
+  --accent-color: #3e2723;
+}
+
+body.terminal {
+  --primary-color: #00e676;
+  --accent-color: #00c853;
+  --background-color: #000;
+  --text-color: #00e676;
+  --card-background: #121212;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+/* === Mobile Layout Enhancements === */
+@media (max-width: 768px) {
+  #sideMenu {
+    position: fixed;
+    left: -250px;
+    top: 0;
+    height: 100%;
+    z-index: 999;
+    transition: left 0.3s ease;
+  }
+
+  #sideMenu.open {
+    left: 0;
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding: 20px;
+  }
+
+  .filter-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .filter-btn {
+    flex: 1 1 calc(50% - 10px);
+    text-align: center;
+  }
+
+  form#walkForm {
+    padding: 15px;
+  }
+
+  .theme-switcher-btn {
+    font-size: 0.9rem;
+    padding: 8px 10px;
+  }
+
+  .theme-popup {
+    width: 100%;
+    left: 0;
+  }
+
+  .status-cards .card,
+  .status-entry > div {
+    padding: 10px;
+  }
+
+  .main-content h1 {
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
+  .main-content p {
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  #hamburgerMenu {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1000;
+    display: flex;
+  }
+.notification {
+    width: calc(100% - 40px);
+    right: 20px;
+    left: 20px;
+  }
 }
 
 /* Empty state */
