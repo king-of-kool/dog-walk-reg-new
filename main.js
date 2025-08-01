@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
-  getDatabase, ref, push, onChildAdded, update, child
+  getDatabase, ref, push, onChildAdded, update, child, get, set
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -19,6 +19,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   const statusRef = ref(db, 'narberthDogWalkStatuses');
+  const accountsRef = ref(db, 'accounts');
 
   // --- Walk status submission ---
   const walkForm = document.getElementById('walkForm');
@@ -93,7 +94,7 @@ window.addEventListener('DOMContentLoaded', () => {
   onChildAdded(statusRef, snapshot => {
     const data = snapshot.val(), key = snapshot.key;
     const el = createStatusElement(key, data);
-    statusListEl.prepend(el);
+    statusListEl.prepend(el); // This adds new status at the top
     applyFilter();
   });
 
@@ -135,4 +136,61 @@ window.addEventListener('DOMContentLoaded', () => {
     notif.classList.add('show');
     setTimeout(() => notif.classList.remove('show'), 3000);
   }
+
+  // --- Registration ---
+  const registerForm = document.getElementById('registerForm');
+  if (registerForm) {
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('regUsername').value.trim();
+      const password = document.getElementById('regPassword').value;
+      if (!username || !password) return showNotification("Username and password required.");
+
+      // Check if username exists
+      const snapshot = await get(child(accountsRef, username));
+      if (snapshot.exists()) {
+        showNotification("Username already taken.");
+        return;
+      }
+      await set(child(accountsRef, username), { username, password });
+      showNotification("Account created! You can now sign in.");
+      registerForm.reset();
+    });
+  }
+
+  // --- Login ---
+  const loginForm = document.getElementById('loginForm');
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      if (!username || !password) return showNotification("Username and password required.");
+
+      const snapshot = await get(child(accountsRef, username));
+      if (!snapshot.exists() || snapshot.val().password !== password) {
+        showNotification("Invalid username or password.");
+        return;
+      }
+      showNotification(`Welcome, ${username}!`);
+      // You can store username in localStorage/sessionStorage for session management
+      localStorage.setItem('dogWalkUser', username);
+      loginForm.reset();
+    });
+  }
+
+  // --- Authentication Modal ---
+  const authModal = document.getElementById('authModal');
+  const openAuthModalBtn = document.getElementById('openAuthModal');
+  const closeAuthModalBtn = document.getElementById('closeAuthModal');
+
+  openAuthModalBtn.addEventListener('click', () => {
+    authModal.classList.remove('hidden');
+  });
+  closeAuthModalBtn.addEventListener('click', () => {
+    authModal.classList.add('hidden');
+  });
+  window.addEventListener('click', (e) => {
+    if (e.target === authModal) authModal.classList.add('hidden');
+  });
 });

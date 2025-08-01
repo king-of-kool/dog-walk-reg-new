@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <link rel="stylesheet" href="styles.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="manifest" href="/mainfest.json">
   <style>
     .theme-color-preview {
@@ -43,6 +44,10 @@
         <button class="theme-option" data-theme="terminal"><span class="theme-color-preview" style="background:#00e676"></span> Terminal</button>
       </div>
     </div>
+    <!-- Add Account button -->
+    <button id="openAuthModal" class="theme-switcher-btn" style="margin-bottom:1rem;">
+      <i class="fas fa-user"></i> Account
+    </button>
   </div>
 
   <!-- Hamburger Menu -->
@@ -55,6 +60,25 @@
   <div class="main-content">
     <h1><i class="fas fa-paw"></i> Narberth Dog Walk Status</h1>
     <p>Share your dog walking status with other owners in Narberth to help coordinate walks and avoid busy areas.</p>
+
+    <!-- Registration and Login Modal -->
+    <div id="authModal" class="modal hidden">
+      <div class="modal-content">
+        <span id="closeAuthModal" class="close">&times;</span>
+        <form id="registerForm" style="margin-bottom:1rem;">
+          <h3>Create Account</h3>
+          <input type="text" id="regUsername" placeholder="Username" required />
+          <input type="password" id="regPassword" placeholder="Password" required />
+          <button type="submit">Register</button>
+        </form>
+        <form id="loginForm">
+          <h3>Sign In</h3>
+          <input type="text" id="loginUsername" placeholder="Username" required />
+          <input type="password" id="loginPassword" placeholder="Password" required />
+          <button type="submit">Login</button>
+        </form>
+      </div>
+    </div>
 
     <div class="filter-controls">
       <button class="filter-btn active" data-filter="all">All</button>
@@ -88,6 +112,9 @@
           <option value="Narberth Dog Park"></option>
         </datalist>
       </label>
+      <div id="map" style="height: 250px; border-radius: 10px; margin-bottom: 1rem;"></div>
+      <input type="hidden" id="mapLat" />
+      <input type="hidden" id="mapLng" />
 
       <label>
         Walk Time:
@@ -141,13 +168,17 @@
 
   <div id="notification" class="notification" role="alert">
     <i class="fas fa-check-circle"></i>
-    <span>Status submitted successfully!</span>
+    <span id="notifText">Status submitted successfully!</span>
   </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <!-- Firebase and App Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import {
+      getDatabase, ref, push, onChildAdded, update, child, get, set
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCtpIJvKHY3x_8x7_m-0QtUMIQ0Gj2blRQ",
@@ -163,25 +194,13 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const statusRef = ref(db, 'narberthDogWalkStatuses');
+    const accountsRef = ref(db, 'accounts');
 
     const walkForm = document.getElementById('walkForm');
     const statusListEl = document.getElementById('statusList');
     const emptyStateEl = document.getElementById('emptyState');
     const loadingSpinner = document.getElementById('loadingSpinner');
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const hamburger = document.getElementById('hamburgerMenu');
-    const sideMenu = document.getElementById('sideMenu');
     let currentFilter = 'all';
-
-    if ('ServiceWorker' in navigator) {
-      navigator.serviceWorker.register('/service-worker.js')
-        .then(() => console.log("✅ Service Worker Registered"));
-    }
-
-    document.getElementById('hamburgermenu').addEventListener('click', function() {
-      this.classList.toggle('active');
-      document.getElementById('sideMenu').classList.toggle('open');
-    });
 
     walkForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -194,15 +213,18 @@
         dogStatus: document.getElementById('dogStatus').value,
         safety: document.getElementById('safetyOptions').value,
         notes: document.getElementById('otherNotes').value.trim(),
+        lat: document.getElementById('mapLat').value || null,
+        lng: document.getElementById('mapLng').value || null,
         timestamp: Date.now()
       };
 
       try {
         await push(statusRef, data);
         walkForm.reset();
-        showNotification();
+        showNotification("Status submitted successfully!");
       } catch (error) {
         console.error('Error submitting status:', error);
+        showNotification("Error submitting status. Please try again.");
       } finally {
         loadingSpinner.style.display = 'none';
       }
@@ -214,10 +236,15 @@
       el.dataset.status = data.status.toLowerCase();
       el.dataset.dogStatus = data.dogStatus.toLowerCase();
 
+      let mapLink = '';
+      if (data.lat && data.lng) {
+        mapLink = `<a href="https://www.openstreetmap.org/?mlat=${data.lat}&mlon=${data.lng}#map=18/${data.lat}/${data.lng}" target="_blank" style="color:#0077cc;"><i class="fas fa-map-pin"></i> View on Map</a>`;
+      }
+
       el.innerHTML = `
       <div style="background-color: #e0e0de; border-radius: 15px; padding: 10px; margin-bottom: 10px; border: 4px solid #bfbfbd;">
         <p><strong><i class="${getStatusIcon(data.status)} status-icon"></i> Status:</strong> ${data.status}</p>
-        <p><strong><i class="fas fa-map-marker-alt status-icon"></i> Location:</strong> ${data.location}</p>
+        <p><strong><i class="fas fa-map-marker-alt status-icon"></i> Location:</strong> ${data.location} ${mapLink}</p>
         <p><strong><i class="far fa-clock status-icon"></i> Time:</strong> ${data.time}</p>
         <p><strong><i class="fas fa-dog status-icon"></i> Dog:</strong> ${data.dogStatus}</p>
         <p><strong><i class="fas fa-shield-alt status-icon"></i> Safety:</strong> ${data.safety}</p>
@@ -252,17 +279,18 @@
       updateEmptyState();
     }
 
-    filterButtons.forEach(btn => {
+    document.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        filterButtons.forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentFilter = btn.dataset.filter.toLowerCase();
         applyFilter();
       });
     });
 
-    function showNotification() {
+    function showNotification(msg) {
       const notif = document.getElementById('notification');
+      document.getElementById('notifText').textContent = msg;
       notif.classList.add('show');
       setTimeout(() => notif.classList.remove('show'), 3000);
     }
@@ -272,6 +300,62 @@
       const el = createStatusElement(data);
       statusListEl.prepend(el);
       applyFilter();
+    });
+
+    // --- Registration ---
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+      registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('regUsername').value.trim();
+        const password = document.getElementById('regPassword').value;
+        if (!username || !password) return showNotification("Username and password required.");
+
+        // Check if username exists
+        const snapshot = await get(child(accountsRef, username));
+        if (snapshot.exists()) {
+          showNotification("Username already taken.");
+          return;
+        }
+        await set(child(accountsRef, username), { username, password });
+        showNotification("Account created! You can now sign in.");
+        registerForm.reset();
+      });
+    }
+
+    // --- Login ---
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        if (!username || !password) return showNotification("Username and password required.");
+
+        const snapshot = await get(child(accountsRef, username));
+        if (!snapshot.exists() || snapshot.val().password !== password) {
+          showNotification("Invalid username or password.");
+          return;
+        }
+        showNotification(`Welcome, ${username}!`);
+        localStorage.setItem('dogWalkUser', username);
+        loginForm.reset();
+      });
+    }
+
+    // --- Authentication Modal ---
+    const authModal = document.getElementById('authModal');
+    const openAuthModalBtn = document.getElementById('openAuthModal');
+    const closeAuthModalBtn = document.getElementById('closeAuthModal');
+
+    openAuthModalBtn.addEventListener('click', () => {
+      authModal.classList.remove('hidden');
+    });
+    closeAuthModalBtn.addEventListener('click', () => {
+      authModal.classList.add('hidden');
+    });
+    window.addEventListener('click', (e) => {
+      if (e.target === authModal) authModal.classList.add('hidden');
     });
 
     // Theme switching logic
@@ -295,18 +379,65 @@
     themeOptions.forEach(btn => {
       btn.addEventListener('click', () => {
         const theme = btn.dataset.theme;
-        document.body.className = ''; // clear all themes
+        document.body.className = '';
         if (theme !== 'default') document.body.classList.add(theme);
         localStorage.setItem('dogWalkTheme', theme);
         themePopup.classList.remove('show');
       });
     });
 
-    // Load theme from storage on start
     const savedTheme = localStorage.getItem('dogWalkTheme');
     if (savedTheme && savedTheme !== 'default') {
       document.body.classList.add(savedTheme);
     }
+
+    // Hamburger menu logic
+    document.getElementById('hamburgermenu').addEventListener('click', function() {
+      this.classList.toggle('active');
+      document.getElementById('sideMenu').classList.toggle('open');
+    });
+
+    // Service Worker registration
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log("✅ Service Worker Registered"));
+    }
+
+    // --- Leaflet Map Setup ---
+    const map = L.map('map').setView([51.797, -4.742], 15); // Narberth center
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    let marker;
+    map.on('click', function(e) {
+      const { lat, lng } = e.latlng;
+      document.getElementById('mapLat').value = lat;
+      document.getElementById('mapLng').value = lng;
+      if (marker) marker.setLatLng(e.latlng);
+      else marker = L.marker(e.latlng).addTo(map);
+    });
+
+    // Optional: If user enters a known location, pan map there
+    document.getElementById('location').addEventListener('change', function() {
+      const loc = this.value.toLowerCase();
+      const locations = {
+        "narberth moor": [51.7978, -4.7422],
+        "bloomfield park": [51.8002, -4.7410],
+        "narberth high street": [51.7992, -4.7428],
+        "narberth castle": [51.7970, -4.7445],
+        "narberth playing fields": [51.8008, -4.7450],
+        "narberth woods": [51.7960, -4.7460],
+        "narberth dog park": [51.7985, -4.7405]
+      };
+      if (locations[loc]) {
+        map.setView(locations[loc], 16);
+        if (marker) marker.setLatLng(locations[loc]);
+        else marker = L.marker(locations[loc]).addTo(map);
+        document.getElementById('mapLat').value = locations[loc][0];
+        document.getElementById('mapLng').value = locations[loc][1];
+      }
+    });
   </script>
 </body>
 </html>
